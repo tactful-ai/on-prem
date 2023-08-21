@@ -6,7 +6,6 @@ nodes:
   internal_address: 192.168.56.11
   role:
   - controlplane
-  - worker
   - etcd
   hostname_override: k8s-node1
   user: root
@@ -21,9 +20,7 @@ nodes:
   port: "22"
   internal_address: 192.168.56.12
   role:
-  - controlplane
   - worker
-  - etcd
   hostname_override: k8s-node2
   user: root
   docker_socket: /var/run/docker.sock
@@ -37,9 +34,7 @@ nodes:
   port: "22"
   internal_address: 192.168.56.13
   role:
-  - controlplane
   - worker
-  - etcd
   hostname_override: k8s-node3
   user: root
   docker_socket: /var/run/docker.sock
