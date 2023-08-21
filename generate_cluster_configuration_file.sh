@@ -17,12 +17,13 @@ for ((i=0; i<num_nodes; i++)); do
     IFS='|' read -ra info <<< "$node"
 
     ip_address="${info[0]}"
-    user="${info[2]}"
+    user="root"
 
     echo "  - address: $ip_address" >> "$CLUSTER_YML"
     echo "    port: \"22\"" >> "$CLUSTER_YML"
     echo "    user: $user" >> "$CLUSTER_YML"
     echo "    docker_socket: $DOCKER_PATH" >> "$CLUSTER_YML"
+    echo "    ssh_key_path: $SSH_KEY_PATH" >> "$CLUSTER_YML"
 
     # Role configuration
     echo "    role:" >> "$CLUSTER_YML"

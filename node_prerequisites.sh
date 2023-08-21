@@ -3,10 +3,10 @@
 # Load the information from the separate file
 source config.sh
 
-# Delete existing SSH key pair
+# # Delete existing SSH key pair
 # rm -f ~/.ssh/id_rsa*
 
-# Generate SSH key pair without passphrase
+# # Generate SSH key pair without passphrase
 # ssh-keygen -t rsa -b 2048 -N "" -f ~/.ssh/id_rsa
 
 # Read the generated public key
@@ -18,20 +18,26 @@ for ((i=0; i<num_nodes; i++)); do
     IFS='|' read -ra info <<< "$node"
 
     ip_address="${info[0]}"
-    root_password="${info[1]}"
+    password="${info[1]}"
     user="${info[2]}"
+
 
 
     echo "Start preparing node $ip_address"
 
 
-    # Copy public key to the remote node
-    sshpass -p "$root_password" ssh "$user@$ip_address" "echo '$public_key' >> ~/.ssh/authorized_keys"
+    # sshpass -p "$password" ssh "$user@$ip_address" "echo '$public_key' >> ~/.ssh/authorized_keys"
 
+    ssh -tt -i ~/.ssh/id_rsa "$user@$ip_address" << EOF
+        sudo -i
+        echo '$public_key' >> ~/.ssh/authorized_keys
+        exit
+        exit
+EOF
 
 
     # Run commands as root user using 'sudo'
-    sshpass -p "$root_password" ssh -o PubkeyAuthentication=no -tt -i ~/.ssh/id_rsa "$user@$ip_address" << EOF
+    ssh -tt -i ~/.ssh/id_rsa "$user@$ip_address" << EOF
         sudo -i
 
 
@@ -56,7 +62,9 @@ EOL
         docker --version
 
 
-        exit
+
+        nc -l -p port 2379
+
 
         exit
         exit
