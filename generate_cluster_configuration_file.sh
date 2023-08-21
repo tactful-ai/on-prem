@@ -1,41 +1,65 @@
-cluster_name: "Dstny"
-nodes:
-  - address: 20.172.0.249
-    port: "22"
-    user: waer
-    docker_socket: /var/run/docker.sock
-    role:
-      - controlplane
-      - etcd
-    hostname_override: master
+#!/bin/bash
 
-  - address: 20.117.17.58
-    port: "22"
-    user: waer
-    docker_socket: /var/run/docker.sock
-    role:
-      - worker
-    hostname_override: worker-node-1
-
-  - address: 4.236.123.127
-    port: "22"
-    user: waer
-    docker_socket: /var/run/docker.sock
-    role:
-      - worker
-    hostname_override: worker-node-2
+# Load the information from the separate file
+source config.sh
 
 
-kubernetes_version: v1.24.16-rancher1-1
+# Add cluster name to the cluster.yml
+echo "cluster_name: \"${CLUSTER_NAME}\"" > "$CLUSTER_YML"
+
+
+# Start writing the cluster.yml content
+echo "nodes:" >> "$CLUSTER_YML"
+
+# Loop through the node_info array
+for ((i=0; i<num_nodes; i++)); do
+    node="${node_info[$i]}"
+    IFS='|' read -ra info <<< "$node"
+
+    ip_address="${info[0]}"
+    user="${info[2]}"
+
+    echo "  - address: $ip_address" >> "$CLUSTER_YML"
+    echo "    port: \"22\"" >> "$CLUSTER_YML"
+    echo "    user: $user" >> "$CLUSTER_YML"
+    echo "    docker_socket: $DOCKER_PATH" >> "$CLUSTER_YML"
+
+    # Role configuration
+    echo "    role:" >> "$CLUSTER_YML"
+    if [[ $i -eq 0 ]]; then
+        echo "      - controlplane" >> "$CLUSTER_YML"
+        echo "      - etcd" >> "$CLUSTER_YML"
+
+    else
+    echo "      - worker" >> "$CLUSTER_YML"
+    fi
+
+
+    # Hostname override configuration
+    if [[ $i -eq 0 ]]; then
+        echo "    hostname_override: master" >> "$CLUSTER_YML"
+    else
+        echo "    hostname_override: worker-node-$i" >> "$CLUSTER_YML"
+    fi
+
+    echo "" >> "$CLUSTER_YML"
+done
+
+
+
+# Append the rest of the configuration
+cat << EOF >> "$CLUSTER_YML"
+
+kubernetes_version: ${KUBERNETES_VERSION}
 
 ignore_docker_version: false
 
-ssh_key_path: ~/.ssh/id_rsa
+ssh_key_path: ${SSH_KEY_PATH}
 
 ssh_agent_auth: false
 
 network:
-  plugin: calico
+  plugin: ${NETWORK_PLUGIN}
   options: {}
 
 services:
@@ -152,3 +176,6 @@ system_images:
 
 addons: ""
 addons_include: []
+EOF
+
+echo "Generated $CLUSTER_YML"
