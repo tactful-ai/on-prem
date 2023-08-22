@@ -46,6 +46,12 @@
 
   # Install docker engine
 
+
+    - name: Update package lists
+      apt:
+        update_cache: yes
+        force_apt_get: true
+
     - name: Install Required Packages
       apt:
         name:
@@ -55,6 +61,8 @@
           - open-iscsi
           - nfs-common
         state: present
+        force_apt_get: true
+
 
     - name: Create Docker keyrings directory
       file:
@@ -83,6 +91,7 @@
     - name: Update package lists
       apt:
         update_cache: yes
+        force_apt_get: true
 
     - name: Install Docker packages
       apt:
@@ -93,6 +102,7 @@
           - docker-buildx-plugin
           - docker-compose-plugin
         state: present
+        force_apt_get: true
 
     - name: Add user to the docker group
       user:
