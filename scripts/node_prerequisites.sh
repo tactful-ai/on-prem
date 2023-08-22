@@ -3,9 +3,6 @@
 # Load the information from the separate file
 source config.sh
 
-
-
-
 # Delete existing SSH key pair
 rm -f ~/.ssh/id_rsa*
 
@@ -30,22 +27,18 @@ for ((i=0; i<num_nodes; i++)); do
 
 
     if [[ $CONNECTION_WAY -eq 0 ]]; then
+        echo "Using password"
         sshpass -p "$password" ssh "$user@$ip_address" "echo '$public_key' >> ~/.ssh/authorized_keys"
     else
-        ssh -tt -i ~/.ssh/id_rsa "$user@$ip_address" "echo '$public_key' >> ~/.ssh/authorized_keys"
+        echo "using ssh"
+        ssh -tt -i "$password" "$user@$ip_address" "echo '$public_key' >> ~/.ssh/authorized_keys"
     fi
-
-
-
-    ssh -tt -i ~/.ssh/id_rsa "$user@$ip_address" << EOF
-        sudo -i
-
-        exit
-EOF
-
 
     echo "Preparation completed for node $ip_address"
 done
 
+source ./scripts/generate_inventory.sh
 
-# ansible-playbook -i ./ansible-playbook/inventory.yml ./ansible-playbook/setup.yml
+ansible-playbook -i ./playbooks/inventory.yml ./playbooks/cluster_nodes_prerequisites.yml
+
+ansible-playbook -i ./playbooks/inventory.yml ./playbooks/jump_server_prerequisites.yml
