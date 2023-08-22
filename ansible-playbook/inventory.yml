@@ -1,0 +1,8 @@
+all:
+  hosts:
+    20.172.0.249:
+    20.117.17.58:
+    4.236.123.127:
+  vars:
+    ansible_ssh_user: waer
+    ansible_ssh_pass: waer1234Waer

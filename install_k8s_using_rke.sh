@@ -14,7 +14,6 @@ if ! command -v rke &>/dev/null; then
     sudo apt install -y wget
 
     # Download the rke binary
-    RKE_VERSION="v1.4.8"  # this is lts
     wget "https://github.com/rancher/rke/releases/download/$RKE_VERSION/rke_linux-amd64" -O rke
     chmod +x rke
 
