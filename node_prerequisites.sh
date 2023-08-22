@@ -26,7 +26,7 @@ for ((i=0; i<num_nodes; i++)); do
     echo "Start preparing node $ip_address"
 
 
-    # sshpass -p "$password" ssh "$user@$ip_address" "echo '$public_key' >> ~/.ssh/authorized_keys"
+    sshpass -p "$password" ssh "$user@$ip_address" "echo '$public_key' >> ~/.ssh/authorized_keys"
 
     ssh -tt -i ~/.ssh/id_rsa "$user@$ip_address" << EOF
         sudo -i
@@ -35,9 +35,9 @@ for ((i=0; i<num_nodes; i++)); do
         exit
 EOF
 
-
+VERSION_STRING="5:20.10.20~3-0~ubuntu-jammy"
     # Run commands as root user using 'sudo'
-    ssh -tt -i ~/.ssh/id_rsa "$user@$ip_address" << EOF
+    ssh -tt -i ~/.ssh/id_rsa "root@$ip_address" << EOF
         sudo -i
 
 
@@ -45,25 +45,35 @@ EOF
 
 
 
-        cat >>/etc/sysctl.d/kubernetes.conf<<EOL
-            net.bridge.bridge-nf-call-ip6tables = 1
-            net.bridge.bridge-nf-call-iptables = 1
-EOL
+#         cat >>/etc/sysctl.d/kubernetes.conf<<EOL
+#             net.bridge.bridge-nf-call-ip6tables = 1
+#             net.bridge.bridge-nf-call-iptables = 1
+# EOL
         sysctl --system
 
 
+        sudo systemctl stop docker
+        sudo systemctl disable docker
+
+
+        sudo apt-get purge docker-ce docker-ce-cli containerd.io
+
+
+
+        sudo rm -rf /var/lib/docker
+        sudo rm -rf /etc/docker
+
+        sudo rm -f /etc/apt/sources.list.d/docker.list
+        sudo rm -f /usr/share/keyrings/docker-archive-keyring.gpg
 
         sudo apt-get update
+        sudo apt-get install ca-certificates curl gnupg
 
-        sudo apt install docker.io -y
+        sudo apt install docker.io
 
-        sudo snap install docker
+        docker -v
 
-        docker --version
-
-
-
-        nc -l -p port 2379
+        # nc -l -p port 2379
 
 
         exit

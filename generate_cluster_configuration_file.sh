@@ -30,7 +30,6 @@ for ((i=0; i<num_nodes; i++)); do
     if [[ $i -eq 0 ]]; then
         echo "      - controlplane" >> "$CLUSTER_YML"
         echo "      - etcd" >> "$CLUSTER_YML"
-
     else
     echo "      - worker" >> "$CLUSTER_YML"
     fi
@@ -128,52 +127,6 @@ monitoring:
   provider: metrics-server
   update_strategy:
     strategy: RollingUpdate
-
-
-system_images:
-  etcd: rancher/mirrored-coreos-etcd:v3.5.6
-  alpine: rancher/rke-tools:v0.1.89
-  nginx_proxy: rancher/rke-tools:v0.1.89
-  cert_downloader: rancher/rke-tools:v0.1.89
-  kubernetes_services_sidecar: rancher/rke-tools:v0.1.89
-  kubedns: rancher/mirrored-k8s-dns-kube-dns:1.22.20
-  dnsmasq: rancher/mirrored-k8s-dns-dnsmasq-nanny:1.22.20
-  kubedns_sidecar: rancher/mirrored-k8s-dns-sidecar:1.22.20
-  kubedns_autoscaler: rancher/mirrored-cluster-proportional-autoscaler:1.8.6
-  coredns: rancher/mirrored-coredns-coredns:1.9.4
-  coredns_autoscaler: rancher/mirrored-cluster-proportional-autoscaler:1.8.6
-  nodelocal: rancher/mirrored-k8s-dns-node-cache:1.22.20
-  kubernetes: rancher/hyperkube:v1.26.7-rancher1
-  flannel: rancher/mirrored-flannel-flannel:v0.21.4
-  flannel_cni: rancher/flannel-cni:v0.3.0-rancher8
-  calico_node: rancher/mirrored-calico-node:v3.25.0
-  calico_cni: rancher/calico-cni:v3.25.0-rancher1
-  calico_controllers: rancher/mirrored-calico-kube-controllers:v3.25.0
-  calico_ctl: rancher/mirrored-calico-ctl:v3.25.0
-  calico_flexvol: rancher/mirrored-calico-pod2daemon-flexvol:v3.25.0
-  canal_node: rancher/mirrored-calico-node:v3.25.0
-  canal_cni: rancher/calico-cni:v3.25.0-rancher1
-  canal_controllers: rancher/mirrored-calico-kube-controllers:v3.25.0
-  canal_flannel: rancher/mirrored-flannel-flannel:v0.21.4
-  canal_flexvol: rancher/mirrored-calico-pod2daemon-flexvol:v3.25.0
-  weave_node: weaveworks/weave-kube:2.8.1
-  weave_cni: weaveworks/weave-npc:2.8.1
-  pod_infra_container: rancher/mirrored-pause:3.7
-  ingress: rancher/nginx-ingress-controller:nginx-1.7.0-rancher1
-  ingress_backend: rancher/mirrored-nginx-ingress-controller-defaultbackend:1.5-rancher1
-  ingress_webhook: rancher/mirrored-ingress-nginx-kube-webhook-certgen:v20230312-helm-chart-4.5.2-28-g66a760794
-  metrics_server: rancher/mirrored-metrics-server:v0.6.3
-  windows_pod_infra_container: rancher/mirrored-pause:3.7
-  aci_cni_deploy_container: noiro/cnideploy:5.2.7.1.81c2369
-  aci_host_container: noiro/aci-containers-host:5.2.7.1.81c2369
-  aci_opflex_container: noiro/opflex:5.2.7.1.81c2369
-  aci_mcast_container: noiro/opflex:5.2.7.1.81c2369
-  aci_ovs_container: noiro/openvswitch:5.2.7.1.81c2369
-  aci_controller_container: noiro/aci-containers-controller:5.2.7.1.81c2369
-  aci_gbp_server_container: noiro/gbp-server:5.2.7.1.81c2369
-  aci_opflex_server_container: noiro/opflex-server:5.2.7.1.81c2369
-
-
 
 addons: ""
 addons_include: []
