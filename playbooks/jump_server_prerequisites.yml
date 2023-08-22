@@ -1,0 +1,26 @@
+- name: Install yq and rke
+  hosts: local_device
+  become: true
+
+  vars:
+    rke_version: "v1.4.8"
+
+  tasks:
+
+    - name: Install yq
+      apt:
+        name: yq
+        state: present
+
+    - name: Check if RKE is installed
+      stat:
+        path: /usr/local/bin/rke
+      register: rke_installed
+
+
+    - name: Download and Install RKE
+      shell: |
+        wget https://github.com/rancher/rke/releases/download/{{ rke_version }}/rke_linux-amd64
+        chmod +x rke_linux-amd64
+        sudo mv rke_linux-amd64 /usr/local/bin/rke
+      when: not rke_installed.stat.exists
