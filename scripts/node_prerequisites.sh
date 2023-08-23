@@ -3,10 +3,13 @@
 # Load the information from the separate file
 source config.sh
 
+
 # Delete existing SSH key pair
+echo "Deleting existing SSH key pair"
 rm -f ~/.ssh/id_rsa*
 
 # Generate SSH key pair without passphrase
+echo "Generating SSH key pair without passphrase"
 ssh-keygen -t rsa -b 2048 -N "" -f ~/.ssh/id_rsa
 
 # Read the generated public key
@@ -22,17 +25,21 @@ for ((i=0; i<num_nodes; i++)); do
     user="${info[2]}"
 
 
-
     echo "Start preparing node $ip_address"
+
+    # Run ssh-keyscan and append the key to known_hosts
+    echo "Running ssh-keyscan to get the public key from $ip_address..."
+    ssh-keyscan "$ip_address" >> ~/.ssh/known_hosts
 
 
     if [[ $CONNECTION_WAY -eq 0 ]]; then
         echo "Using password"
-        sshpass -p "$password" ssh "$user@$ip_address" "echo '$public_key' >> ~/.ssh/authorized_keys"
+        sshpass -p "$password" ssh-copy-id "$user@$ip_address"
     else
         echo "using ssh"
         ssh -tt -i "$password" "$user@$ip_address" "echo '$public_key' >> ~/.ssh/authorized_keys"
     fi
+
 
     echo "Preparation completed for node $ip_address"
 done
@@ -42,3 +49,6 @@ source ./scripts/generate_inventory.sh
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/cluster_nodes_prerequisites.yml
 
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/jump_server_prerequisites.yml
+
+
+
