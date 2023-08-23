@@ -17,8 +17,6 @@
     - name: Turn off swap
       shell: swapoff -a
 
-
-
 # Update sysctl settings for Kubernetes networking
     - name: Create sysctl directory
       file:
@@ -46,23 +44,11 @@
 
   # Install docker engine
 
+    - name: Update package lists
+      command: apt-get update
 
     - name: Update package lists
-      apt:
-        update_cache: yes
-        force_apt_get: true
-
-    - name: Install Required Packages
-      apt:
-        name:
-          - ca-certificates
-          - curl
-          - gnupg
-          - open-iscsi
-          - nfs-common
-        state: present
-        force_apt_get: true
-
+      command: sudo apt-get install ca-certificates curl gnupg
 
     - name: Create Docker keyrings directory
       file:
@@ -74,35 +60,25 @@
       shell: rm -f /etc/apt/keyrings/docker.gpg
       ignore_errors: yes
 
-    - name: Download Docker GPG key
-      shell: "curl -fSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
+    - name: Add Docker APT repository
+      shell: |
+       curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
     - name: Set permissions on Docker GPG key
       file:
         path: /etc/apt/keyrings/docker.gpg
         mode: '0644'
 
-    - name: Add Docker APT repository
-      lineinfile:
-        path: /etc/apt/sources.list.d/docker.list
-        line: "deb [arch=\"{{ ansible_architecture }}\" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
-        create: yes
+    - name: Add Docker APT repository22222
+      shell: |
+        echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu" $(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     - name: Update package lists
-      apt:
-        update_cache: yes
-        force_apt_get: true
+      command: sudo apt-get update
 
-    - name: Install Docker packages
-      apt:
-        name:
-          - docker-ce={{ docker_version }}
-          - docker-ce-cli={{ docker_version }}
-          - containerd.io
-          - docker-buildx-plugin
-          - docker-compose-plugin
-        state: present
-        force_apt_get: true
+
+    - name: Update package lists
+      command: sudo apt-get install docker-ce={{ docker_version }} docker-ce-cli={{ docker_version }} containerd.io docker-buildx-plugin docker-compose-plugin -y
 
     - name: Add user to the docker group
       user:
