@@ -44,11 +44,19 @@ for ((i=0; i<num_nodes; i++)); do
     echo "Preparation completed for node $ip_address"
 done
 
+if ! command -v yq &>/dev/null; then
+    wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.34.2/yq_linux_amd64
+    chmod +x /usr/local/bin/yq
+else
+    echo "YQq is already installed."
+fi
+
 source ./scripts/generate_inventory.sh
+
+ansible-playbook -i ./playbooks/inventory.yml ./playbooks/jump_server_prerequisites.yml
 
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/cluster_nodes_prerequisites.yml
 
-ansible-playbook -i ./playbooks/inventory.yml ./playbooks/jump_server_prerequisites.yml
 
 
 

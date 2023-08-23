@@ -9,28 +9,6 @@
 
     - name: Check if RKE is installed
       stat:
-        path: /usr/local/bin/yq
-      register: yq_installed
-
-
-    - name: Download yq binary
-      shell: wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-      args:
-        executable: /bin/bash
-      when: not yq_installed.stat.exists
-
-
-    - name: Make yq binary executable
-      file:
-        path: /usr/local/bin/yq
-        mode: '0755'
-      when: not yq_installed.stat.exists
-
-    - name: Display yq version
-      shell: yq --version
-
-    - name: Check if RKE is installed
-      stat:
         path: /usr/local/bin/rke
       register: rke_installed
 
