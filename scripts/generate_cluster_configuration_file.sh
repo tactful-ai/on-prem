@@ -25,7 +25,7 @@ for ((i=0; i<num_nodes; i++)); do
     IFS='|' read -ra info <<< "$node"
 
     ip_address="${info[0]}"
-    user="root"
+    user="${info[2]}"
 
     # Set node information
     yq eval ".nodes[$i].address = \"$ip_address\"" -i "$YAML_FILE"

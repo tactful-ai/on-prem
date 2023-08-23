@@ -1,0 +1,19 @@
+local_device:
+  hosts:
+    localhost:
+      ansible_connection: local
+      ansible_become_pass: waer1
+external_vms:
+  hosts:
+    node1:
+      ansible_host: 20.163.46.22
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      ansible_ssh_user: waer
+    node2:
+      ansible_host: 20.118.171.190
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      ansible_ssh_user: waer
+    node3:
+      ansible_host: 52.252.105.7
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      ansible_ssh_user: waer

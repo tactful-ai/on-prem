@@ -34,7 +34,7 @@ for ((i=0; i<num_nodes; i++)); do
 
     if [[ $CONNECTION_WAY -eq 0 ]]; then
         echo "Using password"
-        sshpass -p "$password" ssh-copy-id "$user@$ip_address"
+        sshpass -p "$password" ssh-copy-id -o PubkeyAuthentication=no "$user@$ip_address"
     else
         echo "using ssh"
         ssh -tt -i "$password" "$user@$ip_address" "echo '$public_key' >> ~/.ssh/authorized_keys"
@@ -48,7 +48,7 @@ if ! command -v yq &>/dev/null; then
     wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.34.2/yq_linux_amd64
     chmod +x /usr/local/bin/yq
 else
-    echo "YQq is already installed."
+    echo "YQ is already installed."
 fi
 
 source ./scripts/generate_inventory.sh

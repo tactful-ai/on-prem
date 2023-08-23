@@ -135,9 +135,33 @@ dns:
     min: 2
     max: 3
 
+--------------------------------------------------------------------------------
 
+we need to open ports for rke
+    Control Plane Node Ports:
+        TCP 6443: Kubernetes API Server + + as outbound also
 
+    Worker Node Ports:
+        TCP 10250: Kubelet API (secure communication between control plane and worker nodes)
+        TCP 10251: Kube-Scheduler
+        TCP 10252: Kube-Controller-Manager
 
+    Control Plane and Worker Node Ports:
+        TCP 2379-2380: etcd (for cluster state storage)
+        TCP 8472: Flannel (for networking)
+
+    Load Balancer Ports (if using an external load balancer):
+        TCP 80: HTTP API Server (for Rancher UI)
+        TCP 443: HTTPS API Server (for Rancher UI)
+        TCP 30776-32767: NodePort Services (if using NodePort type services)
+
+--------------------------------------------------------------------------------
+
+we need the internal ip of the nodes be diffrent
+
+--------------------------------------------------------------------------------
+
+https://docs.tigera.io/archive/v3.8/reference/node/configuration#interfaceinterface-regex
 
 
 
