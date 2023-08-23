@@ -17,6 +17,7 @@ echo "" > "$INVENTORY_FILE"
 
 # Start building the YAML content using yq
 yq eval '.local_device.hosts.localhost.ansible_connection = "local"' -i "$INVENTORY_FILE"
+yq eval ".local_device.hosts.localhost.ansible_become_pass = \"$sudo_password\"" -i "$INVENTORY_FILE"
 
 
 for ((i=0; i<num_nodes; i++)); do

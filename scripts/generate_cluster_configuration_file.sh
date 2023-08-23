@@ -58,7 +58,7 @@ yq eval ".ignore_docker_version = false" -i "$YAML_FILE"
 
 # Set SSH key path and agent authorization
 yq eval ".ssh_key_path = \"${SSH_KEY_PATH}\"" -i "$YAML_FILE"
-yq eval ".ssh_agent_auth = \"${SSH_AGENT_AUTH}\"" -i "$YAML_FILE"
+yq eval ".ssh_agent_auth = ${SSH_AGENT_AUTH}" -i "$YAML_FILE"
 
 # Set network plugin and options
 yq eval ".network.plugin = \"${NETWORK_PLUGIN}\" | .network.options = {}" -i "$YAML_FILE"
