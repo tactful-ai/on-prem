@@ -2,7 +2,12 @@
 
 # Load the information from the separate file
 source config.sh
+source ./secrets/vms_info.sh
 
+
+if [[ "$HAVE_DEFAULT_PASSWORD" == "true" ]]; then
+    bash ./scripts/change_default_password.sh
+fi
 
 # Delete existing SSH key pair
 echo "Deleting existing SSH key pair"
@@ -21,8 +26,13 @@ for ((i=0; i<num_nodes; i++)); do
     IFS='|' read -ra info <<< "$node"
 
     ip_address="${info[0]}"
-    password="${info[1]}"
     user="${info[2]}"
+
+    if [[ "$HAVE_DEFAULT_PASSWORD" == "true" ]]; then
+        password="${NEW_MACHINES_PASSWORD}"
+    else
+        password="${info[1]}"
+    fi
 
 
     echo "Start preparing node $ip_address"

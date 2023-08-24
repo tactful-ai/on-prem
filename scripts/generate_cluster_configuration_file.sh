@@ -2,6 +2,8 @@
 
 # Load the information from the separate file
 source config.sh
+source ./secrets/vms_info.sh
+
 
 YAML_FILE=$CLUSTER_YML
 
