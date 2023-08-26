@@ -9,10 +9,6 @@
 
   tasks:
 
-# Disable the firewall
-    - name: Disable UFW
-      shell: ufw disable
-
 # shutdown the swap
     - name: Turn off swap
       shell: swapoff -a
