@@ -1,95 +1,93 @@
----
 - name: Configure Servers
   hosts: external_vms
   gather_facts: yes
   become: yes
 
   tasks:
+
+    - name: Set logging
+      ufw:
+        logging: 'on'
+
+
     - name: Allow Control Plane Node Ports
-      iptables:
-        chain: INPUT
-        protocol: tcp
-        destination_port: "{{ item }}"
-        jump: ACCEPT
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
       loop:
         - 6443
 
     - name: Allow Kubelet API Port
-      iptables:
-        chain: INPUT
-        protocol: tcp
-        destination_port: "{{ item }}"
-        jump: ACCEPT
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "tcp"
       loop:
         - 10250
 
     - name: Allow Kube-Scheduler Port
-      iptables:
-        chain: INPUT
-        protocol: tcp
-        destination_port: "{{ item }}"
-        jump: ACCEPT
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "tcp"
       loop:
         - 10251
 
     - name: Allow Kube-Controller-Manager Port
-      iptables:
-        chain: INPUT
-        protocol: tcp
-        destination_port: "{{ item }}"
-        jump: ACCEPT
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "tcp"
       loop:
         - 10252
 
     - name: Allow etcd Ports
-      iptables:
-        chain: INPUT
-        protocol: tcp
-        destination_port: "{{ item }}"
-        jump: ACCEPT
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "any"
       loop:
         - 2379
         - 2380
 
     - name: Allow Flannel Port
-      iptables:
-        chain: INPUT
-        protocol: udp
-        destination_port: "{{ item }}"
-        jump: ACCEPT
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "udp"
       loop:
         - 8472
 
     - name: Allow HTTP API Server Port
-      iptables:
-        chain: INPUT
-        protocol: tcp
-        destination_port: "{{ item }}"
-        jump: ACCEPT
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "tcp"
       loop:
         - 80
 
     - name: Allow HTTPS API Server Port
-      iptables:
-        chain: INPUT
-        protocol: tcp
-        destination_port: "{{ item }}"
-        jump: ACCEPT
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "tcp"
       loop:
         - 443
 
+
+    - name: Allow SSH
+      ufw:
+        rule: allow
+        port: 22
+        comment: "Allow SSH"
+
     # - name: Allow NodePort Services Ports
-    #   iptables:
-    #     chain: INPUT
-    #     protocol: tcp
-    #     destination_port: "{{ item }}"
-    #     jump: ACCEPT
-    #   with_sequence: start=30776 end=30867
+    #   ufw:
+    #     rule: allow
+    #     port: 30776:32767
+    #     proto: "tcp"
 
-    - name: Install iptables-persistent
-      apt:
-        name: iptables-persistent
-        state: present
-
-    - name: Save the current iptables rules using iptables-persistent
-      shell: iptables-save > /etc/iptables/rules.v4
+    # - name: Enable UFW
+    #   ufw:
+    #     state: enabled
