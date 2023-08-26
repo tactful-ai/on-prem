@@ -76,6 +76,14 @@
         - 443
 
 
+    - name: Allow TCP for metalLB
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "tcp"
+      loop:
+        - 7946
+
     - name: Allow SSH
       ufw:
         rule: allow
