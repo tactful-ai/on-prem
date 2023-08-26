@@ -1,5 +1,9 @@
 #!/bin/bash
 
+sudo apt-get update
+
+sudo apt-get install expect
+
 source ./secrets/vms_info.sh
 
 new_password="${NEW_MACHINES_PASSWORD}"
@@ -28,20 +32,20 @@ for ((i = 0; i < num_nodes; i++)); do
     set timeout 200
     spawn ssh $env(username)@$env(ip_address)
     sleep 1
-    expect "Password:" { send "$env(current_password)\r" }
+    expect "*?assword:" { send "$env(current_password)\r" }
     sleep 1
-    expect "*?assword" { send "$env(current_password)\r" }
+    expect "*?assword:" { send "$env(current_password)\r" }
     sleep 1
-    expect "*?assword" { send "$env(new_password)\r" }
+    expect "*?assword:" { send "$env(new_password)\r" }
     sleep 1
-    expect "*?assword" { send "$env(new_password)\r" }
+    expect "*?assword:" { send "$env(new_password)\r" }
     sleep 3
     send "exit\r"
     expect eof
 EOS
 
     # Update the password in the node_info array
-    node_info[$i]="$ip_address|$new_password|$user|$node_name"
+    echo "#node_info[$i]=\"$ip_address|$new_password|$user|$node_name\"" >> ./secrets/vms_info.sh
 
     echo "Changing password completed for node $ip_address"
     echo
