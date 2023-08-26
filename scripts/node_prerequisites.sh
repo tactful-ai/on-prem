@@ -5,10 +5,6 @@ source config.sh
 source ./secrets/vms_info.sh
 
 
-if [[ "$HAVE_DEFAULT_PASSWORD" == "true" ]]; then
-    bash ./scripts/change_default_password.sh
-fi
-
 # Delete existing SSH key pair
 echo "Deleting existing SSH key pair"
 rm -f ~/.ssh/id_rsa*
@@ -24,22 +20,17 @@ public_key=$(cat ~/.ssh/id_rsa.pub)
 for ((i=0; i<num_nodes; i++)); do
     node="${node_info[$i]}"
     IFS='|' read -ra info <<< "$node"
-
+    password="${info[1]}"
     ip_address="${info[0]}"
     user="${info[2]}"
-
-    if [[ "$HAVE_DEFAULT_PASSWORD" == "true" ]]; then
-        password="${NEW_MACHINES_PASSWORD}"
-    else
-        password="${info[1]}"
-    fi
-
 
     echo "Start preparing node $ip_address"
 
     # Run ssh-keyscan and append the key to known_hosts
     echo "Running ssh-keyscan to get the public key from $ip_address..."
     ssh-keyscan "$ip_address" >> ~/.ssh/known_hosts
+
+
 
 
     if [[ $CONNECTION_WAY -eq 0 ]]; then
@@ -67,6 +58,7 @@ ansible-playbook -i ./playbooks/inventory.yml ./playbooks/jump_server_prerequisi
 
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/cluster_nodes_prerequisites.yml
 
+ansible-playbook -i ./playbooks/inventory.yml ./playbooks/cluster_nodes_ports_configuration.yml
 
 
 
