@@ -80,37 +80,29 @@ yq eval '.authentication = {"strategy": "x509"}' -i "$YAML_FILE"
 yq eval '.authorization = {"mode": "rbac"}' -i "$YAML_FILE"
 
 # Set Ingress provider and options
-yq eval '.ingress = {"provider": "nginx", "options": {}}' -i "$YAML_FILE"
+yq eval ".ingress = {\"provider\": \"${INGRESS_PROVIDER}\", \"network_mode\": \"${INGRESS_NETWORK_MODE}\"}" -i "$YAML_FILE"
+
 
 # Set DNS configurations
 yq eval '.dns = {
-  "provider": "coredns",
-  "update_strategy":
-  {
-    "strategy": "RollingUpdate",
-    "rollingUpdate":
-    {
-      "maxUnavailable": "20%",
-       "maxSurge": "15%"
-    }
-  },
-    "linear_autoscaler_params":
-    {
-    "cores_per_replica": 0.34,
-    "nodes_per_replica": 3,
-    "prevent_single_point_failure": true,
-    "min": 1,
-    "max": 2
-  }
+  "provider": "coredns"
 }' -i "$YAML_FILE"
 
 # Set monitoring provider and strategy
 yq eval '.monitoring = {"provider": "metrics-server", "update_strategy": {"strategy": "RollingUpdate"}}' -i "$YAML_FILE"
 
-# Set empty addons
-yq eval ".addons = \"\"" -i "$YAML_FILE"
+for addon_file in ${ADDONS_DIRECTORY}/*; do
+    # Add the content of the addon file to the cluster.yml
+    yq eval ".addons = \"\\n$(cat $addon_file)\\n---\"" -i "$YAML_FILE"
+done
 
 # Set empty addons_include
 yq eval '.addons_include = []' -i "$YAML_FILE"
 
+for range in "${RKE_ADDONS_INCLUDE[@]}"; do
+    yq eval --inplace '.addons_include += ["'"${range}"'"]' -i "$YAML_FILE"
+done
+
 echo "Generated $CLUSTER_YML"
+
+
