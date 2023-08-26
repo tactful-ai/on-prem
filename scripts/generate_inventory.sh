@@ -27,8 +27,11 @@ for ((i=0; i<num_nodes; i++)); do
     hostname=${info[3]}
     ansible_host="${info[0]}"
     ansible_ssh_user="${info[2]}"
+    root_password="${info[1]}"
+    echo "Adding $hostname to the inventory file"
 
     yq eval ".external_vms.hosts.$hostname.ansible_host = \"$ansible_host\"" -i "$INVENTORY_FILE"
     yq eval ".external_vms.hosts.$hostname.ansible_ssh_private_key_file = \"$SSH_KEY_PATH\"" -i "$INVENTORY_FILE"
     yq eval ".external_vms.hosts.$hostname.ansible_ssh_user = \"$ansible_ssh_user\"" -i "$INVENTORY_FILE"
+    yq eval ".external_vms.hosts.$hostname.ansible_become_pass = \"$root_password\"" -i "$INVENTORY_FILE"
 done
