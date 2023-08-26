@@ -1,7 +1,4 @@
 #!/bin/bash
-# config.sh
-
-# we need to open ports 10250, 2379 on all nodes and disable firewall for them
 
 
 
@@ -10,22 +7,6 @@
 sudo_password="waer1"
 
 ANSIBLE_INVENTORY_FILE="./playbooks/inventory.yml"
-
-
-# --------------------- Nodes info Section ------------------
-
-# it can be PASSWORD=0 or SSH_KEY=1
-CONNECTION_WAY=0
-
-# Number of nodes
-num_nodes=3
-
-# Node information array
-declare -a node_info
-
-# Populate the node_info array with node information
-# node_info[0]="ip_address|password|user|node_name" in case of using password
-# node_info[0]="ip_address|ssh_key_path|user|node_name" in case of using ssh key
 
 
 
@@ -37,16 +18,39 @@ CLUSTER_YML="./cluster_configurations/cluster.yml"
 CLUSTER_NAME="Dstny"
 
 # Specify the desired Kubernetes version
-KUBERNETES_VERSION="v1.24.16-rancher1-1"
-
+KUBERNETES_VERSION="v1.26.7-rancher1-1"
 
 DOCKER_PATH="/var/run/docker.sock"
 
 # LOOK AT IMPORTANT NOTE TO FIND ALL TYPES
-NETWORK_PLUGIN="calico"
+NETWORK_PLUGIN="flannel"
 
 
 SSH_KEY_PATH="~/.ssh/id_rsa"
 SSH_AGENT_AUTH=false
 
 RKE_VERSION="v1.4.8"
+
+CLUSTER_CIDR="10.42.0.0/16"
+SERVICE_CLUSTER_IP_RANGE="10.43.0.0/16"
+CLUSTER_DNS_SERVER="10.43.0.10"
+
+
+METALLB_IP_RANGES=(
+    "10.0.0.100-10.0.0.110"
+    "10.0.0.120-10.0.0.140"
+)
+
+IP_ADDRESSES_POOL_LOCATION="./MetalLB-files/ip_address_pool.yaml"
+
+RKE_ADDONS_INCLUDE=(
+    "https://github.com/jetstack/cert-manager/releases/download/v1.12.3/cert-manager.yaml"
+)
+
+
+INGRESS_PROVIDER="nginx"
+INGRESS_NETWORK_MODE="none"
+
+
+ADDONS_DIRECTORY="addons"
+
