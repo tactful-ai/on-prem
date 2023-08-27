@@ -93,7 +93,7 @@ yq eval '.monitoring = {"provider": "metrics-server", "update_strategy": {"strat
 
 for addon_file in ${ADDONS_DIRECTORY}/*; do
     # Add the content of the addon file to the cluster.yml
-    yq eval ".addons = \"\\n$(cat $addon_file)\\n---\"" -i "$YAML_FILE"
+    yq eval ".addons += \"\\n$(cat $addon_file)\\n---\"" -i "$YAML_FILE"
 done
 
 # Set empty addons_include

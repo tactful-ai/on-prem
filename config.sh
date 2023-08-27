@@ -23,7 +23,7 @@ KUBERNETES_VERSION="v1.26.7-rancher1-1"
 DOCKER_PATH="/var/run/docker.sock"
 
 # LOOK AT IMPORTANT NOTE TO FIND ALL TYPES
-NETWORK_PLUGIN="flannel"
+NETWORK_PLUGIN="canal"
 
 
 SSH_KEY_PATH="~/.ssh/id_rsa"
