@@ -54,3 +54,14 @@ INGRESS_NETWORK_MODE="none"
 
 ADDONS_DIRECTORY="addons"
 
+
+
+# --------------------- LONGHORN Section ------------------
+
+LONGHORN_FILES_LOCATION="./longhorn-files"
+
+LONGHORN_STORAGE_CLASS_NAME="longhorn"
+
+
+
+

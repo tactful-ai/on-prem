@@ -13,5 +13,8 @@ kubectl get nodes -o wide
 
 kubectl get pods --all-namespaces
 
+source ./scripts/install_configure_longhorn.sh
+
 source ./scripts/install_configure_metalLB.sh
+
 
