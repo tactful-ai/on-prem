@@ -5,6 +5,14 @@ source config.sh
 source ./secrets/vms_info.sh
 
 
+
+if ! command -v sshpass &>/dev/null; then
+    sudo apt-get install sshpass -y
+else
+    echo "SSHPASS is already installed."
+fi
+
+
 # Delete existing SSH key pair
 echo "Deleting existing SSH key pair"
 rm -f ~/.ssh/id_rsa*
@@ -30,9 +38,6 @@ for ((i=0; i<num_nodes; i++)); do
     echo "Running ssh-keyscan to get the public key from $ip_address..."
     ssh-keyscan "$ip_address" >> ~/.ssh/known_hosts
 
-
-
-
     if [[ $CONNECTION_WAY -eq 0 ]]; then
         echo "Using password"
         sshpass -p "$password" ssh-copy-id -o PubkeyAuthentication=no "$user@$ip_address"
@@ -40,7 +45,6 @@ for ((i=0; i<num_nodes; i++)); do
         echo "using ssh"
         ssh -tt -i "$password" "$user@$ip_address" "echo '$public_key' >> ~/.ssh/authorized_keys"
     fi
-
 
     echo "Preparation completed for node $ip_address"
 done
@@ -52,6 +56,14 @@ else
     echo "YQ is already installed."
 fi
 
+if ! command -v ansible &>/dev/null; then
+    sudo apt-add-repository ppa:ansible/ansible -y
+    sudo apt update -y
+    sudo apt install ansible -y
+else
+    echo "ANSIBLE is already installed."
+fi
+
 source ./scripts/generate_inventory.sh
 
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/jump_server_prerequisites.yml
@@ -59,6 +71,3 @@ ansible-playbook -i ./playbooks/inventory.yml ./playbooks/jump_server_prerequisi
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/cluster_nodes_prerequisites.yml
 
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/cluster_nodes_ports_configuration.yml
-
-
-

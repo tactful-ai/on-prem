@@ -87,13 +87,13 @@
 
 
     - name: Update package lists
-      command: sudo apt-get install open-iscsi
+      command: sudo apt-get install open-iscsi -y
 
     - name: Update package lists
-      command: sudo apt-get install nfs-common
+      command: sudo apt-get install nfs-common -y
 
     - name: Update package lists
-      command: sudo apt-get install jq
+      command: sudo apt-get install jq -y
 
     - name: Create multipath.conf if not exist
       copy:

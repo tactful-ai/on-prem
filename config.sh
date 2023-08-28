@@ -4,7 +4,7 @@
 
 # --------------------- main machine info Section ------------------
 
-sudo_password="waer1"
+sudo_password="waer1234"
 
 ANSIBLE_INVENTORY_FILE="./playbooks/inventory.yml"
 
@@ -13,7 +13,7 @@ ANSIBLE_INVENTORY_FILE="./playbooks/inventory.yml"
 # --------------------- RKE Section ------------------
 
 # Specify the path for the generated cluster.yml file
-CLUSTER_YML="./cluster_configurations/cluster.yml"
+CLUSTER_FILES_LOCATION="./cluster_configurations"
 
 CLUSTER_NAME="Dstny"
 

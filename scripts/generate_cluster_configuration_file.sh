@@ -4,13 +4,14 @@
 source config.sh
 source ./secrets/vms_info.sh
 
-
-YAML_FILE=$CLUSTER_YML
+YAML_FILE=$CLUSTER_FILES_LOCATION/cluster.yml
 
 # Remove the existing YAML file if it exists
 if [ -f "$YAML_FILE" ]; then
     rm "$YAML_FILE"
 fi
+
+mkdir -p $CLUSTER_FILES_LOCATION
 
 # Create a new YAML file with initial content
 echo "" > "$YAML_FILE"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# source ./scripts/node_prerequisites.sh
+source ./scripts/node_prerequisites.sh
 
 source ./scripts/generate_cluster_configuration_file.sh
 
