@@ -5,8 +5,9 @@ source config.sh
 source ./secrets/vms_info.sh
 
 
-
 if ! command -v sshpass &>/dev/null; then
+    echo "installing sshpass"
+    sudo apt-get update -y
     sudo apt-get install sshpass -y
 else
     echo "SSHPASS is already installed."

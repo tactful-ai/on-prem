@@ -11,9 +11,13 @@ helm repo add longhorn https://charts.longhorn.io
 
 helm repo update
 
+mkdir -p $LONGHORN_FILES_LOCATION
+
 helm show values longhorn/longhorn > $LONGHORN_VALUES_FILE
 
 yq eval --inplace '.persistence.defaultClassReplicaCount = "'"${NUMBER_OF_NODES}"'"' -i "$LONGHORN_VALUES_FILE"
+
+kubectl create namespace longhorn-system
 
 helm install longhorn longhorn/longhorn --namespace longhorn-system -f $LONGHORN_VALUES_FILE --atomic
 
@@ -30,4 +34,3 @@ while true; do
     fi
 done
 
-curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/v1.5.1/scripts/environment_check.sh | bash

@@ -6,11 +6,11 @@ helm repo add metallb https://metallb.github.io/metallb
 
 helm --namespace metallb-system install --create-namespace metallb metallb/metallb
 
-IP_ADDRESSES_POOL=$IP_ADDRESSES_POOL_LOCATION
+METALB_FOLDER=$metallb_FILES_LOCATION
+IP_ADDRESSES_POOL=$METALB_FOLDER/ip_address_pool.yaml
+L2ADVERTISEMENT_LOCATION=$METALB_FOLDER/L2Advertisement.yaml
 
-# Load IP addresses from environment variable
-IP_ADDRESSES_RANGES=($METALLB_IP_RANGES)
-    
+
 # Convert IP addresses to a comma-separated string
 IP_LIST=$(IFS=,; echo "${IP_ADDRESSES[*]}")
 
@@ -21,6 +21,6 @@ for range in "${METALLB_IP_RANGES[@]}"; do
     yq eval --inplace '.spec.addresses += ["'"${range}"'"]' -i "$IP_ADDRESSES_POOL"
 done
 
-kubectl apply -f ./MetalLB/ip_address_pool.yaml
+kubectl apply -f $IP_ADDRESSES_POOL
 
-kubectl apply -f ./MetalLB/L2Advertisement.yaml
+kubectl apply -f $L2ADVERTISEMENT_LOCATION

@@ -6,7 +6,7 @@
 
 sudo_password="waer1234"
 
-ANSIBLE_INVENTORY_FILE="./playbooks/inventory.yml"
+ANSIBLE_INVENTORY_FILE=".w/playbooks/inventory.yml"
 
 
 

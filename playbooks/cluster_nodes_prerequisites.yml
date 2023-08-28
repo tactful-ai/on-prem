@@ -95,15 +95,19 @@
     - name: Update package lists
       command: sudo apt-get install jq -y
 
-    - name: Create multipath.conf if not exist
+    - name: Check if multipath.conf exists
+      stat:
+        path: /etc/multipath.conf
+      register: multipath_conf_stat
+
+    - name: Create multipath.conf if not exists
       copy:
         content: |
           blacklist {
               devnode "^sd[a-z0-9]+"
           }
         dest: /etc/multipath.conf
-      when: not ansible_file_exists('/etc/multipath.conf')
-
+      when: not multipath_conf_stat.stat.exists
     - name: Restart multipath service
       systemd:
         name: multipathd.service
