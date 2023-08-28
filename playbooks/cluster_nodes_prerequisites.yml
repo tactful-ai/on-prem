@@ -82,3 +82,32 @@
         groups: docker
         append: yes
         state: present
+
+# ------------------------------------------------------------------------
+
+
+    - name: Update package lists
+      command: sudo apt-get install open-iscsi
+
+    - name: Update package lists
+      command: sudo apt-get install nfs-common
+
+    - name: Update package lists
+      command: sudo apt-get install jq
+
+    - name: Create multipath.conf if not exist
+      copy:
+        content: |
+          blacklist {
+              devnode "^sd[a-z0-9]+"
+          }
+        dest: /etc/multipath.conf
+      when: not ansible_file_exists('/etc/multipath.conf')
+
+    - name: Restart multipath service
+      systemd:
+        name: multipathd.service
+        state: restarted
+
+    - name: Verify configuration is applied
+      command: multipath -t
