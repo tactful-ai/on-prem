@@ -96,7 +96,7 @@ kubectl cluster-info
 kubectl get nodes
 kubectl get cs
 ```
-## installation ArgoCd
+## Installation ArgoCd
 ```
 # install ArgoCD in k8s
 kubectl create namespace argocd
@@ -137,7 +137,7 @@ selfHeal: If set to true, ArgoCD will automatically attempt to bring the applica
 
 prune: If set to false, ArgoCD will not delete any resources that are no longer defined in the application manifest.
 --------------
-you can definitely replace `targetRevision: HEAD` with a specific Git tag to synchronize your application using a specific version of the code.
+# you can definitely replace `targetRevision: HEAD` with a specific Git tag to synchronize your application using a specific version of the code.
 
 For example, if you have a Git tag named `v1.0.0` in your repository that you want to use, you can update the `targetRevision` field in your ArgoCD Application manifest like this:
 
