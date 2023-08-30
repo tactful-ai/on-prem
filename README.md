@@ -6,9 +6,9 @@ This documentation guides you in setting up a cluster with three nodes all of wh
 ## Vagrant Environment
 |Role|FQDN|IP|OS|RAM|CPU|
 |----|----|----|----|----|----|
-|Master, etcd, worker|node1.example.com|172.16.16.101|Ubuntu 20.04|2G|2|
-|Master, etcd, worker|node2.example.com|172.16.16.102|Ubuntu 20.04|2G|2|
-|Master, etcd, worker|node3.example.com|172.16.16.103|Ubuntu 20.04|2G|2|
+|Master|node1.example.com|192.168.56.11|Ubuntu 20.04|2G|2|
+|Master, etcd, worker|node2.example.com|192.168.56.12|Ubuntu 20.04|2G|2|
+|Master, etcd, worker|node3.example.com|192.168.56.13|Ubuntu 20.04|2G|2|
 
 > * Password for the **root** account on all these virtual machines is **kubeadmin**
 > * Perform all the commands as root user unless otherwise specified
