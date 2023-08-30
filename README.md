@@ -96,5 +96,58 @@ kubectl cluster-info
 kubectl get nodes
 kubectl get cs
 ```
+## installation ArgoCd
+```
+# install ArgoCD in k8s
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# access ArgoCD UI
+kubectl get svc -n argocd
+kubectl port-forward svc/argocd-server 8090:443 -n argocd
+
+# login with admin user and below token :
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode && echo
+
+# you can change and delete init password
+```
+Custom Resource Definition (CRD):
+- In Kubernetes, a Custom Resource Definition (CRD) allows you to define custom resources with specific schemas that are not part of the core Kubernetes API. CRDs enable you to extend the Kubernetes API with your own types of resources. In the context of ArgoCD, the Application CRD defines a custom resource that represents the deployment and management of applications within the ArgoCD system.
+
+- Application Custom Resource (CR):
+The Application Custom Resource (CR) is an instance of the Application CRD. It defines the desired state of an application to be managed by ArgoCD. In your provided YAML manifest, you have defined an Application CR instance with specific settings for deploying your workload.
+
+Let's break down the fields in your provided Application CR:
+
+metadata: This section provides metadata about the Application CR instance, such as its name and namespace.
+
+spec.project: Specifies the ArgoCD project to which this application belongs. Projects are used to organize and group applications in ArgoCD.
+
+spec.source: Describes where the application source code is located. In this case, it points to a Git repository (repoURL) with a specific branch/tag (targetRevision) and a subdirectory (path) within the repository.
+
+spec.destination: Specifies the Kubernetes cluster and namespace where the application should be deployed (server and namespace fields).
+
+spec.syncPolicy: Defines the synchronization policy for the application:
+
+syncOptions: Additional synchronization options. In your case, it specifies CreateNamespace=true, which means that if the namespace specified in destination does not exist, ArgoCD will create it.
+
+automated: Defines automated synchronization options for self-healing and pruning:
+
+selfHeal: If set to true, ArgoCD will automatically attempt to bring the application back to the desired state if there are any drifts.
+
+prune: If set to false, ArgoCD will not delete any resources that are no longer defined in the application manifest.
+--------------
+you can definitely replace `targetRevision: HEAD` with a specific Git tag to synchronize your application using a specific version of the code.
+
+For example, if you have a Git tag named `v1.0.0` in your repository that you want to use, you can update the `targetRevision` field in your ArgoCD Application manifest like this:
+
+yaml
+```
+source:
+  repoURL: https://github.com/tactful-ai/on-prem.git
+  targetRevision: v1.0.0
+  path: manifests
+```
+
 
 Have Fun!!
