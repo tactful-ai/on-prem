@@ -65,3 +65,19 @@ LONGHORN_STORAGE_CLASS_NAME="longhorn"
 
 
 
+# --------------------- promthus and grafana Section ------------------
+
+PROMETHEUS_GRAFANA_FILES_LOCATION="./prometheus_grafana_files"
+
+K8s_VERSION=$(echo "$KUBERNETES_VERSION" | grep -o 'v[0-9.]*')
+
+DASHBOARDS_DIRECTORY="./prometheus_grafana_files/dashboards"
+
+MONITOR_NAMESPACE="monitoring"
+
+GRFANA_SVC="NodePort"
+
+GRAFANA_ADMIN_PASSWORD="waer1234"
+
+GRAFANA_CONFIG_MAPS_DIRECTORY="./prometheus_grafana_files/config_maps"
+
