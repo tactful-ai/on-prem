@@ -63,6 +63,10 @@ LONGHORN_FILES_LOCATION="${PWD}/longhorn-files"
 LONGHORN_STORAGE_CLASS_NAME="longhorn"
 
 
+# --------------------- METALLB Section ------------------
+
+
+METALLB_FILES_LOCATION="${PWD}/MetalLB-files/"
 
 
 # --------------------- promthus and grafana Section ------------------
