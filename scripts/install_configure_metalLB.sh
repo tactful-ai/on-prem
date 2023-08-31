@@ -21,6 +21,8 @@ for range in "${METALLB_IP_RANGES[@]}"; do
     yq eval --inplace '.spec.addresses += ["'"${range}"'"]' -i "$IP_ADDRESSES_POOL"
 done
 
+sleep 60
+
 kubectl apply -f $IP_ADDRESSES_POOL
 
 kubectl apply -f $L2ADVERTISEMENT_LOCATION
