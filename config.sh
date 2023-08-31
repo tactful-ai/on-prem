@@ -6,14 +6,14 @@
 
 sudo_password="waer1234"
 
-ANSIBLE_INVENTORY_FILE=".w/playbooks/inventory.yml"
+ANSIBLE_INVENTORY_FILE="${PWD}/playbooks/inventory.yml"
 
 
 
 # --------------------- RKE Section ------------------
 
 # Specify the path for the generated cluster.yml file
-CLUSTER_FILES_LOCATION="./cluster_configurations"
+CLUSTER_FILES_LOCATION="${PWD}/cluster_configurations"
 
 CLUSTER_NAME="Dstny"
 
@@ -41,7 +41,7 @@ METALLB_IP_RANGES=(
     "10.0.0.120-10.0.0.140"
 )
 
-IP_ADDRESSES_POOL_LOCATION="./MetalLB-files/ip_address_pool.yaml"
+IP_ADDRESSES_POOL_LOCATION="${PWD}/MetalLB-files/ip_address_pool.yaml"
 
 RKE_ADDONS_INCLUDE=(
     "https://github.com/jetstack/cert-manager/releases/download/v1.12.3/cert-manager.yaml"
@@ -58,7 +58,7 @@ ADDONS_DIRECTORY="addons"
 
 # --------------------- LONGHORN Section ------------------
 
-LONGHORN_FILES_LOCATION="./longhorn-files"
+LONGHORN_FILES_LOCATION="${PWD}/longhorn-files"
 
 LONGHORN_STORAGE_CLASS_NAME="longhorn"
 
@@ -67,11 +67,11 @@ LONGHORN_STORAGE_CLASS_NAME="longhorn"
 
 # --------------------- promthus and grafana Section ------------------
 
-PROMETHEUS_GRAFANA_FILES_LOCATION="./prometheus_grafana_files"
+PROMETHEUS_GRAFANA_FILES_LOCATION="${PWD}/prometheus_grafana_files"
 
 K8s_VERSION=$(echo "$KUBERNETES_VERSION" | grep -o 'v[0-9.]*')
 
-DASHBOARDS_DIRECTORY="./prometheus_grafana_files/dashboards"
+DASHBOARDS_DIRECTORY="${PWD}/prometheus_grafana_files/dashboards"
 
 MONITOR_NAMESPACE="monitoring"
 
@@ -79,5 +79,5 @@ GRFANA_SVC="NodePort"
 
 GRAFANA_ADMIN_PASSWORD="waer1234"
 
-GRAFANA_CONFIG_MAPS_DIRECTORY="./prometheus_grafana_files/config_maps"
+GRAFANA_CONFIG_MAPS_DIRECTORY="${PWD}/prometheus_grafana_files/config_maps"
 
