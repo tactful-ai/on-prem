@@ -21,4 +21,6 @@ source ./scripts/install_configure_longhorn.sh
 
 source ./scripts/install_configure_metalLB.sh
 
+source scripts/install_configure_promethus_and_grafana.sh
 
+source scripts/install_configure_redis.sh
