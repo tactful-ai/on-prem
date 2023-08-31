@@ -6,7 +6,7 @@ helm repo add metallb https://metallb.github.io/metallb
 
 helm --namespace metallb-system install --create-namespace metallb metallb/metallb --wait
 
-METALB_FOLDER=$metallb_FILES_LOCATION
+METALB_FOLDER=$METALLB_FILES_LOCATION
 IP_ADDRESSES_POOL=$METALB_FOLDER/ip_address_pool.yaml
 L2ADVERTISEMENT_LOCATION=$METALB_FOLDER/L2Advertisement.yaml
 
