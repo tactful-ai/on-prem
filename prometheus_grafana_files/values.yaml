@@ -1,0 +1,6 @@
+namespaceOverride: monitoring
+kubeTargetVersionOverride: v1.26.7
+grafana:
+  service:
+    type: NodePort
+  adminPassword: waer1234
