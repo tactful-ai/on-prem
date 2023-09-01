@@ -5,7 +5,7 @@ for test_script in tests/*; do
   if [[ "$test_script" == tests/test* ]]; then
     if [ -f "$test_script" ]; then
     echo "Running $test_script..."
-    # bash "$test_script"
+    source $test_script
     fi
   fi
 done
