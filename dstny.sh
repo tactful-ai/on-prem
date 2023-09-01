@@ -13,6 +13,8 @@ chmod +r $CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 
 export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 
+##############   export KUBECONFIG=${PWD}/cluster_configurations/kube_config_cluster.yml
+
 kubectl get nodes -o wide
 
 kubectl get pods --all-namespaces
