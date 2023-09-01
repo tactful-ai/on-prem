@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export KUBECONFIG=${PWD}/cluster_configurations/kube_config_cluster.yml
+
+
 # Find and run all test scripts in the 'tests' folder
 for test_script in tests/*; do
   if [[ "$test_script" == tests/test* ]]; then

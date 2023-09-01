@@ -39,6 +39,12 @@ spec:
         - containerPort: 80
 EOF
 
+# Wait for the pods to be ready
+for POD_NAME in "pod1" "pod2"; do
+  kubectl wait --for=condition=Ready -n "$NAMESPACE" pod/$POD_NAME --timeout=120s
+done
+
+
 # Deploy services for pod1 and pod2
 kubectl apply -n "$NAMESPACE" -f - <<EOF
 apiVersion: v1
@@ -86,7 +92,7 @@ EOF
 echo "Services and network policy created."
 
 # Ping from pod1 to pod2's service (should pass)
-if kubectl exec -n "$NAMESPACE" pod/pod1 -- curl --connect-timeout 60 -s http://pod2-svc; then
+if kubectl exec -n "$NAMESPACE" pod/pod1 -- curl --connect-timeout 5 -s http://pod2-svc; then
   print_result "Ping test before network policy" true
 else
   print_result "Ping test before network policy" false
@@ -111,7 +117,7 @@ spec:
 EOF
 
 # Ping from pod1 to pod2's service (should fail)
-if kubectl exec -n "$NAMESPACE" pod/pod1 -- curl --connect-timeout 10 -s http://pod2-svc; then
+if kubectl exec -n "$NAMESPACE" pod/pod1 -- curl --connect-timeout 5 -s http://pod2-svc; then
   print_result "Ping test after network policy (unexpected pass)" false
 else
   print_result "Ping test after network policy (expected fail)" true
