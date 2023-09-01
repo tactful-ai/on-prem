@@ -4,12 +4,10 @@
 source ./tests/utils_testing.sh
 
 # Namespace name
-NAMESPACE="storage-resilience-test"
+NAMESPACE="storage-resilience"
 
 # PVC, PV, and StorageClass names
-PVC_NAME="my-pvc"
-PV_NAME="my-pv"
-
+PVC_NAME="my-pvcc"
 
 # Get the node names
 NODE1="worker-node-1"
@@ -21,35 +19,22 @@ kubectl create namespace "$NAMESPACE"
 # Deploy the PV and PVC with ReadWriteMany access mode
 kubectl apply -n "$NAMESPACE" -f - <<EOF
 apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: $PV_NAME
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteMany # Set access mode to ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: $STORAGE_CLASS
-  hostPath:
-    path: /tmp/storage-resilience # Adjust the path as needed
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: $PVC_NAME
+  namespace: $NAMESPACE
 spec:
   accessModes:
-    - ReadWriteMany # Set access mode to ReadWriteMany
+    - ReadWriteMany
+  storageClassName: $STORAGE_CLASS
   resources:
     requests:
       storage: 1Gi
-  storageClassName: $STORAGE_CLASS
 EOF
 
 
 # Wait for the PV and PVC to be bound
-while [[ $(kubectl get pv -n "$NAMESPACE" $PV_NAME -o 'jsonpath={..status.phase}') != "Bound" ]] || [[ $(kubectl get pvc -n "$NAMESPACE" $PVC_NAME -o 'jsonpath={..status.phase}') != "Bound" ]]; do
+while [[ $(kubectl get pvc -n "$NAMESPACE" $PVC_NAME -o 'jsonpath={..status.phase}') != "Bound" ]]; do
   echo "Waiting for PV/PVC to be bound..."
   sleep 1
 done
@@ -89,6 +74,7 @@ else
   exit 1
 fi
 
+
 # Delete the first pod to simulate rescheduling
 kubectl delete -n "$NAMESPACE" pod/first-pod
 
@@ -123,6 +109,8 @@ kubectl wait --for=condition=Ready -n "$NAMESPACE" pod/second-pod --timeout=60s
 # Check if data exists in the second pod
 SECOND_POD_DATA=$(kubectl exec -n "$NAMESPACE" pod/second-pod -- cat /data/data.txt)
 
+echo $SECOND_POD_DATA
+
 if [ "$SECOND_POD_DATA" == "Hello from First Pod" ]; then
   print_result "Data in Second Pod: Passed" true
 else
@@ -132,7 +120,8 @@ fi
 
 # Clean up
 kubectl delete -n "$NAMESPACE" pod/second-pod
-kubectl delete -n "$NAMESPACE" pvc/$PVC_NAME
+kubectl delete pvc/$PVC_NAME
+kubectl delete pv/$PV_NAME
 kubectl delete namespace "$NAMESPACE"
 
 print_result "Storage Resilience Test: Completed" true
