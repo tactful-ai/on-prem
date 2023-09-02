@@ -2,7 +2,7 @@
 
 # Load the information from the separate file
 source config.sh
-source ./secrets/vms_info.sh
+source ./user_fill.sh
 
 INVENTORY_FILE=$ANSIBLE_INVENTORY_FILE
 

@@ -85,3 +85,24 @@ GRAFANA_ADMIN_PASSWORD="waer1234"
 
 GRAFANA_CONFIG_MAPS_DIRECTORY="${PWD}/prometheus_grafana_files/config_maps"
 
+
+
+# --------------------- utils functions Section ------------------
+print_label() {
+    local text="$1"
+    local color_code="0"  # Default color (white)
+
+    # Check the second parameter for color
+    if [ "$2" == "1" ]; then
+        color_code="33"  # Yellow
+    elif [ "$2" == "2" ]; then
+        color_code="32"  # Green
+    fi
+    echo && echo && echo && echo
+    echo -e "\e[${color_code}m====================================\e[0m"
+    echo & echo
+    echo -e "\e[${color_code}m$text\e[0m"
+    echo & echo
+    echo -e "\e[${color_code}m====================================\e[0m"
+    echo && echo && echo && echo
+}

@@ -1,19 +1,17 @@
 ---
 - name: Configure Servers
   hosts: external_vms
-  gather_facts: yes
-  become: yes
+  gather_facts: true
+  become: true
 
   vars:
     docker_version: "5:23.0.6-1~ubuntu.20.04~focal"
 
   tasks:
 
-# shutdown the swap
     - name: Turn off swap
       shell: swapoff -a
 
-# Update sysctl settings for Kubernetes networking
     - name: Create sysctl directory
       file:
         path: /etc/sysctl.d
@@ -43,7 +41,7 @@
     - name: Update package lists
       command: apt-get update
 
-    - name: Update package lists
+    - name: insatll docker prequisites packages (ca-certificates curl gnupg)
       command: sudo apt-get install ca-certificates curl gnupg
 
     - name: Create Docker keyrings directory
@@ -54,7 +52,7 @@
 
     - name: Remove existing Docker GPG key file if it exists
       shell: rm -f /etc/apt/keyrings/docker.gpg
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: Add Docker APT repository
       shell: |
@@ -65,42 +63,35 @@
         path: /etc/apt/keyrings/docker.gpg
         mode: '0644'
 
-    - name: Add Docker APT repository22222
+    - name: set up the repository docker repositry
       shell: |
         echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu" $(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     - name: Update package lists
       command: sudo apt-get update
 
-
-    - name: Update package lists
+    - name: Update docker package lists from the newly added repo (docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin)
       command: sudo apt-get install docker-ce={{ docker_version }} docker-ce-cli={{ docker_version }} containerd.io docker-buildx-plugin docker-compose-plugin -y
 
     - name: Add user to the docker group
       user:
         name: "{{ ansible_user }}"
         groups: docker
-        append: yes
+        append: true
         state: present
 
 # ------------------------------------------------------------------------
 
 
-    - name: Update package lists
-      command: sudo apt-get install open-iscsi -y
-
-    - name: Update package lists
-      command: sudo apt-get install nfs-common -y
-
-    - name: Update package lists
-      command: sudo apt-get install jq -y
+    - name: install longhorn prerequisites packages (open-iscsi nfs-common jq)
+      command: sudo apt-get install open-iscsi nfs-common jq -y
 
     - name: Check if multipath.conf exists
       stat:
         path: /etc/multipath.conf
       register: multipath_conf_stat
 
-    - name: Create multipath.conf if not exists
+    - name: Create multipath.conf if not exists and copy blacklist to avoid multipath on local disks
       copy:
         content: |
           blacklist {

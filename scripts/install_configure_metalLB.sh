@@ -21,6 +21,8 @@ for range in "${METALLB_IP_RANGES[@]}"; do
     yq eval --inplace '.spec.addresses += ["'"${range}"'"]' -i "$IP_ADDRESSES_POOL"
 done
 
+print_label "done installing and configuring metallb Now Wait 60 second for confiugre the IP_ADDRESSES_POOL " 2
+
 sleep 60
 
 kubectl apply -f $IP_ADDRESSES_POOL

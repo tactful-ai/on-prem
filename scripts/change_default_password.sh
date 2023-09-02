@@ -4,7 +4,7 @@ sudo apt-get update
 
 sudo apt-get install expect
 
-source ./secrets/vms_info.sh
+source ./user_fill.sh
 
 new_password="${NEW_MACHINES_PASSWORD}"
 
@@ -45,7 +45,7 @@ for ((i = 0; i < num_nodes; i++)); do
 EOS
 
     # Update the password in the node_info array
-    echo "#node_info[$i]=\"$ip_address|$new_password|$user|$node_name\"" >> ./secrets/vms_info.sh
+    echo "#node_info[$i]=\"$ip_address|$new_password|$user|$node_name\"" >> ./user_fill.sh
 
     echo "Changing password completed for node $ip_address"
     echo

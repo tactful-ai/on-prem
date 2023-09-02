@@ -1,14 +1,13 @@
 - name: Configure Servers
   hosts: external_vms
-  gather_facts: yes
-  become: yes
+  gather_facts: true
+  become: true
 
   tasks:
 
     - name: Set logging
       ufw:
         logging: 'on'
-
 
     - name: Allow Control Plane Node Ports
       ufw:

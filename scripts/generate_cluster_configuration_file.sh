@@ -2,7 +2,9 @@
 
 # Load the information from the separate file
 source config.sh
-source ./secrets/vms_info.sh
+source ./user_fill.sh
+
+print_label "Generating cluster.yml" 1
 
 YAML_FILE=$CLUSTER_FILES_LOCATION/cluster.yml
 
@@ -104,6 +106,4 @@ for range in "${RKE_ADDONS_INCLUDE[@]}"; do
     yq eval --inplace '.addons_include += ["'"${range}"'"]' -i "$YAML_FILE"
 done
 
-echo "Generated $CLUSTER_YML"
-
-
+print_label "Done generating cluster.yml" 2

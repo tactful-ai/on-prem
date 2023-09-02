@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source ./config.sh
-source ./secrets/vms_info.sh
+source ./user_fill.sh
 
 NUMBER_OF_NODES=$((${#node_info[@]} - 1))
 
