@@ -1,6 +1,6 @@
 replicaCount: 2
 image:
-  repository: your-docker-repo/my-app
+  repository: nginx
   tag: latest
   port: 80
 env: production
