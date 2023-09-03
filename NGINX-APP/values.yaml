@@ -1,0 +1,9 @@
+replicaCount: 2
+image:
+  repository: your-docker-repo/my-app
+  tag: latest
+  port: 80
+env: production
+service:
+  port: 80
+
