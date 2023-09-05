@@ -2,18 +2,21 @@ local_device:
   hosts:
     localhost:
       ansible_connection: local
-      ansible_become_pass: waer1
+      ansible_become_pass: fatho159@
 external_vms:
   hosts:
-    node1:
-      ansible_host: 20.163.46.22
+    node_1:
+      ansible_host: 3.91.199.137
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
-      ansible_ssh_user: waer
-    node2:
-      ansible_host: 20.118.171.190
+      ansible_ssh_user: ubuntu
+      ansible_become_pass: /home/ahmedfathy/on-prem/zeeee.pem
+    node_2:
+      ansible_host: 18.205.7.82
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
-      ansible_ssh_user: waer
-    node3:
-      ansible_host: 52.252.105.7
+      ansible_ssh_user: ubuntu
+      ansible_become_pass: /home/ahmedfathy/on-prem/zeeee.pem
+    node_3:
+      ansible_host: 44.203.51.74
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
-      ansible_ssh_user: waer
+      ansible_ssh_user: ubuntu
+      ansible_become_pass: /home/ahmedfathy/on-prem/zeeee.pem

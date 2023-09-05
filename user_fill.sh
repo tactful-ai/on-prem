@@ -11,7 +11,9 @@ declare -a node_info
 # node_info[0]="ip_address|password|user|node_name" in case of using password
 # node_info[0]="ip_address|ssh_key_path|user|node_name" in case of using ssh key
 node_info[0]="Node_IP|password|remote_machine_username|node_name"
-node_info[0]="xxx.xx.xx.xx|password|remote_machine_username|node_name"
+node_info[1]="Node_IP|password|remote_machine_username|node_name"
+node_info[2]="Node_IP|password|remote_machine_username|node_name"
+
 
 # sudo password from main machine
 sudo_password="12345678"
@@ -45,3 +47,6 @@ MONITORING_SYSTEM="prometheus"
 
 # do you want to install redis
 INSTALL_REDIS="yes"
+
+# do you want install k8s-dashboard
+INSTALL_DASHBOARD="yes"
