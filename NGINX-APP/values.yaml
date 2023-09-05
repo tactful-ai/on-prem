@@ -1,9 +1,0 @@
-replicaCount: 2
-image:
-  repository: nginx
-  tag: latest
-  port: 80
-env: production
-service:
-  port: 80
-

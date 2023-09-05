@@ -1,0 +1,44 @@
+- name: Install yq and rke
+  hosts: local_device
+  become: true
+
+  vars:
+    rke_version: "v1.4.8"
+
+  tasks:
+
+    - name: Check if RKE is installed
+      stat:
+        path: /usr/local/bin/rke
+      register: rke_installed
+
+    - name: Download and Install RKE
+      shell: |
+        wget https://github.com/rancher/rke/releases/download/{{ rke_version }}/rke_linux-amd64
+        chmod +x rke_linux-amd64
+        sudo mv rke_linux-amd64 /usr/local/bin/rke
+      when: not rke_installed.stat.exists
+
+    - name: Install curl (if not already installed)
+      package:
+        name: curl
+        state: present
+
+    - name: Install kubectl
+      shell: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+      args:
+        creates: /usr/local/bin/kubectl
+
+    - name: Download Helm installation script
+      get_url:
+        url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        dest: /tmp/get_helm.sh
+        mode: '0755'
+
+    - name: Run Helm installation script
+      shell: /tmp/get_helm.sh
+      args:
+        creates: /usr/local/bin/helm
