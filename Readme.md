@@ -74,3 +74,56 @@ bash dstny.sh
 ```
 
 Watch the magic ✨✨✨.
+
+
+## Services Section
+
+## Available Services
+
+Tactful AI On-Prem offers a selection of services and components that you can choose to install based on your specific requirements. Below are the available services and systems:
+
+### Storage System
+
+You can choose the storage system you want to install:
+
+- **Longhorn**: A distributed block storage system for Kubernetes.
+
+- **None**: If you don't want to install any storage system, select "None."
+
+```shell
+STORAGE_SYSTEM="longhorn"
+```
+
+### Load Balancer System
+
+You can choose the load balancer system you want to install:
+
+- **MetalLB**: A load balancer implementation for bare-metal Kubernetes clusters.
+
+- **None**: If you don't want to install any load balancer system, select "None."
+
+```shell
+LOAD_BALANCER="metallb"
+```
+
+### Monitoring System
+
+You can choose the monitoring system you want to install:
+
+- **Prometheus**: An open-source monitoring and alerting toolkit designed for reliability and scalability. Note: Grafana is installed along with Prometheus.
+
+- **None**: If you don't want to install any monitoring system, select "None."
+
+```shell
+MONITORING_SYSTEM="prometheus"
+```
+
+### Redis
+
+You can choose whether or not to install Redis. If you want to install Redis, set the following option to "yes."
+
+```shell
+INSTALL_REDIS="yes"
+```
+
+Choose the services and systems that align with your deployment needs and set the corresponding options in your configuration before running the setup script.
