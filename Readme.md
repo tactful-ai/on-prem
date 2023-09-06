@@ -80,7 +80,7 @@ Watch the magic ✨✨✨.
 
 ## Available Services
 
-Tactful AI On-Prem offers a selection of services and components that you can choose to install based on your specific requirements. Below are the available services and systems:
+Dstny engage On-Prem offers a selection of services and components that you can choose to install based on your specific requirements. Below are the available services and systems:
 
 ### Storage System
 
@@ -127,3 +127,86 @@ INSTALL_REDIS="yes"
 ```
 
 Choose the services and systems that align with your deployment needs and set the corresponding options in your configuration before running the setup script.
+
+# Dstny engage On-Prem Configuration Guide
+
+The `config.sh` file allows you to configure various aspects of the Dstny engage On-Prem solution to match your specific requirements. This guide provides an overview of each section in the configuration file and what you can customize within them.
+
+## Main Machine Info Section
+
+In this section, you can customize basic information related to your main machine and the Ansible inventory.
+
+- `ANSIBLE_INVENTORY_FILE`: Specify the path to the Ansible inventory file.
+
+## RKE Section
+
+This section is responsible for configuring the Rancher Kubernetes Engine (RKE).
+
+- `CLUSTER_FILES_LOCATION`: Specify the location for the generated cluster configuration files.
+
+- `CLUSTER_NAME`: Define the name for your Kubernetes cluster.
+
+- `KUBERNETES_VERSION`: Set the desired Kubernetes version.
+
+- `DOCKER_PATH`: Specify the path to the Docker socket.
+
+- `NETWORK_PLUGIN`: Choose a network plugin (e.g., "canal").
+
+- `SSH_KEY_PATH`: Define the path to your SSH key.
+
+- `SSH_AGENT_AUTH`: Enable or disable SSH agent authentication.
+
+- `RKE_VERSION`: Set the RKE version.
+
+- `CLUSTER_CIDR`: Configure the cluster CIDR.
+
+- `SERVICE_CLUSTER_IP_RANGE`: Define the service cluster IP range.
+
+- `CLUSTER_DNS_SERVER`: Specify the DNS server for the cluster.
+
+- `METALLB_IP_RANGES`: Configure MetalLB IP ranges (if using).
+
+- `IP_ADDRESSES_POOL_LOCATION`: Set the location for MetalLB IP address pool configuration.
+
+- `RKE_ADDONS_INCLUDE`: Specify URLs for RKE addons.
+
+- `INGRESS_PROVIDER`: Choose the Ingress controller provider (e.g., "nginx").
+
+- `INGRESS_NETWORK_MODE`: Configure the Ingress network mode.
+
+- `ADDONS_DIRECTORY`: Define the directory for addons.
+
+## Longhorn Section
+
+This section is related to configuring Longhorn, a distributed block storage system for Kubernetes.
+
+- `LONGHORN_FILES_LOCATION`: Specify the location for Longhorn files.
+
+- `LONGHORN_STORAGE_CLASS_NAME`: Set the Longhorn storage class name.
+
+## MetalLB Section
+
+Here, you can configure MetalLB, a load balancer implementation for bare-metal Kubernetes clusters.
+
+- `METALLB_FILES_LOCATION`: Specify the location for MetalLB files.
+
+## Prometheus and Grafana Section
+
+This section allows you to customize settings related to Prometheus and Grafana.
+
+- `PROMETHEUS_GRAFANA_FILES_LOCATION`: Set the location for Prometheus and Grafana files.
+
+- `K8s_VERSION`: Automatically derived from `KUBERNETES_VERSION`.
+
+- `DASHBOARDS_DIRECTORY`: Specify the directory for Grafana dashboards.
+
+- `MONITOR_NAMESPACE`: Set the monitoring namespace.
+
+- `GRFANA_SVC`: Define the Grafana service type.
+
+- `GRAFANA_ADMIN_PASSWORD`: Set the Grafana admin password.
+
+- `GRAFANA_CONFIG_MAPS_DIRECTORY`: Specify the directory for Grafana config maps.
+
+
+By customizing these sections, you can tailor the Dstny engage On-Prem solution to meet your specific infrastructure and configuration preferences.
