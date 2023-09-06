@@ -4,11 +4,8 @@
 
 # --------------------- main machine info Section ------------------
 
-sudo_password="waer1234"
 
 ANSIBLE_INVENTORY_FILE="${PWD}/playbooks/inventory.yml"
-
-
 
 # --------------------- RKE Section ------------------
 
