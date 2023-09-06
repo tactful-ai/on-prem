@@ -76,9 +76,7 @@ bash dstny.sh
 Watch the magic ✨✨✨.
 
 
-## Services Section
-
-## Available Services
+## Dstny engage On-Prem  Available Services
 
 Dstny engage On-Prem offers a selection of services and components that you can choose to install based on your specific requirements. Below are the available services and systems:
 
