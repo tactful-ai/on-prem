@@ -10,8 +10,10 @@ declare -a node_info
 # Populate the node_info array with node information
 # node_info[0]="ip_address|password|user|node_name" in case of using password
 # node_info[0]="ip_address|ssh_key_path|user|node_name" in case of using ssh key
-node_info[0]="Node_IP|password|remote_machine_username|node_name"
-node_info[0]="xxx.xx.xx.xx|password|remote_machine_username|node_name"
+node_info[0]="Node_IP|password|remote_machine_username"
+node_info[1]="xxx.xx.xx.xx|password|remote_machine_username"
+node_info[2]="xxx.xx.xx.xx|password|remote_machine_username"
+node_info[3]="xxx.xx.xx.dxx|password|remote_machine_username"
 
 # sudo password from main machine
 sudo_password="12345678"
@@ -25,6 +27,12 @@ CONNECTION_WAY=1
 
 # Number of nodes
 num_nodes=${#node_info[@]}
+
+
+# select the docker version that compatible with you os and the k8s
+# to know the used k8s version you can run
+docker_version="23.0.6"
+
 
 ################################# Services Section #################################
 

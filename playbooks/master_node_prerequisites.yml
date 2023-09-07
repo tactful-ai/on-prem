@@ -1,0 +1,124 @@
+- name: Configure worker_node
+  hosts: master_nodes
+  gather_facts: true
+  become: true
+
+  tasks:
+
+    - name: Set logging
+      ufw:
+        logging: 'on'
+
+    - name: Allow Control Plane Node Ports
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "tcp"
+      loop:
+        - 6443
+
+    - name: Allow etcd Ports
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "TCP"
+      loop:
+        - 2379
+        - 2380
+
+    - name: Allow Kubelet API Port
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "tcp"
+      loop:
+        - 10250
+
+    - name: Allow Kube-Scheduler Port
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "tcp"
+      loop:
+        - 10251
+
+    - name: Allow Kube-Controller-Manager Port
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "tcp"
+      loop:
+        - 10252
+
+    - name: Allow TCP for metalLB
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "tcp"
+      loop:
+        - 7946
+
+    - name: Allow UDP for metalLB
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "udp"
+      loop:
+        - 7946
+
+    - name: Allow TCP speackers for metalLB
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "tcp"
+      loop:
+        - 7946
+
+    - name: Allow UDP speackers for metalLB
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "udp"
+      loop:
+        - 7946
+
+    - name: Allow SSH
+      ufw:
+        rule: allow
+        port: 22
+        comment: "Allow SSH"
+
+    - name: Allow http
+      ufw:
+        rule: allow
+        port: 80
+        proto: "tcp"
+
+    - name: Allow https
+      ufw:
+        rule: allow
+        port: 443
+        proto: "tcp"
+
+    - name: Allow Nginx Ingress's Validating Webhook
+      ufw:
+        rule: allow
+        port: 8443
+        proto: "tcp"
+
+    - name: Allow Nginx Ingress's Validating Webhook
+      ufw:
+        rule: allow
+        port: 8443
+        proto: "tcp"
+
+    - name: Allow Docker daemon TLS port used by node driver
+      ufw:
+        rule: allow
+        port: 2376
+        proto: "tcp"
+
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
