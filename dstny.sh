@@ -3,6 +3,9 @@
 # source the configuration file to get the details for the cluster and services to be installed
 source config.sh
 
+# install the prerequisites for the jump Server
+source ./scripts/jump_server_prerequisites.sh
+
 # install the prerequisites for the cluster Nodes
 source ./scripts/node_prerequisites.sh
 
