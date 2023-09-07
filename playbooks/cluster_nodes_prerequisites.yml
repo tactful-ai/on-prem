@@ -1,6 +1,6 @@
 ---
 - name: Configure Servers
-  hosts: external_vms
+  hosts: "worker_nodes , master_nodes"
   gather_facts: true
   become: true
 
@@ -48,18 +48,7 @@
     - name: Execute the script
       command: "/tmp/compatibility_script.sh"
       register: script_output
-
-    - name: Wait for the script to complete
-      async_status:
-        jid: "{{ script_output.ansible_job_id }}"
-      register: job_result
-      until: job_result.finished
-      retries: 600
-      delay: 10
-
-    - name: Display script output
-      debug:
-        var: job_result.result.stdout_lines
+      async: 600
 
     - name: Add user to the docker group
       user:
@@ -68,29 +57,4 @@
         append: true
         state: present
 
-# ------------------------------------------------------------------------
 
-
-    - name: install longhorn prerequisites packages (open-iscsi nfs-common jq)
-      command: sudo apt-get install open-iscsi nfs-common jq -y
-
-    - name: Check if multipath.conf exists
-      stat:
-        path: /etc/multipath.conf
-      register: multipath_conf_stat
-
-    - name: Create multipath.conf if not exists and copy blacklist to avoid multipath on local disks
-      copy:
-        content: |
-          blacklist {
-              devnode "^sd[a-z0-9]+"
-          }
-        dest: /etc/multipath.conf
-      when: not multipath_conf_stat.stat.exists
-    - name: Restart multipath service
-      systemd:
-        name: multipathd.service
-        state: restarted
-
-    - name: Verify configuration is applied
-      command: multipath -t
