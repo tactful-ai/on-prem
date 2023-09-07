@@ -4,16 +4,15 @@
   become: true
 
   tasks:
-
     - name: Set logging
       ufw:
         logging: 'on'
 
     - name: Allow Kubelet API Port
       ufw:
-        rule: allowf
+        rule: allow
         port: "{{ item }}"
-        proto: "tcp"
+        proto: tcp
       loop:
         - 10250
 
@@ -21,13 +20,13 @@
       ufw:
         rule: allow
         port: 30776:32767
-        proto: "tcp"
+        proto: tcp
 
     - name: Allow Network Plugin(canal) Port TCP
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "tcp"
+        proto: tcp
       loop:
         - 8472
 
@@ -35,7 +34,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "udp"
+        proto: udp
       loop:
         - 8472
 
@@ -43,7 +42,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "udp"
+        proto: udp
       loop:
         - 4789
 
@@ -51,7 +50,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "tcp"
+        proto: tcp
       loop:
         - 7946
 
@@ -59,7 +58,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "udp"
+        proto: udp
       loop:
         - 7946
 
@@ -67,7 +66,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "tcp"
+        proto: tcp
       loop:
         - 7946
 
@@ -75,7 +74,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "udp"
+        proto: udp
       loop:
         - 7946
 
@@ -90,31 +89,31 @@
       ufw:
         rule: allow
         port: 80
-        proto: "tcp"
+        proto: tcp
 
     - name: Allow https
       ufw:
         rule: allow
         port: 443
-        proto: "tcp"
+        proto: tcp
 
     - name: Allow Nginx Ingress's Validating Webhook
       ufw:
         rule: allow
         port: 8443
-        proto: "tcp"
+        proto: tcp
 
     - name: Allow Canal/Flannel livenessProbe/readinessProbe
       ufw:
         rule: allow
         port: 9099
-        proto: "tcp"
+        proto: tcp
 
     - name: Allow Docker daemon TLS port used by node driver
       ufw:
         rule: allow
         port: 2376
-        proto: "tcp"
+        proto: tcp
 
 
     - name: Enable UFW

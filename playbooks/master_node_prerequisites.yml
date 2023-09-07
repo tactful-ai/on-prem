@@ -4,7 +4,6 @@
   become: true
 
   tasks:
-
     - name: Set logging
       ufw:
         logging: 'on'
@@ -13,7 +12,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "tcp"
+        proto: tcp
       loop:
         - 6443
 
@@ -21,7 +20,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "TCP"
+        proto: tcp
       loop:
         - 2379
         - 2380
@@ -30,7 +29,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "tcp"
+        proto: tcp
       loop:
         - 10250
 
@@ -38,7 +37,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "tcp"
+        proto: tcp
       loop:
         - 10251
 
@@ -46,7 +45,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "tcp"
+        proto: tcp
       loop:
         - 10252
 
@@ -54,7 +53,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "tcp"
+        proto: tcp
       loop:
         - 7946
 
@@ -70,7 +69,7 @@
       ufw:
         rule: allow
         port: "{{ item }}"
-        proto: "tcp"
+        proto: tcp
       loop:
         - 7946
 
@@ -82,6 +81,22 @@
       loop:
         - 7946
 
+    - name: Allow Network Plugin(canal) Port TCP
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 8472
+
+    - name: Allow Network Plugin(canal) Port-UDP
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: udp
+      loop:
+        - 8472
+
     - name: Allow SSH
       ufw:
         rule: allow
@@ -92,31 +107,31 @@
       ufw:
         rule: allow
         port: 80
-        proto: "tcp"
+        proto: tcp
 
     - name: Allow https
       ufw:
         rule: allow
         port: 443
-        proto: "tcp"
+        proto: tcp
 
     - name: Allow Nginx Ingress's Validating Webhook
       ufw:
         rule: allow
         port: 8443
-        proto: "tcp"
+        proto: tcp
 
     - name: Allow Nginx Ingress's Validating Webhook
       ufw:
         rule: allow
         port: 8443
-        proto: "tcp"
+        proto: tcp
 
     - name: Allow Docker daemon TLS port used by node driver
       ufw:
         rule: allow
         port: 2376
-        proto: "tcp"
+        proto: tcp
 
 
     - name: Enable UFW
