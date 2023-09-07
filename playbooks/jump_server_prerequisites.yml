@@ -4,11 +4,9 @@
   vars:
     rke_version: "v1.4.8"
   tasks:
-
     - name: Update package cache
       apt:
         update_cache: yes
-
     - name: Check if RKE is installed
       stat:
         path: /usr/local/bin/rke
@@ -39,18 +37,17 @@
       shell: /tmp/get_helm.sh
       args:
         creates: /usr/local/bin/helm
-
     - name: Install sshpass
       apt:
         name: sshpass
         state: present
-
-    - name: Update all packages
-      yum:
-        name: '*'
-        state: latest
-
+    - name: Update package cache
+      apt:
+        update_cache: yes
+      register: update_result
     - name: Upgrade all packages
-      yum:
-        name: '*'
-        state: latest
+      apt:
+        upgrade: dist
+        autoremove: yes
+        autoclean: yes
+      when: update_result.changed
