@@ -23,7 +23,7 @@ yq eval ".local_device.hosts.localhost.ansible_become_pass = \"$sudo_password\""
 # define the master node in the inventory
 node="${node_info[0]}"
 IFS='|' read -ra info <<< "$node"
-hostname=master$((i+1))
+hostname=master1
 ansible_host="${info[0]}"
 ansible_ssh_user="${info[2]}"
 root_password="${info[1]}"
@@ -37,7 +37,7 @@ yq eval ".master_nodes.hosts.$hostname.ansible_ssh_user = \"$ansible_ssh_user\""
 for ((i=1; i<num_nodes; i++)); do
     node="${node_info[$i]}"
     IFS='|' read -ra info <<< "$node"
-    hostname=node$((i+1))
+    hostname=worker-node-${i}
     ansible_host="${info[0]}"
     ansible_ssh_user="${info[2]}"
     root_password="${info[1]}"

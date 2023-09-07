@@ -46,11 +46,6 @@ for ((i=0; i<num_nodes; i++)); do
     print_label "Preparation completed for node $ip_address" 2
 done
 
-# generate inventory file for ansible
-source ./scripts/generate_inventory.sh
-
-# select the latest docker version that compatible withrke
-
 # install general prerequisites for all nodes
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/cluster_nodes_prerequisites.yml
 
@@ -60,7 +55,3 @@ ansible-playbook -i ./playbooks/inventory.yml ./playbooks/master_node_prerequisi
 # install prerequisites for worker nodes
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/worker_node_prerequisites.yml
 print_label "Done Installing prerequisites for cluster nodes" 2
-
-# configure ports for cluster nodes
-ansible-playbook -i ./playbooks/inventory.yml ./playbooks/cluster_nodes_ports_configuration.yml
-print_label "Done configuring ports for cluster nodes" 2
