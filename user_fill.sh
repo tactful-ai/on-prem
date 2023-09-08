@@ -45,3 +45,6 @@ MONITORING_SYSTEM="prometheus"
 
 # do you want to install redis
 INSTALL_REDIS="yes"
+
+# do you want install k8s-dashboard
+INSTALL_DASHBOARD="yes"
