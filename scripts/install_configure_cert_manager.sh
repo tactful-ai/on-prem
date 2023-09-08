@@ -14,20 +14,16 @@ wget -O "${CRDS_FILE}" https://github.com/jetstack/cert-manager/releases/latest/
 # Extract Cert-Manager version from CRDs YAML
 CERT_MANAGER_VERSION=$(grep "app.kubernetes.io/version" "${CRDS_FILE}" | awk '{print $2}' | sed 's/"//g' | head -n 1)
 
-# Step 1: Install Cert-Manager CRDs
-echo "Step 1: Installing Cert-Manager CRDs..."
-kubectl apply -f "${CRDS_FILE}"
-
-# Step 2: Create the Cert-Manager namespace (if it doesn't exist)
-echo "Step 2: Creating the Cert-Manager namespace..."
+# Step 1: Create the Cert-Manager namespace (if it doesn't exist)
+echo "Step 1: Creating the Cert-Manager namespace..."
 kubectl create namespace "${CERT_MANAGER_NAMESPACE}"
 
-# Step 3: Add the Jetstack Helm repository
-echo "Step 3: Adding the Jetstack Helm repository..."
+# Step 2: Add the Jetstack Helm repository
+echo "Step 2: Adding the Jetstack Helm repository..."
 helm repo add jetstack https://charts.jetstack.io
 
-# Step 4: Install Cert-Manager using Helm
-echo "Step 4: Installing Cert-Manager using Helm..."
+# Step 3: Install Cert-Manager using Helm
+echo "Step 3: Installing Cert-Manager using Helm..."
 helm install cert-manager jetstack/cert-manager --namespace "${CERT_MANAGER_NAMESPACE}" --version "${CERT_MANAGER_VERSION}" --set installCRDs=true --wait
 
 # Verify installation
