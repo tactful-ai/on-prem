@@ -1,0 +1,31 @@
+---
+- name: Configure Servers
+  hosts: worker_nodes
+  gather_facts: true
+  become: true
+
+  tasks:
+
+    - name: install longhorn prerequisites packages (open-iscsi nfs-common jq)
+      command: sudo apt-get install open-iscsi nfs-common jq -y
+
+    - name: Check if multipath.conf exists
+      stat:
+        path: /etc/multipath.conf
+      register: multipath_conf_stat
+
+    - name: Create multipath.conf if not exists and copy blacklist to avoid multipath on local disks
+      copy:
+        content: |
+          blacklist {
+              devnode "^sd[a-z0-9]+"
+          }
+        dest: /etc/multipath.conf
+      when: not multipath_conf_stat.stat.exists
+    - name: Restart multipath service
+      systemd:
+        name: multipathd.service
+        state: restarted
+
+    - name: Verify configuration is applied
+      command: multipath -t

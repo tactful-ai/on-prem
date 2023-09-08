@@ -2,18 +2,24 @@ local_device:
   hosts:
     localhost:
       ansible_connection: local
-      ansible_become_pass: waer1
-external_vms:
+      ansible_become_pass: "12345678"
+master_nodes:
   hosts:
-    node1:
-      ansible_host: 20.163.46.22
+    master1:
+      ansible_host: Node_IP
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
-      ansible_ssh_user: waer
+      ansible_ssh_user: remote_machine_username
+worker_nodes:
+  hosts:
     node2:
-      ansible_host: 20.118.171.190
+      ansible_host: xxx.xx.xx.xx
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
-      ansible_ssh_user: waer
+      ansible_ssh_user: remote_machine_username
     node3:
-      ansible_host: 52.252.105.7
+      ansible_host: xxx.xx.xx.xx
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
-      ansible_ssh_user: waer
+      ansible_ssh_user: remote_machine_username
+    node4:
+      ansible_host: xxx.xx.xx.dxx
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      ansible_ssh_user: remote_machine_username

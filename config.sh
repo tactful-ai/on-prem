@@ -6,6 +6,8 @@
 
 
 ANSIBLE_INVENTORY_FILE="${PWD}/playbooks/inventory.yml"
+JUMP_SERVER_PLAYBOOK_LOCATION="${PWD}/playbooks/jump_server_prerequisites.yml"
+
 
 # --------------------- RKE Section ------------------
 
@@ -14,8 +16,7 @@ CLUSTER_FILES_LOCATION="${PWD}/cluster_configurations"
 
 CLUSTER_NAME="Dstny"
 
-# Specify the desired Kubernetes version
-KUBERNETES_VERSION="v1.26.7-rancher1-1"
+KUBERNETES_VERSION=$(rke config --list-version --all | sort -V | tail -n 1)
 
 DOCKER_PATH="/var/run/docker.sock"
 
@@ -25,8 +26,6 @@ NETWORK_PLUGIN="canal"
 
 SSH_KEY_PATH="~/.ssh/id_rsa"
 SSH_AGENT_AUTH=false
-
-RKE_VERSION="v1.4.8"
 
 CLUSTER_CIDR="10.42.0.0/16"
 SERVICE_CLUSTER_IP_RANGE="10.43.0.0/16"

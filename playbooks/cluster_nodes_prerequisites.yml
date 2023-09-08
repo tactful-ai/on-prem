@@ -1,11 +1,11 @@
 ---
 - name: Configure Servers
-  hosts: external_vms
+  hosts: "worker_nodes , master_nodes"
   gather_facts: true
   become: true
 
   vars:
-    docker_version: "5:23.0.6-1~ubuntu.20.04~focal"
+    docker_version: "23.0.6"
 
   tasks:
 
@@ -38,40 +38,17 @@
 
   # Install docker engine
 
-    - name: Update package lists
-      command: apt-get update
 
-    - name: insatll docker prequisites packages (ca-certificates curl gnupg)
-      command: sudo apt-get install ca-certificates curl gnupg
+    - name: Download the compatibility script
+      get_url:
+        url: "https://releases.rancher.com/install-docker/{{docker_version}}.sh"
+        dest: "/tmp/compatibility_script.sh"
+        mode: "0755"
 
-    - name: Create Docker keyrings directory
-      file:
-        path: /etc/apt/keyrings
-        state: directory
-        mode: '0755'
-
-    - name: Remove existing Docker GPG key file if it exists
-      shell: rm -f /etc/apt/keyrings/docker.gpg
-      ignore_errors: true
-
-    - name: Add Docker APT repository
-      shell: |
-       curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-    - name: Set permissions on Docker GPG key
-      file:
-        path: /etc/apt/keyrings/docker.gpg
-        mode: '0644'
-
-    - name: set up the repository docker repositry
-      shell: |
-        echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu" $(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-    - name: Update package lists
-      command: sudo apt-get update
-
-    - name: Update docker package lists from the newly added repo (docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin)
-      command: sudo apt-get install docker-ce={{ docker_version }} docker-ce-cli={{ docker_version }} containerd.io docker-buildx-plugin docker-compose-plugin -y
+    - name: Execute the script
+      command: "/tmp/compatibility_script.sh"
+      register: script_output
+      async: 600
 
     - name: Add user to the docker group
       user:
@@ -80,29 +57,4 @@
         append: true
         state: present
 
-# ------------------------------------------------------------------------
 
-
-    - name: install longhorn prerequisites packages (open-iscsi nfs-common jq)
-      command: sudo apt-get install open-iscsi nfs-common jq -y
-
-    - name: Check if multipath.conf exists
-      stat:
-        path: /etc/multipath.conf
-      register: multipath_conf_stat
-
-    - name: Create multipath.conf if not exists and copy blacklist to avoid multipath on local disks
-      copy:
-        content: |
-          blacklist {
-              devnode "^sd[a-z0-9]+"
-          }
-        dest: /etc/multipath.conf
-      when: not multipath_conf_stat.stat.exists
-    - name: Restart multipath service
-      systemd:
-        name: multipathd.service
-        state: restarted
-
-    - name: Verify configuration is applied
-      command: multipath -t

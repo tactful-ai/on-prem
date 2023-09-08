@@ -3,6 +3,10 @@
 source ./config.sh
 source ./user_fill.sh
 
+
+# install longhorn prerquisites using absible
+ansible-playbook -i ./playbooks/inventory.yml ./playbooks/longhorn_prerequisites.yml
+
 NUMBER_OF_NODES=$((${#node_info[@]} - 1))
 
 LONGHORN_VALUES_FILE=$LONGHORN_FILES_LOCATION/values.yaml

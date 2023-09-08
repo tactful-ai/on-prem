@@ -1,0 +1,121 @@
+- name: Configure worker_node
+  hosts: worker_nodes
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Set logging
+      ufw:
+        logging: 'on'
+
+    - name: Allow Kubelet API Port
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 10250
+
+    - name: Allow NodePort Services Ports
+      ufw:
+        rule: allow
+        port: 30776:32767
+        proto: tcp
+
+    - name: Allow Network Plugin(canal) Port TCP
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 8472
+
+    - name: Allow Network Plugin(canal) Port-UDP
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: udp
+      loop:
+        - 8472
+
+    - name: Allow Network Plugin(calico) VXLAN overlay networks Port-UDP
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: udp
+      loop:
+        - 4789
+
+    - name: Allow TCP for metalLB
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 7946
+
+    - name: Allow UDP for metalLB
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: udp
+      loop:
+        - 7946
+
+    - name: Allow TCP speackers for metalLB
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 7946
+
+    - name: Allow UDP speackers for metalLB
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: udp
+      loop:
+        - 7946
+
+    - name: Allow SSH
+      ufw:
+        rule: allow
+        port: 22
+        comment: "Allow SSH"
+
+
+    - name: Allow http
+      ufw:
+        rule: allow
+        port: 80
+        proto: tcp
+
+    - name: Allow https
+      ufw:
+        rule: allow
+        port: 443
+        proto: tcp
+
+    - name: Allow Nginx Ingress's Validating Webhook
+      ufw:
+        rule: allow
+        port: 8443
+        proto: tcp
+
+    - name: Allow Canal/Flannel livenessProbe/readinessProbe
+      ufw:
+        rule: allow
+        port: 9099
+        proto: tcp
+
+    - name: Allow Docker daemon TLS port used by node driver
+      ufw:
+        rule: allow
+        port: 2376
+        proto: tcp
+
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
