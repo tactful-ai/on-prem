@@ -1,0 +1,15 @@
+<!-- run.html -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Run Script</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+<body>
+    <h1>Run Script</h1>
+    <p>Your script has been generated successfully.</p>
+    <form action="/run" method="GET">
+        <button type="submit">Run</button>
+    </form>
+</body>
+</html>
