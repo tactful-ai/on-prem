@@ -56,10 +56,13 @@ LOAD_BALANCER="metallb"
 # if you dont want to install one of them write NONE
 MONITORING_SYSTEM="prometheus"
 
-
 # do you want to install Rancher DashBoard
 # if you dont want to install write yes
 INSTALL_RANCHER_DASHBOARD="yes"
+
+# do you want to install Adminer
+# if you dont want to install write yes
+INSTALL_ADMINER="yes"
 
 # do you want to install redis
 # if you dont want to install write yes

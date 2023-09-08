@@ -77,3 +77,11 @@ if [ "$INSTALL_REDIS" = "yes" ]; then
   print_label "Installing and configuring redis" 1
   source scripts/install_configure_redis.sh
 fi
+
+
+# if the user wants to install the Adminer.
+if [ "$INSTALL_ADMINER" = "yes" ]; then
+  # install and configure Adminer
+  print_label "Installing and configuring Adminer" 1
+  source scripts/install_configure_adminer.sh
+fi
