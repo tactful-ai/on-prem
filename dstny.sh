@@ -2,6 +2,8 @@
 
 # source the configuration file to get the details for the cluster and services to be installed
 source config.sh
+source user_fill.sh
+
 
 # install the prerequisites for the jump Server
 source ./scripts/jump_server_prerequisites.sh
@@ -25,6 +27,13 @@ export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 
 ##############   export KUBECONFIG=${PWD}/cluster_configurations/kube_config_cluster.yml
 
+
+print_label "done installing rke Now Wait 60 second for start using it" 2
+
+sleep 60
+
+# check cluster health
+kubectl cluster-info
 
 
 # if the user wants to install the certification manager.
@@ -56,7 +65,7 @@ if [ "$MONITORING_SYSTEM" = "prometheus" ]; then
 fi
 
 # if the user wants to install rancher dashboard.
-if [ "$RANCHER_DASHBOARD" = "yes" ]; then
+if [ "$INSTALL_RANCHER_DASHBOARD" = "yes" ]; then
   # install and configure rancher dashboard
   print_label "Installing and configuring rancher dashboard" 1
   source ./scripts/install_configure_rancher_dashboard.sh
