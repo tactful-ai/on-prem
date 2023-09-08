@@ -39,9 +39,7 @@ METALLB_IP_RANGES=(
 
 IP_ADDRESSES_POOL_LOCATION="${PWD}/MetalLB-files/ip_address_pool.yaml"
 
-RKE_ADDONS_INCLUDE=(
-    "https://github.com/jetstack/cert-manager/releases/download/v1.12.3/cert-manager.yaml"
-)
+RKE_ADDONS_INCLUDE=()
 
 
 INGRESS_PROVIDER="nginx"
@@ -50,7 +48,8 @@ INGRESS_NETWORK_MODE="none"
 
 ADDONS_DIRECTORY="addons"
 
-
+# Define the hostname for Rancher
+RANCHER_HOSTNAME="rancher.my.org"
 
 # --------------------- LONGHORN Section ------------------
 
@@ -80,7 +79,6 @@ GRFANA_SVC="NodePort"
 GRAFANA_ADMIN_PASSWORD="waer1234"
 
 GRAFANA_CONFIG_MAPS_DIRECTORY="${PWD}/prometheus_grafana_files/config_maps"
-
 
 
 # --------------------- utils functions Section ------------------

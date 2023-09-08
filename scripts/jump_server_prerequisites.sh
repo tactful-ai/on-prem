@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Load the information from the separate files
-source config.sh
 source ./user_fill.sh
 
 # install yq if not installed
