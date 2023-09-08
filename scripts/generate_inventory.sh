@@ -6,7 +6,6 @@ source ./user_fill.sh
 
 INVENTORY_FILE=$ANSIBLE_INVENTORY_FILE
 
-
 # Remove the existing YAML file if it exists
 if [ -f "$INVENTORY_FILE" ]; then
     rm "$INVENTORY_FILE"
