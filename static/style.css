@@ -1,0 +1,45 @@
+/* style.css */
+
+/* Style the body element */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Style headings */
+h1 {
+    color: #333;
+}
+
+/* Style form elements */
+form {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+/* Style buttons */
+button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Style form labels and input fields */
+label, input {
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* Style select dropdown */
+select {
+    width: 100%;
+    padding: 10px;
+}
