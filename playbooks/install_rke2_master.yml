@@ -5,32 +5,26 @@
   tasks:
     - name: Run RKE2 installation script for master node
       shell: "curl -sfL https://get.rke2.io | sh -"
-      register: rke2_install_output
       async: 600
-
-    - name: Wait for the installation to complete
-      async_status:
-        jid: "{{ rke2_install_output.ansible_job_id }}"
-      register: job_result
-      until: job_result.finished
-      retries: 600
-      delay: 10
-
-    - name: Extract RKE2 token from installation output
-      set_fact:
-        rke2_token: "{{ rke2_install_output.stdout_lines | regex_search('node-token: (.*)', '\\1') }}"
-      when: rke2_install_output.rc == 0
-
-    - name: Export the RKE2 token from the master node
-      fetch:
-        src: /var/lib/rancher/rke2/server/node-token
-        dest: /tmp/rke2_token
-        flat: yes
-      delegate_to: master_nodes
-      when: rke2_token is defined and rke2_token != ''
 
     - name: Enable and start the rke2-server service
       service:
         name: rke2-server
         enabled: yes
         state: started
+
+    - name: Check if /var/lib/rancher/rke2/server/node-token is empty
+      stat:
+        path: /var/lib/rancher/rke2/server/node-token
+      register: token_file_stat
+
+    - name: Throw an error if the token file is empty
+      fail:
+        msg: "RKE2 token file is empty. Installation may have failed."
+      when: token_file_stat.stat.size == 0
+
+    - name: Export the RKE2 token from the master node
+      fetch:
+        src: /var/lib/rancher/rke2/server/node-token
+        dest: /tmp/rke2_token
+        flat: yes

@@ -3,32 +3,42 @@
   hosts: worker_nodes
   become: true
   tasks:
-    - name: Copy RKE2 installation script for worker node
-      shell: "curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE='agent' sh -"
-      async: 600
 
-    - name: Wait for the installation to complete
-      async_status:
-        jid: "{{ rke2_install_output.ansible_job_id }}"
-      register: job_result
-      until: job_result.finished
-      retries: 600
-      delay: 10
-
-    - name: Copy the exported RKE2 token from master
+    - name: Copy RKE2 token from local machine to worker nodes
       copy:
         src: /tmp/rke2_token
         dest: /tmp/rke2_token
-      when: rke2_token is defined and rke2_token != ''
+      delegate_to: localhost
 
-    - name: Configure the rke2-agent service on worker node
-      template:
-        src: rke2_agent_config.yaml.j2
-        dest: /etc/rancher/rke2/config.yaml
-      when: rke2_token is defined and rke2_token != ''
+    - name: Set environment variables on worker nodes
+      shell:
+        cmd: |
+          export RANCHER1_IP={{ groups['master_nodes'][0] }}  # Use the first IP from master_nodes group
+          export TOKEN=$(cat /tmp/rke2_token)
+        executable: /bin/bash
+
+    - name: Run RKE2 installation script for worker nodes
+      shell: >
+        curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=agent sh -
+      async: 600
+
+    - name: Create RKE2 config directory
+      file:
+        path: /etc/rancher/rke2
+        state: directory
+
+    - name: Create RKE2 config directory if it doesn't exist
+      file:
+        path: /etc/rancher/rke2/config.yaml
+        state: touch
+
+    - name: Generate RKE2 config file
+      shell: |
+        echo "server: https://$RANCHER1_IP:9345" > /etc/rancher/rke2/config.yaml
+        echo "token: $TOKEN" >> /etc/rancher/rke2/config.yaml
 
     - name: Enable and start the rke2-agent service
-      service:
-        name: rke2-agent
+      systemd:
+        name: rke2-agent.service
         enabled: yes
         state: started
