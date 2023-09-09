@@ -2,13 +2,12 @@
   hosts: local_device
   become: true
   vars:
-    install_rke: true
+    install_rke: false
     rke_version: "v1.0.4"
   tasks:
     - name: Update package cache
       apt:
         update_cache: yes
-
     - name: Check if RKE is installed
       stat:
         path: /usr/local/bin/rke
@@ -19,7 +18,6 @@
         chmod +x rke_linux-amd64
         sudo mv rke_linux-amd64 /usr/local/bin/rke
       when: not rke_installed.stat.exists and install_rke
-
     - name: Install curl (if not already installed)
       package:
         name: curl
