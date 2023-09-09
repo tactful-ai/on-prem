@@ -26,6 +26,14 @@ echo "" > "$MASTER_CONFIG"
 
 yq e ".write-kubeconfig-mode = \"0644\"" -i $MASTER_CONFIG
 yq e '.["tls-san"] += [env(ip_address)]' -i $MASTER_CONFIG
+yq e ".[\"cni\"] += [\"$NETWORK_PLUGIN\"]" -i $MASTER_CONFIG
+
+yq e ".node.hostnameOverride = \"master-node\"" -i $MASTER_CONFIG
+yq e ".node.taints[0].key = \"node-role.kubernetes.io/master\"" -i $MASTER_CONFIG
+yq e ".node.taints[0].value = \"NoSchedule\"" -i $MASTER_CONFIG
+yq e ".node.taints[0].effect = \"NoSchedule\"" -i $MASTER_CONFIG
+
+
 yq e ".[].tasks[1].copy.src = \"${MASTER_CONFIG}\" " -i $MASTER_PLAYBOOK
 yq e ".[].tasks[6].fetch.dest = \"${CLUSTER_TOKEN_LOCATION}\" " -i $MASTER_PLAYBOOK
 yq e ".[].tasks[7].fetch.dest = \"${CLUSTER_CONFIG_LOCATION}\" " -i $MASTER_PLAYBOOK
@@ -66,23 +74,37 @@ export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 # Number of nodes expected to be in "Ready" state
 expected_nodes_count=$num_nodes
 
-# Maximum number of retries
-max_retries=60
+# Number of retries
+retries=500
 
-# Delay between retries in seconds
-retry_delay=10
+# Delay between retries (in seconds)
+delay=5
 
-# Command to check the number of nodes in "Ready" state
-check_nodes_command="kubectl get nodes --field-selector=status.phase=Ready --no-headers | wc -l"
+all_nodes_ready=false  # Initialize the variable as false
 
-# Loop to check node status
-for ((i=0; i<=$max_retries; i++)); do
-    ready_nodes_count=$(eval "$check_nodes_command")
-    if [ "$ready_nodes_count" -eq "$expected_nodes_count" ]; then
-        echo "All nodes are in 'Ready' state."
-    else
-        echo "Waiting for nodes to be in 'Ready' state..."
-        kubectl get nodes
-        sleep $retry_delay
+for ((i = 0; i < retries; i++)); do
+    # Execute the kubectl command to get node status
+    nodes_status=$(kubectl get nodes --no-headers)
+
+    # Count the number of nodes in the "Ready" state
+    ready_count=$(echo "$nodes_status" | awk '$2 == "Ready" { count++ } END { print count }')
+
+    echo "Number of nodes in 'Ready' state: $ready_count"
+
+    # Check if all nodes are in the "Ready" state
+    total_nodes=$(echo "$nodes_status" | wc -l)
+    if [ "$ready_count" -eq "$total_nodes" ]; then
+        echo "All nodes are ready."
+        all_nodes_ready=true  # Set the variable to true
+        break
     fi
+
+    # Sleep for the specified delay before the next retry
+    sleep $delay
 done
+
+# Check if all nodes are ready; if not, throw an error
+if [ "$all_nodes_ready" = false ]; then
+    echo "Error: Not all nodes are ready."
+    exit 1
+fi
