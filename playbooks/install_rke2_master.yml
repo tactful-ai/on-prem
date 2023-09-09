@@ -1,0 +1,34 @@
+---
+- name: Install RKE2 on the master node and export token
+  hosts: master_nodes
+  become: true
+  tasks:
+    - name: Run RKE2 installation script for master node
+      shell: "curl -sfL https://get.rke2.io | sh -"
+      register: rke2_install_output
+      async: 600
+
+    - name: Wait for the installation to complete
+      async_status:
+        jid: "{{ rke2_install_output.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 600
+      delay: 10
+
+    - name: Extract RKE2 token from installation output
+      set_fact:
+        rke2_token: "{{ rke2_install_output.stdout_lines | regex_search('node-token: (.*)', '\\1') }}"
+      when: rke2_install_output.rc == 0
+
+    - name: Export the RKE2 token
+      copy:
+        content: "{{ rke2_token }}"
+        dest: /tmp/rke2_token
+      when: rke2_token is defined and rke2_token != ''
+
+    - name: Enable and start the rke2-server service
+      service:
+        name: rke2-server
+        enabled: yes
+        state: started

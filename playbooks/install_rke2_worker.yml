@@ -1,0 +1,34 @@
+---
+- name: Install RKE2 on worker nodes using the exported token
+  hosts: worker_nodes
+  become: true
+  tasks:
+    - name: Copy RKE2 installation script for worker node
+      shell: "curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE='agent' sh -"
+      async: 600
+
+    - name: Wait for the installation to complete
+      async_status:
+        jid: "{{ rke2_install_output.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 600
+      delay: 10
+
+    - name: Copy the exported RKE2 token from master
+      copy:
+        src: /tmp/rke2_token
+        dest: /tmp/rke2_token
+      when: rke2_token is defined and rke2_token != ''
+
+    - name: Configure the rke2-agent service on worker node
+      template:
+        src: rke2_agent_config.yaml.j2
+        dest: /etc/rancher/rke2/config.yaml
+      when: rke2_token is defined and rke2_token != ''
+
+    - name: Enable and start the rke2-agent service
+      service:
+        name: rke2-agent
+        enabled: yes
+        state: started
