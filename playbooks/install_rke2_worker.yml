@@ -6,7 +6,7 @@
 
     - name: Copy RKE2 token from local machine to worker nodes
       copy:
-        src: /tmp/rke2_token
+        src: {{CLUSTER_TOKEN_LOCATION}}
         dest: /tmp/rke2_token
       delegate_to: localhost
 
