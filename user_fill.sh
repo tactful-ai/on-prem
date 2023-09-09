@@ -29,9 +29,18 @@ CONNECTION_WAY=1
 num_nodes=${#node_info[@]}
 
 
+# chose whicih rke version you want to install
+# we have rke1, rke2
+# rke1 is the old version of rke that use docker as container runtime
+# rke2 is the new version of rke that use containerd as container runtime
+RKE_VERSION="rke1"
+
 # select the docker version that compatible with you os and the k8s
 # to know the used k8s version you can run
 docker_version="23.0.6"
+
+
+
 
 
 ################################# Services Section #################################

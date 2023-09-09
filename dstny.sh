@@ -11,19 +11,15 @@ source ./scripts/jump_server_prerequisites.sh
 # install the prerequisites for the cluster Nodes
 source ./scripts/node_prerequisites.sh
 
-# generate Cluster.yml file for rke
-source ./scripts/generate_cluster_configuration_file.sh
 
-# Deploy the Kubernetes cluster using rke
-print_label "Deploying the Kubernetes cluster using rke" 1
-rke up --config $CLUSTER_FILES_LOCATION/cluster.yml
-print_label "Done deploying the Kubernetes cluster using rke" 2
-
-# change the permissions of the kube_config_cluster.yml file
-chmod +r $CLUSTER_FILES_LOCATION/kube_config_cluster.yml
-
-# export the KUBECONFIG environment variable
-export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
+# install rke version based on the user choice
+if [ "$RKE_VERSION" = "rke1" ]; then
+  # install rke1
+  source ./scripts/install_configure_rke1.sh
+elif [ "$RKE_VERSION" = "rke2" ]; then
+  # install rke2
+  source ./scripts/install_configure_rke2.sh
+fi
 
 ##############   export KUBECONFIG=${PWD}/cluster_configurations/kube_config_cluster.yml
 
