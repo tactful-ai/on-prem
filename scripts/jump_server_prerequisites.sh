@@ -44,9 +44,12 @@ RKE_VERSION="v1.0.4"
   fi
   yq e ".[].vars.rke_version = \"${RKE_VERSION}\" " -i $JUMP_SERVER_PLAYBOOK_LOCATION
   yq e ".[].vars.install_rke = true " -i $JUMP_SERVER_PLAYBOOK_LOCATION
+  yq e ".[].vars.docker = true " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
+  yq e ".[].vars.docker_version = \"${docker_version}\" " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
 elif [ "$RKE_VERSION" = "rke2" ]; then
   echo "disable rke1"
   yq e ".[].vars.install_rke = false " -i $JUMP_SERVER_PLAYBOOK_LOCATION
+  yq e ".[].vars.install_docker = false " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
 fi
 
 
