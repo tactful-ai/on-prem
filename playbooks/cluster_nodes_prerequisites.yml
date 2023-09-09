@@ -6,6 +6,7 @@
 
   vars:
     docker_version: "23.0.6"
+    install_docker: false
 
   tasks:
 
@@ -44,11 +45,14 @@
         url: "https://releases.rancher.com/install-docker/{{docker_version}}.sh"
         dest: "/tmp/compatibility_script.sh"
         mode: "0755"
+      when: install_docker
 
     - name: Execute the script
       command: "/tmp/compatibility_script.sh"
       register: script_output
       async: 600
+      when: install_docker
+
 
     - name: Add user to the docker group
       user:
@@ -56,5 +60,6 @@
         groups: docker
         append: true
         state: present
+      when: install_docker
 
 
