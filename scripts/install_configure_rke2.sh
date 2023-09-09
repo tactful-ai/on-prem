@@ -30,10 +30,10 @@ yq e ".[].tasks[1].copy.src = \"${MASTER_CONFIG}\" " -i $MASTER_PLAYBOOK
 yq e ".[].tasks[6].fetch.dest = \"${CLUSTER_TOKEN_LOCATION}\" " -i $MASTER_PLAYBOOK
 yq e ".[].tasks[7].fetch.dest = \"${CLUSTER_CONFIG_LOCATION}\" " -i $MASTER_PLAYBOOK
 
-# ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_PLAYBOOK
+ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_PLAYBOOK
 
 
-# yq e ".clusters[0].cluster.server = \"https://${ip_address}:6443\" " -i $CLUSTER_CONFIG_LOCATION
+yq e ".clusters[0].cluster.server = \"https://${ip_address}:6443\" " -i $CLUSTER_CONFIG_LOCATION
 
 
 YAML_FILE=$CLUSTER_FILES_LOCATION/worker.yml
@@ -58,4 +58,3 @@ yq eval '.' -i "$YAML_FILE"
 yq e ".[].tasks[1].copy.src = \"${WORKER_CONFIG}\" " -i $WORKERS_PLAYBOOK
 
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $WORKERS_PLAYBOOK
-
