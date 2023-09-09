@@ -58,3 +58,31 @@ yq eval '.' -i "$YAML_FILE"
 yq e ".[].tasks[1].copy.src = \"${WORKER_CONFIG}\" " -i $WORKERS_PLAYBOOK
 
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $WORKERS_PLAYBOOK
+
+# export the KUBECONFIG environment variable
+export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
+
+
+# Number of nodes expected to be in "Ready" state
+expected_nodes_count=$num_nodes
+
+# Maximum number of retries
+max_retries=60
+
+# Delay between retries in seconds
+retry_delay=10
+
+# Command to check the number of nodes in "Ready" state
+check_nodes_command="kubectl get nodes --field-selector=status.phase=Ready --no-headers | wc -l"
+
+# Loop to check node status
+for ((i=0; i<=$max_retries; i++)); do
+    ready_nodes_count=$(eval "$check_nodes_command")
+    if [ "$ready_nodes_count" -eq "$expected_nodes_count" ]; then
+        echo "All nodes are in 'Ready' state."
+    else
+        echo "Waiting for nodes to be in 'Ready' state..."
+        kubectl get nodes
+        sleep $retry_delay
+    fi
+done
