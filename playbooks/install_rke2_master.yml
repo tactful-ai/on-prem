@@ -21,10 +21,12 @@
         rke2_token: "{{ rke2_install_output.stdout_lines | regex_search('node-token: (.*)', '\\1') }}"
       when: rke2_install_output.rc == 0
 
-    - name: Export the RKE2 token
-      copy:
-        content: "{{ rke2_token }}"
+    - name: Export the RKE2 token from the master node
+      fetch:
+        src: /var/lib/rancher/rke2/server/node-token
         dest: /tmp/rke2_token
+        flat: yes
+      delegate_to: master_nodes
       when: rke2_token is defined and rke2_token != ''
 
     - name: Enable and start the rke2-server service
