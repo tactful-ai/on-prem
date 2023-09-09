@@ -3,28 +3,23 @@
   hosts: "worker_nodes , master_nodes"
   gather_facts: true
   become: true
-
   vars:
     docker_version: "23.0.6"
     install_docker: false
-
+    docker: true
   tasks:
-
     - name: Turn off swap
       shell: swapoff -a
-
     - name: Create sysctl directory
       file:
         path: /etc/sysctl.d
         state: directory
         mode: '0755'
-
     - name: Create Kubernetes sysctl configuration file
       file:
         path: /etc/sysctl.d/kubernetes.conf
         state: touch
         mode: '0644'
-
     - name: Configure Kernel Parameters
       lineinfile:
         dest: /etc/sysctl.d/kubernetes.conf
@@ -32,28 +27,20 @@
       with_items:
         - "net.bridge.bridge-nf-call-ip6tables = 1"
         - "net.bridge.bridge-nf-call-iptables = 1"
-
     - name: Apply Kernel Parameters
       shell: sysctl --system
-
-
-  # Install docker engine
-
-
+      # Install docker engine
     - name: Download the compatibility script
       get_url:
         url: "https://releases.rancher.com/install-docker/{{docker_version}}.sh"
         dest: "/tmp/compatibility_script.sh"
         mode: "0755"
       when: install_docker
-
     - name: Execute the script
       command: "/tmp/compatibility_script.sh"
       register: script_output
       async: 600
       when: install_docker
-
-
     - name: Add user to the docker group
       user:
         name: "{{ ansible_user }}"
@@ -61,5 +48,3 @@
         append: true
         state: present
       when: install_docker
-
-

@@ -2,10 +2,6 @@
 - name: Install RKE2 on the master node and export token
   hosts: master_nodes
   become: true
-  vars:
-    MASTER_CONFIG_LOCATION: "/media/waer/HDD/computer_engineering/projects/under_development/on-prem/cluster_configurations/Master.yml"
-    CLUSTER_TOKEN_LOCATION: "/media/waer/HDD/computer_engineering/projects/under_development/on-prem/cluster_configurations/rke2_token"
-    CLUSTER_CONFIG_LOCATION: "/media/waer/HDD/computer_engineering/projects/under_development/on-prem/cluster_configurations/kube_config_cluster.yml"
   tasks:
     - name: Create directory /etc/rancher/rke2
       file:
@@ -13,7 +9,7 @@
         state: directory
     - name: Copy data from ../cluster_configurations/Master.yml to /etc/rancher/rke2/config.yaml
       copy:
-        src: {? {MASTER_CONFIG_LOCATION: ''} : ''}
+        src: /home/ubuntu/on-prem/cluster_configurations/Master.yml
         dest: /etc/rancher/rke2/config.yaml
     - name: Run RKE2 installation script for master node
       shell: "curl -sfL https://get.rke2.io | sh -"
@@ -34,10 +30,13 @@
     - name: Export the RKE2 token from the master node
       fetch:
         src: /var/lib/rancher/rke2/server/node-token
-        dest: {? {CLUSTER_TOKEN_LOCATION: ''} : ''}
+        dest: /home/ubuntu/on-prem/cluster_configurations/rke2_token
         flat: yes
     - name: Export the k8s config from the master node
       fetch:
         src: /etc/rancher/rke2/rke2.yaml
-        dest: {? {CLUSTER_CONFIG_LOCATION: ''} : ''}
+        dest: /home/ubuntu/on-prem/cluster_configurations/kube_config_cluster.yml
         flat: yes
+  vars:
+    cluster_token_location: /home/ubuntu/on-prem/cluster_configurations/rke2_token
+    cluster_config_location: /home/ubuntu/on-prem/cluster_configurations/kube_config_cluster.yml
