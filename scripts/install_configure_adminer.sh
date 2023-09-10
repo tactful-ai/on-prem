@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the namespace where Adminer will be installed
-ADMINER_NAMESPACE="adminer-namespace"
+ADMINER_NAMESPACE="adminer"
 
 # Define the Helm chart name (replace with the actual chart name)
 HELM_CHART="adminer"
