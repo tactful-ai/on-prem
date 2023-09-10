@@ -32,19 +32,18 @@ source ./scripts/generate_inventory.sh
 
 if [ "$RKE_VERSION" = "rke1" ]; then
   echo "enable rke1"
-  # RKE_VERSION=$(curl -s https://api.github.com/repos/rancher/rke/releases | \
-  # grep -E '"tag_name": "v[0-9]+\.[0-9]+\.[0-9]+"' | \
-  # grep -v -E '"tag_name": "v[0-9]+\.[0-9]+\.[0-9]-rc[0-9]+"' | \
-  # head -n 1 | \
-  # cut -d '"' -f 4)
-RKE_VERSION="v1.0.4"
+  RKE_VERSION=$(curl -s https://api.github.com/repos/rancher/rke/releases | \
+  grep -E '"tag_name": "v[0-9]+\.[0-9]+\.[0-9]+"' | \
+  grep -v -E '"tag_name": "v[0-9]+\.[0-9]+\.[0-9]-rc[0-9]+"' | \
+  head -n 1 | \
+  cut -d '"' -f 4)
   if [ -z "$RKE_VERSION" ]; then
     echo "Error: Unable to fetch the latest RKE LTS version."
     exit 1
   fi
   yq e ".[].vars.rke_version = \"${RKE_VERSION}\" " -i $JUMP_SERVER_PLAYBOOK_LOCATION
   yq e ".[].vars.install_rke = true " -i $JUMP_SERVER_PLAYBOOK_LOCATION
-  yq e ".[].vars.docker = true " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
+  yq e ".[].vars.install_docker = true " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
   yq e ".[].vars.docker_version = \"${docker_version}\" " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
 elif [ "$RKE_VERSION" = "rke2" ]; then
   echo "disable rke1"
