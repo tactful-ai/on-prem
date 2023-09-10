@@ -1,3 +1,15 @@
 write-kubeconfig-mode: "0644"
 tls-san:
   - Node_IP
+cni:
+  - canal
+node:
+  hostnameOverride: master-node
+node-taint:
+  taints:
+    - key: controlplane
+      value: NoSchedule
+      effect: NoSchedule
+    - key: etcd
+      value: NoExecute
+      effect: NoExecute

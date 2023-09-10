@@ -12,7 +12,7 @@
         src: /home/ubuntu/on-prem/cluster_configurations/Master.yml
         dest: /etc/rancher/rke2/config.yaml
     - name: Run RKE2 installation script for master node
-      shell: "curl -sfL https://get.rke2.io | sh -"
+      shell: "curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=server sh -"
       async: 600
     - name: Enable and start the rke2-server service
       service:
