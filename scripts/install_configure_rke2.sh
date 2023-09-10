@@ -29,13 +29,13 @@ yq e '.["tls-san"] += [env(ip_address)]' -i $MASTER_CONFIG
 yq e ".[\"cni\"] += [\"$NETWORK_PLUGIN\"]" -i $MASTER_CONFIG
 
 yq e ".node.hostnameOverride = \"master-node\"" -i $MASTER_CONFIG
-yq e ".node.taints[0].key = \"node-role.kubernetes.io/controlplane\"" -i $MASTER_CONFIG
-yq e ".node.taints[0].value = \"NoSchedule\"" -i $MASTER_CONFIG
-yq e ".node.taints[0].effect = \"NoSchedule\"" -i $MASTER_CONFIG
+yq e ".node-taint.taints[0].key = \"controlplane\"" -i $MASTER_CONFIG
+yq e ".node-taint.taints[0].value = \"NoSchedule\"" -i $MASTER_CONFIG
+yq e ".node-taint.taints[0].effect = \"NoSchedule\"" -i $MASTER_CONFIG
 
-yq e ".node.taints[1].key = \"node-role.kubernetes.io/etcd\"" -i $MASTER_CONFIG
-yq e ".node.taints[1].value = \"NoExecute\"" -i $MASTER_CONFIG
-yq e ".node.taints[1].effect = \"NoExecute\"" -i $MASTER_CONFIG
+yq e ".node-taint.taints[1].key = \"etcd\"" -i $MASTER_CONFIG
+yq e ".node-taint.taints[1].value = \"NoExecute\"" -i $MASTER_CONFIG
+yq e ".node-taint.taints[1].effect = \"NoExecute\"" -i $MASTER_CONFIG
 
 yq e ".[].tasks[1].copy.src = \"${MASTER_CONFIG}\" " -i $MASTER_PLAYBOOK
 yq e ".[].tasks[6].fetch.dest = \"${CLUSTER_TOKEN_LOCATION}\" " -i $MASTER_PLAYBOOK
