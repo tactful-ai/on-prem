@@ -14,11 +14,17 @@
     - name: Run RKE2 installation script for master node
       shell: "curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=server sh -"
       async: 600
-    - name: Enable and start the rke2-server service
+
+    - name: Enable RKE2 Server Service
       service:
         name: rke2-server
         enabled: yes
+    - name: Start RKE2 Server Service
+      service:
+        name: rke2-server
         state: started
+
+
     - name: Check if /var/lib/rancher/rke2/server/node-token is empty
       stat:
         path: /var/lib/rancher/rke2/server/node-token

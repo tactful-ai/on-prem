@@ -16,8 +16,11 @@
         curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=agent sh -
 
       async: 600
-    - name: Enable and start the rke2-agent service
-      systemd:
-        name: rke2-agent.service
+    - name: Enable RKE2 Agent Service
+      service:
+        name: rke2-agent
         enabled: yes
+    - name: Start RKE2 Agent Service
+      service:
+        name: rke2-agent
         state: started
