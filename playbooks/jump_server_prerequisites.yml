@@ -2,7 +2,8 @@
   hosts: local_device
   become: true
   vars:
-    rke_version: "v1.4.8"
+    install_rke: false
+    rke_version: "v1.0.4"
   tasks:
     - name: Update package cache
       apt:
@@ -16,7 +17,7 @@
         wget https://github.com/rancher/rke/releases/download/{{ rke_version }}/rke_linux-amd64
         chmod +x rke_linux-amd64
         sudo mv rke_linux-amd64 /usr/local/bin/rke
-      when: not rke_installed.stat.exists
+      when: not rke_installed.stat.exists and install_rke
     - name: Install curl (if not already installed)
       package:
         name: curl

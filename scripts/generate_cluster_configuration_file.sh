@@ -41,7 +41,7 @@ for ((i=0; i<num_nodes; i++)); do
 done
 
 # Set roles for nodes
-yq eval -i ".nodes[0].role += [\"controlplane\", \"etcd\"]" "$YAML_FILE"
+yq eval -i ".nodes[0].role += [\"controlplane\", \"etcd\" ]" "$YAML_FILE"
 for ((i=1; i<num_nodes; i++)); do
     yq eval -i ".nodes[$i].role += [\"worker\"]" "$YAML_FILE"
 done

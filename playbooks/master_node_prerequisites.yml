@@ -8,6 +8,14 @@
       ufw:
         logging: 'on'
 
+    - name: Allow communication for worker nodes to master
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 9345
+
     - name: Allow Control Plane Node Ports
       ufw:
         rule: allow

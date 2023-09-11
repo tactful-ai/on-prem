@@ -1,0 +1,26 @@
+---
+- name: Install RKE2 on worker nodes using the exported token
+  hosts: worker_nodes
+  become: true
+  tasks:
+    - name: Create directory /etc/rancher/rke2
+      file:
+        path: /etc/rancher/rke2
+        state: directory
+    - name: Copy the config to /etc/rancher/rke2/config.yaml
+      copy:
+        src: /home/ubuntu/on-prem/cluster_configurations/worker.yml
+        dest: /etc/rancher/rke2/config.yaml
+    - name: Run RKE2 installation script for worker nodes
+      shell: >
+        curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=agent sh -
+
+      async: 600
+    - name: Enable RKE2 Agent Service
+      service:
+        name: rke2-agent
+        enabled: yes
+    - name: Start RKE2 Agent Service
+      service:
+        name: rke2-agent
+        state: started
