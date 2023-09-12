@@ -7,6 +7,9 @@
     docker_version: "23.0.6"
     install_docker: false
     docker: true
+    network_plugin: canal
+    rke_version: rke1
+    load_balancer: metallb
   tasks:
     - name: Turn off swap
       shell: swapoff -a
@@ -48,3 +51,169 @@
         append: true
         state: present
       when: install_docker
+####################### network for both master and worker nodes #######################
+    - name: Set logging
+      ufw:
+        logging: 'on'
+    - name: Allow Kubelet API Port
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 10250
+    - name: Allow SSH
+      ufw:
+        rule: allow
+        port: 22
+        comment: "Allow SSH"
+####################### LOAD BALANCER CONFIGURATION PORTS #######################
+    - name: Allow TCP speackers for metalLB
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 7946
+      when: load_balancer == "metallb"
+    - name: Allow UDP speackers for metalLB
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: "udp"
+      loop:
+        - 7946
+      when: load_balancer == "metallb"
+####################### cannel Network Plugin #######################
+    - name: Allow Network Plugin(canal) Port TCP
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 8472
+      when: network_plugin == "canal"
+    - name: Allow Network Plugin(canal) Port-UDP
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: udp
+      loop:
+        - 8472
+      when: network_plugin == "canal"
+
+    - name: Allow Canal livenessProbe/readinessProbe
+      ufw:
+        rule: allow
+        port: 9099
+        proto: tcp
+      when: network_plugin == "canal"
+
+    - name: Allow Network Plugin(canal) Wireguard Port UDP
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: udp
+      loop:
+        - 51820
+        - 51821
+      when: network_plugin == "canal"
+
+####################### Weave Network Plugin #######################
+
+    - name: Allow Weave Network Plugin Ports
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 6783
+      when: network_plugin == "weave"
+
+    - name: Allow Weave Network Plugin UDP Ports
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: udp
+      loop:
+        - 6783
+        - 6784
+      when: network_plugin == "weave"
+
+####################### Calico Network Plugin #######################
+
+    - name: Allow Calico Network Plugin Ports
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 179
+      when: network_plugin == "calico"
+
+    - name: Allow Calico Network Plugin Ports (VXLAN)
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: udp
+      loop:
+        - 4789
+      when: network_plugin == "calico"
+
+    - name: Allow Calico Network Plugin Port for Typha
+      ufw:
+        rule: allow
+        port: 5473
+        proto: tcp
+      when: network_plugin == "calico"
+
+####################### Cilium Network Plugin #######################
+
+    - name: Allow Cilium Network Plugin Ports
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 8472
+        - 4240
+      when: network_plugin == "cilium"
+
+    - name: Allow ICMP Echo Requests (Ping) for Health Checks
+      ufw:
+        rule: allow
+        proto: icmp
+        icmp_type: 8
+        state: NEW
+      when: network_plugin == "cilium"
+
+####################### Flannel Network Plugin #######################
+
+    - name: Allow Flannel Network Plugin VXLAN Port on Kubernetes Worker Nodes
+      ufw:
+        rule: allow
+        port: 8472
+        proto: udp
+      when: network_plugin == "flannel"
+
+####################### Nginx ingress Network Plugin #######################
+
+    - name: Allow Nginx Ingress's Validating Webhook
+      ufw:
+        rule: allow
+        port: 8443
+        proto: tcp
+    - name: Allow https
+      ufw:
+        rule: allow
+        port: 443
+        proto: tcp
+    - name: Allow http
+      ufw:
+        rule: allow
+        port: 80
+        proto: tcp
+####################### ENABLE FIREWALL FOR ALL NODES #######################
+    - name: Enable UFW
+      ufw:
+        state: enabled
