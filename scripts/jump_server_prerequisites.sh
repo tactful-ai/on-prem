@@ -4,31 +4,82 @@
 source ./user_fill.sh
 source ./config.sh
 
-# install yq if not installed
-if ! command -v yq &>/dev/null; then
-    print_label "installing yq" 1
-    wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
-    chmod +x /usr/bin/yq
-    print_label "Done installing yq" 2
+# Install git if not installed
+if ! command -v git &>/dev/null; then
+    print_label "Installing git" 1
+    # Check if the system is CentOS or Red Hat
+    if [[ -f /etc/redhat-release ]]; then
+      # CentOS/Red Hat
+      sudo yum install -y git
+    else
+      # Ubuntu
+      sudo apt update -y
+      sudo apt install git -y
+    fi
+    print_label "Done installing git" 2
 else
-    print_label "YQ is already installed." 2
+    print_label "git is already installed." 2
 fi
 
-# install ansible if not installed
-if ! command -v ansible &>/dev/null; then
-    print_label "installing ansible" 1
-    sudo apt-add-repository ppa:ansible/ansible -y
-    sudo apt update -y
-    sudo apt install ansible -y
-    print_label "Done installing ansible" 2
+
+# Install wget if not installed
+if ! command -v wget &>/dev/null; then
+    print_label "Installing wget" 1
+    # Check if the system is CentOS or Red Hat
+    if [[ -f /etc/redhat-release ]]; then
+      # CentOS/Red Hat
+      sudo yum install -y wget
+    else
+      # Ubuntu
+      sudo apt update -y
+      sudo apt install wget -y
+    fi
+    print_label "Done installing wget" 2
 else
-    print_label "ANSIBLE is already installed." 2
-    echo "ANSIBLE is already installed."
+    print_label "wget is already installed." 2
+fi
+
+
+# Install yq if not installed
+if ! command -v yq &>/dev/null; then
+    print_label "Installing yq" 1
+    # Check if the system is CentOS or Red Hat
+    if [[ -f /etc/redhat-release ]]; then
+        # CentOS/Red Hat
+        yum install -y python3-pip
+        sudo pip3 install yq
+        sudo ln -s /usr/local/bin/yq /usr/bin/yq  # Create a symbolic link
+        yq --version
+    else
+        # Ubuntu
+        wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+        chmod +x /usr/bin/yq
+    fi
+    print_label "Done installing yq" 2
+else
+    print_label "yq is already installed." 2
+fi
+
+# Install Ansible if not installed
+if ! command -v ansible &>/dev/null; then
+    print_label "Installing Ansible" 1
+    # Check if the system is CentOS or Red Hat
+    if [[ -f /etc/redhat-release ]]; then
+      # CentOS/Red Hat
+    sudo dnf install -y ansible-core
+    else
+      # Ubuntu
+      sudo apt-add-repository ppa:ansible/ansible -y
+      sudo apt update -y
+      sudo apt install ansible -y
+    fi
+    print_label "Done installing Ansible" 2
+else
+    print_label "Ansible is already installed." 2
 fi
 
 # generate inventory file for ansible
 source ./scripts/generate_inventory.sh
-
 
 if [ "$RKE_VERSION" = "rke1" ]; then
   echo "enable rke1"
@@ -51,8 +102,9 @@ elif [ "$RKE_VERSION" = "rke2" ]; then
   yq e ".[].vars.install_docker = false " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
 fi
 
+ansible --version
 
-
-# install prerequisites for jump server
+install prerequisites for jump server
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/jump_server_prerequisites.yml
 print_label "Done Installing prerequisites for jump server" 2
+
