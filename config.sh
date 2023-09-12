@@ -23,6 +23,8 @@ KUBERNETES_VERSION=$(rke config --list-version --all | sort -V | tail -n 1)
 DOCKER_PATH="/var/run/docker.sock"
 
 # LOOK AT IMPORTANT NOTE TO FIND ALL TYPES
+# calico, canal and cilium for rke2
+# calico, canal, weave and Flannel for rke1
 NETWORK_PLUGIN="canal"
 
 
@@ -48,7 +50,7 @@ INGRESS_PROVIDER="nginx"
 INGRESS_NETWORK_MODE="none"
 
 
-ADDONS_DIRECTORY="addons"
+ADDONS_DIRECTORY="${PWD}/addons"
 
 # Define the hostname for Rancher
 RANCHER_HOSTNAME="rancher.my.org"

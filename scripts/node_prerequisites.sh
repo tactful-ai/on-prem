@@ -46,12 +46,37 @@ for ((i=0; i<num_nodes; i++)); do
     print_label "Preparation completed for node $ip_address" 2
 done
 
-# install general prerequisites for all nodes
-ansible-playbook -i ./playbooks/inventory.yml ./playbooks/cluster_nodes_prerequisites.yml
+
+
+ANSIBLE_PLAYBOOKS_LOCATION="${PWD}/playbooks"
+ANSIBLE_INVENTORY_FILE="${PWD}/playbooks/inventory.yml"
+CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION="${ANSIBLE_PLAYBOOKS_LOCATION}/cluster_nodes_prerequisites.yml"
+MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION="${ANSIBLE_PLAYBOOKS_LOCATION}/master_node_prerequisites.yml"
+WORKER_NODE_PREQUISITES_PLAYBOOK_LOCATION="${ANSIBLE_PLAYBOOKS_LOCATION}/worker_node_prerequisites.yml"
+
+yq e ".[].vars.network_plugin = \"$NETWORK_PLUGIN\" " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
+yq e ".[].vars.network_plugin = \"$NETWORK_PLUGIN\" " -i $MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION
+yq e ".[].vars.network_plugin = \"$NETWORK_PLUGIN\" " -i $WORKER_NODE_PREQUISITES_PLAYBOOK_LOCATION
+
+yq e ".[].vars.rke_version = \"$RKE_VERSION\" " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
+yq e ".[].vars.rke_version = \"$RKE_VERSION\" " -i $MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION
+yq e ".[].vars.rke_version = \"$RKE_VERSION\" " -i $WORKER_NODE_PREQUISITES_PLAYBOOK_LOCATION
+
+yq e ".[].vars.load_balancer = \"$LOAD_BALANCER\" " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
+yq e ".[].vars.load_balancer = \"$LOAD_BALANCER\" " -i $MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION
+yq e ".[].vars.load_balancer = \"$LOAD_BALANCER\" " -i $WORKER_NODE_PREQUISITES_PLAYBOOK_LOCATION
+
+
+
+
 
 # install prerequisites for master nodes
-ansible-playbook -i ./playbooks/inventory.yml ./playbooks/master_node_prerequisites.yml
+ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION
 
 # install prerequisites for worker nodes
-ansible-playbook -i ./playbooks/inventory.yml ./playbooks/worker_node_prerequisites.yml
+ansible-playbook -i $ANSIBLE_INVENTORY_FILE $WORKER_NODE_PREQUISITES_PLAYBOOK_LOCATION
+
+# install general prerequisites for all nodes
+ansible-playbook -i $ANSIBLE_INVENTORY_FILE $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
+
 print_label "Done Installing prerequisites for cluster nodes" 2

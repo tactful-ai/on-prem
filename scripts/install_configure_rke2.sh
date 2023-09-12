@@ -10,6 +10,7 @@ MASTER_CONFIG=$CLUSTER_FILES_LOCATION/Master.yml
 CLUSTER_TOKEN_LOCATION=$CLUSTER_FILES_LOCATION/rke2_token
 CLUSTER_CONFIG_LOCATION=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 MASTER_PLAYBOOK=${ANSIBLE_PLAYBOOKS_LOCATION}/install_rke2_master.yml
+RKE2_ADDONS_LOCATION=${PWD}/RKE2_addons
 
 
 # Remove the existing YAML file if it exists
@@ -32,10 +33,41 @@ yq e ".node.hostnameOverride = \"master-node\"" -i $MASTER_CONFIG
 yq e ".node-taint[0] = \"CriticalAddonsOnly=true:NoExecute\"" -i $MASTER_CONFIG
 
 
+# copy the addons from local to the server
+yq e ".[].tasks[0].copy.src = \"${RKE2_ADDONS_LOCATION}\" " -i $MASTER_PLAYBOOK
 
-yq e ".[].tasks[1].copy.src = \"${MASTER_CONFIG}\" " -i $MASTER_PLAYBOOK
-yq e ".[].tasks[7].fetch.dest = \"${CLUSTER_TOKEN_LOCATION}\" " -i $MASTER_PLAYBOOK
-yq e ".[].tasks[8].fetch.dest = \"${CLUSTER_CONFIG_LOCATION}\" " -i $MASTER_PLAYBOOK
+# copy the addons from local to the server
+yq e ".[].tasks[1].copy.src = \"${ADDONS_DIRECTORY}\" " -i $MASTER_PLAYBOOK
+
+# copy the cluster config and token from local to the server
+yq e ".[].tasks[3].copy.src = \"${MASTER_CONFIG}\" " -i $MASTER_PLAYBOOK
+
+# copy the cluster config and token from local to the server
+yq e ".[].tasks[9].fetch.dest = \"${CLUSTER_TOKEN_LOCATION}\" " -i $MASTER_PLAYBOOK
+yq e ".[].tasks[10].fetch.dest = \"${CLUSTER_CONFIG_LOCATION}\" " -i $MASTER_PLAYBOOK
+
+
+mkdir -p $RKE2_ADDONS_LOCATION
+
+
+cat <<EOF > $RKE2_ADDONS_LOCATION/helm-chart-config.yaml
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: rke2-ingress-nginx
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    controller:
+      kind: Deployment
+      ingressClassResource:
+        default: true
+      publishService:
+        enabled: true
+      service:
+        enabled: true
+EOF
+
 
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_PLAYBOOK
 
@@ -67,8 +99,10 @@ yq e ".[].tasks[1].copy.src = \"${WORKER_CONFIG}\" " -i $WORKERS_PLAYBOOK
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $WORKERS_PLAYBOOK
 
 # export the KUBECONFIG environment variable
-export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
+# export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 
+mkdir ~/.kube
+cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config
 
 # Number of nodes expected to be in "Ready" state
 expected_nodes_count=$num_nodes
