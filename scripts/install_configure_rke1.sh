@@ -16,4 +16,7 @@ print_label "Done deploying the Kubernetes cluster using rke1" 2
 chmod +r $CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 
 # export the KUBECONFIG environment variable
-export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
+# export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
+
+mkdir ~/.kube
+cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config

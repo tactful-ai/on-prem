@@ -99,8 +99,10 @@ yq e ".[].tasks[1].copy.src = \"${WORKER_CONFIG}\" " -i $WORKERS_PLAYBOOK
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $WORKERS_PLAYBOOK
 
 # export the KUBECONFIG environment variable
-export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
+# export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 
+mkdir ~/.kube
+cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config
 
 # Number of nodes expected to be in "Ready" state
 expected_nodes_count=$num_nodes
