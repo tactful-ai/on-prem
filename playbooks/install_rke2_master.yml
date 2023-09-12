@@ -3,13 +3,14 @@
   hosts: master_nodes
   become: true
   tasks:
-    - name: copy the addons from local folder to remote server to run default addons
-      synchronize:
+    - name: copy the rke2basic addons from local folder to remote server to run default addons
+      copy:
         src: ./addons/
         dest: /var/lib/rancher/rke2/server/manifests/
-        recursive: yes
+    - name: copy the addons from local folder to remote server to run default addons
       copy:
-        src: /media/waer/HDD/computer_engineering/projects/under_development/on-prem/addons
+        src: ./addons/
+        dest: /var/lib/rancher/rke2/server/manifests/
     - name: Create directory /etc/rancher/rke2
       file:
         path: /etc/rancher/rke2
