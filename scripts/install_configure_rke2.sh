@@ -32,10 +32,15 @@ yq e ".node.hostnameOverride = \"master-node\"" -i $MASTER_CONFIG
 yq e ".node-taint[0] = \"CriticalAddonsOnly=true:NoExecute\"" -i $MASTER_CONFIG
 
 
+# copy the addons from local to the server
+yq e ".[].tasks[0].copy.src = \"${ADDONS_DIRECTORY}\" " -i $MASTER_PLAYBOOK
 
-yq e ".[].tasks[1].copy.src = \"${MASTER_CONFIG}\" " -i $MASTER_PLAYBOOK
-yq e ".[].tasks[7].fetch.dest = \"${CLUSTER_TOKEN_LOCATION}\" " -i $MASTER_PLAYBOOK
-yq e ".[].tasks[8].fetch.dest = \"${CLUSTER_CONFIG_LOCATION}\" " -i $MASTER_PLAYBOOK
+# copy the cluster config and token from local to the server
+yq e ".[].tasks[2].copy.src = \"${MASTER_CONFIG}\" " -i $MASTER_PLAYBOOK
+
+# copy the cluster config and token from local to the server
+yq e ".[].tasks[8].fetch.dest = \"${CLUSTER_TOKEN_LOCATION}\" " -i $MASTER_PLAYBOOK
+yq e ".[].tasks[9].fetch.dest = \"${CLUSTER_CONFIG_LOCATION}\" " -i $MASTER_PLAYBOOK
 
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_PLAYBOOK
 
