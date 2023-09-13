@@ -418,3 +418,9 @@
       firewalld:
         state: enabled
       when: package_manager == 'yum' # For Red Hat
+    ####################### Disable nm-cloud-setup.service #######################
+    - name: Disable nm-cloud-setup.service
+      systemd:
+        name: nm-cloud-setup.service
+        enabled: no
+      when: ansible_os_family == 'RedHat'

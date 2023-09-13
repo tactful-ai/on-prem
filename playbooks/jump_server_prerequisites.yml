@@ -3,7 +3,7 @@
   hosts: local_device
   become: true
   vars:
-    install_rke: true
+    install_rke: false
     rke_version: "v1.4.9"
   tasks:
     - name: Update package cache (Ubuntu)
@@ -37,6 +37,8 @@
         sudo mv kubectl /usr/local/bin/
       args:
         creates: /usr/local/bin/kubectl
+      environment:
+        PATH: "{{ ansible_env.PATH }}:/usr/local/bin/"
     - name: Download Helm installation script
       get_url:
         url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
