@@ -39,7 +39,7 @@
         port: 9345/tcp
         permanent: yes
         state: enabled
-      when: package_manager == 'yum' and ansible_distribution == 'RedHat'
+      when: rke_version == "rke2" and package_manager == 'yum'
       ######################### K8S NODES PORTS #######################
     - name: Allow Control Plane Node Ports
       ufw:
@@ -63,6 +63,7 @@
       loop:
         - 2379
         - 2380
+        - 2381
       when: package_manager == "apt" # FOR UBUNTU
     - name: Allow etcd Ports
       firewalld:

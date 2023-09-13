@@ -12,26 +12,6 @@
     load_balancer: metallb
     package_manager: "{{ 'apt' if ansible_os_family == 'Debian' else 'yum' }}"
   tasks:
-    ####################### Determine the os ###########################
-
-    - name: Get the contents of /etc/os-release
-      shell: cat /etc/os-release
-      register: os_release
-
-    - name: Determine distribution
-      set_fact:
-        distribution: |
-          {%- if "'Red Hat'" in os_release.stdout -%}
-          RHEL
-          {%- elif "'CentOS'" in os_release.stdout -%}
-          CentOS
-          {%- else -%}
-          Unknown
-          {%- endif -%}
-    - name: Debug distribution
-      debug:
-        var: distribution
-
     ####################### Kubernates Prequesites ###########################
 
     - name: Turn off swap
@@ -104,7 +84,7 @@
         state: present
       when: install_docker and package_manager == 'apt'
 
-  ####################### Installing Docker ###########################
+  ####################### Installing Firewall controller ###########################
     - name: Install UFW package
       package:
         name: ufw
@@ -126,6 +106,7 @@
       ufw:
         logging: 'on'
       when: package_manager == 'apt' # For Ubuntu
+      
     - name: Allow Kubelet API Port (Port 10250)
       ufw:
         rule: allow

@@ -21,7 +21,6 @@ else
     print_label "git is already installed." 2
 fi
 
-
 # Install wget if not installed
 if ! command -v wget &>/dev/null; then
     print_label "Installing wget" 1
