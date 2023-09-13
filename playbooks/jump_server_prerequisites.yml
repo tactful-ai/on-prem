@@ -1,13 +1,20 @@
-- name: Install Jump Server Prequiseits
+---
+- name: Install Jump Server Prerequisites
   hosts: local_device
   become: true
   vars:
-    install_rke: false
-    rke_version: "v1.0.4"
+    install_rke: true
+    rke_version: "v1.4.9"
   tasks:
-    - name: Update package cache
+    - name: Update package cache (Ubuntu)
       apt:
         update_cache: yes
+      when: ansible_os_family == 'Debian'
+    - name: Upgrade all packages (Red Hat)
+      yum:
+        name: '*'
+        state: latest
+      when: ansible_os_family == 'RedHat'
     - name: Check if RKE is installed
       stat:
         path: /usr/local/bin/rke
@@ -22,6 +29,12 @@
       package:
         name: curl
         state: present
+      when: ansible_os_family == 'Debian'
+    - name: Install curl (if not already installed)
+      yum:
+        name: curl
+        state: present
+      when: ansible_os_family == 'RedHat'
     - name: Install kubectl
       shell: |
         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -38,17 +51,24 @@
       shell: /tmp/get_helm.sh
       args:
         creates: /usr/local/bin/helm
-    - name: Install sshpass
+    - name: Install sshpass (Ubuntu)
       apt:
         name: sshpass
         state: present
-    - name: Update package cache
-      apt:
-        update_cache: yes
-      register: update_result
-    - name: Upgrade all packages
+      when: ansible_os_family == 'Debian'
+    - name: Install sshpass (Red Hat)
+      yum:
+        name: sshpass
+        state: present
+      when: ansible_os_family == 'RedHat'
+    - name: Upgrade all packages (Ubuntu)
       apt:
         upgrade: dist
         autoremove: yes
         autoclean: yes
-      when: update_result.changed
+      when: ansible_os_family == 'Debian'
+    - name: Upgrade all packages (Red Hat)
+      yum:
+        name: '*'
+        state: latest
+      when: ansible_os_family == 'RedHat'

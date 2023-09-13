@@ -43,18 +43,8 @@ fi
 # Install yq if not installed
 if ! command -v yq &>/dev/null; then
     print_label "Installing yq" 1
-    # Check if the system is CentOS or Red Hat
-    if [[ -f /etc/redhat-release ]]; then
-        # CentOS/Red Hat
-        yum install -y python3-pip
-        sudo pip3 install yq
-        sudo ln -s /usr/local/bin/yq /usr/bin/yq  # Create a symbolic link
-        yq --version
-    else
-        # Ubuntu
-        wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
-        chmod +x /usr/bin/yq
-    fi
+    wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+    chmod +x /usr/bin/yq
     print_label "Done installing yq" 2
 else
     print_label "yq is already installed." 2
@@ -107,4 +97,3 @@ ansible --version
 install prerequisites for jump server
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/jump_server_prerequisites.yml
 print_label "Done Installing prerequisites for jump server" 2
-
