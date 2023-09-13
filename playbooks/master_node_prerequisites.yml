@@ -72,6 +72,7 @@
       loop:
         - 2379
         - 2380
+        - 2381
       when: package_manager == 'yum' # For Red Hat
     - name: Allow Kube-Scheduler Port
       ufw:

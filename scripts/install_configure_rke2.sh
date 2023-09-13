@@ -71,6 +71,8 @@ EOF
 
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_PLAYBOOK
 
+mkdir ~/.kube
+cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config
 
 yq e ".clusters[0].cluster.server = \"https://${ip_address}:6443\" " -i $CLUSTER_CONFIG_LOCATION
 
@@ -101,8 +103,6 @@ ansible-playbook -i $ANSIBLE_INVENTORY_FILE $WORKERS_PLAYBOOK
 # export the KUBECONFIG environment variable
 # export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 
-mkdir ~/.kube
-cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config
 
 # Number of nodes expected to be in "Ready" state
 expected_nodes_count=$num_nodes
