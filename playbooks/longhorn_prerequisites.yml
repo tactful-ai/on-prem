@@ -8,6 +8,11 @@
 
     - name: install longhorn prerequisites packages (open-iscsi nfs-common jq)
       command: sudo apt-get install open-iscsi nfs-common jq -y
+      when: ansible_os_family == 'Debian'
+
+    - name: install longhorn prerequisites packages (open-iscsi nfs-common jq)
+      command: sudo yum -y install open-iscsi nfs-common jq
+      when: ansible_os_family == 'RedHat'
 
     - name: Check if multipath.conf exists
       stat:
