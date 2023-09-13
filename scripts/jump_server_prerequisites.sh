@@ -92,8 +92,9 @@ elif [ "$RKE_VERSION" = "rke2" ]; then
   yq e ".[].vars.install_docker = false " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
 fi
 
-ansible --version
+# installing the ansible.posix community.general to ensure that the firewall and ufw modules are available
+ansible-galaxy collection install ansible.posix community.general
 
-install prerequisites for jump server
+# install prerequisites for jump server
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/jump_server_prerequisites.yml
 print_label "Done Installing prerequisites for jump server" 2

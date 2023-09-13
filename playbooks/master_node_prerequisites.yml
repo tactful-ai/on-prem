@@ -2,18 +2,45 @@
   hosts: master_nodes
   gather_facts: true
   become: true
+  vars:
+    network_plugin: canal
+    rke_version: rke1
+    load_balancer: metallb
+    package_manager: "{{ 'apt' if ansible_os_family == 'Debian' else 'yum' }}"
   tasks:
-  ####################### RKE2 PORTS Require #######################
-    - name: Allow communication for worker nodes to master
+    ####################### install the packges that can control the firewall with #######################
+    - name: Install UFW package
+      package:
+        name: ufw
+        state: present
+      when: package_manager == 'apt' # For Ubuntu
+    - name: Install firewalld package
+      package:
+        name: firewalld
+        state: present
+      when: package_manager == 'yum' # For Red Hat
+    - name: Ensure Firewalld is started and enabled
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+      when: package_manager == 'yum' # For Red Hat
+      ####################### RKE2 PORTS Require #######################
+    - name: Allow communication for worker nodes to master (Ubuntu)
       ufw:
         rule: allow
         port: "{{ item }}"
         proto: tcp
       loop:
         - 9345
-      when: rke_version == "rke2"
-
-  ######################### K8S NODES PORTS #######################
+      when: rke_version == "rke2" and package_manager == "apt"
+    - name: Allow communication for worker nodes to master (Red Hat)
+      firewalld:
+        port: 9345/tcp
+        permanent: yes
+        state: enabled
+      when: package_manager == 'yum' and ansible_distribution == 'RedHat'
+      ######################### K8S NODES PORTS #######################
     - name: Allow Control Plane Node Ports
       ufw:
         rule: allow
@@ -21,6 +48,13 @@
         proto: tcp
       loop:
         - 6443
+      when: package_manager == "apt" # FOR UBUNTU
+    - name: Allow Worker Node Ports
+      firewalld:
+        port: 6443/tcp
+        permanent: yes
+        state: enabled
+      when: package_manager == 'yum' # For Red Hat
     - name: Allow etcd Ports
       ufw:
         rule: allow
@@ -29,6 +63,16 @@
       loop:
         - 2379
         - 2380
+      when: package_manager == "apt" # FOR UBUNTU
+    - name: Allow etcd Ports
+      firewalld:
+        port: "{{ item }}/tcp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 2379
+        - 2380
+      when: package_manager == 'yum' # For Red Hat
     - name: Allow Kube-Scheduler Port
       ufw:
         rule: allow
@@ -36,6 +80,13 @@
         proto: tcp
       loop:
         - 10251
+      when: package_manager == "apt" # FOR UBUNTU
+    - name: Allow Kube-Scheduler Port
+      firewalld:
+        port: 10251/tcp
+        permanent: yes
+        state: enabled
+      when: package_manager == 'yum' # For Red Hat
     - name: Allow Kube-Controller-Manager Port
       ufw:
         rule: allow
@@ -43,8 +94,10 @@
         proto: tcp
       loop:
         - 10252
-
-  vars:
-    network_plugin: canal
-    rke_version: rke1
-    load_balancer: metallb
+      when: package_manager == "apt" # FOR UBUNTU
+    - name: Allow Kube-Controller-Manager Port
+      firewalld:
+        port: 10252/tcp
+        permanent: yes
+        state: enabled
+      when: package_manager == 'yum' # For Red Hat
