@@ -38,3 +38,7 @@
         permanent: yes
         state: enabled
       when: package_manager == 'yum' # For Red Hat
+    - name: Reload firewall
+      command: firewall-cmd --reload
+      when: package_manager == 'yum' # For Red Hat
+

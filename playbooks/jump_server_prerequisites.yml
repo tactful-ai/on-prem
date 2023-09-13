@@ -30,72 +30,38 @@
         name: curl
         state: present
       when: ansible_os_family == 'RedHat'
-    - name: Install prerequisite packages (Debian-based)
-      apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-        state: present
-      when: ansible_os_family == 'Debian'
-    - name: Install prerequisite packages (Red Hat-based)
-      yum:
-        name:
-          - yum-utils
-          - device-mapper-persistent-data
-          - lvm2
-          - ca-certificates
-          - curl
-        state: present
-      when: ansible_os_family == 'RedHat'
-    - name: Download the public signing key
+
+    - name: Install kubectl
       shell: |
-        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-      when: ansible_os_family == 'Debian'
-    - name: Add Kubernetes apt repository (Debian-based)
-      apt_repository:
-        repo: 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /'
-        state: present
-      when: ansible_os_family == 'Debian'
-    - name: Add Kubernetes yum repository (Red Hat-based)
-      shell: |
-        cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
-        [kubernetes]
-        name=Kubernetes
-        baseurl=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/
-        enabled=1
-        gpgcheck=1
-        gpgkey=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/repodata/repomd.xml.key
-        EOF
-      when: ansible_os_family == 'RedHat'
-    - name: Update package cache (Debian-based)
-      apt:
-        update_cache: yes
-      when: ansible_os_family == 'Debian'
-    - name: Update package cache (Red Hat-based)
-      yum:
-        name: '*'
-        state: latest
-      when: ansible_os_family == 'RedHat'
-    - name: Install kubectl (Debian-based)
-      apt:
-        name: kubectl
-        state: present
-      when: ansible_os_family == 'Debian'
-    - name: Install kubectl (Red Hat-based)
-      yum:
-        name: kubectl
-        state: present
-      when: ansible_os_family == 'RedHat'
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+      args:
+        creates: /usr/local/bin/kubectl
+
+    - name: Create a symbolic link for kubectl in /usr/local/bin
+      file:
+        src: /usr/local/bin/kubectl
+        dest: /usr/bin/kubectl
+        state: link
+
     - name: Download Helm installation script
       get_url:
         url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
         dest: /tmp/get_helm.sh
-        mode: '0755'
+        mode: '0700'
+
     - name: Run Helm installation script
       shell: /tmp/get_helm.sh
       args:
         creates: /usr/local/bin/helm
+
+    - name: Create a symbolic link for Helm in /usr/local/bin
+      file:
+        src: /usr/local/bin/helm
+        dest: /usr/bin/helm
+        state: link
+
     - name: Install sshpass (Ubuntu)
       apt:
         name: sshpass
