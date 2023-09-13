@@ -12,6 +12,28 @@
     load_balancer: metallb
     package_manager: "{{ 'apt' if ansible_os_family == 'Debian' else 'yum' }}"
   tasks:
+    ####################### Determine the os ###########################
+
+    - name: Get the contents of /etc/os-release
+      shell: cat /etc/os-release
+      register: os_release
+
+    - name: Determine distribution
+      set_fact:
+        distribution: |
+          {%- if "'Red Hat'" in os_release.stdout -%}
+          RHEL
+          {%- elif "'CentOS'" in os_release.stdout -%}
+          CentOS
+          {%- else -%}
+          Unknown
+          {%- endif -%}
+    - name: Debug distribution
+      debug:
+        var: distribution
+
+    ####################### Kubernates Prequesites ###########################
+
     - name: Turn off swap
       shell: swapoff -a
     - name: Create sysctl directory
@@ -44,13 +66,13 @@
         url: "https://get.docker.com/"
         dest: "/tmp/install_docker.sh"
         mode: "0755"
-      when: install_docker and package_manager == 'yum'
+      when: install_docker and package_manager == 'yum' and distribution == 'CentOS'
 
     - name: Execute the Docker installation script (Red Hat)
       command: "/tmp/install_docker.sh"
       register: docker_script_output
       async: 600
-      when: install_docker and package_manager == 'yum'
+      when: install_docker and package_manager == 'yum' and distribution == 'CentOS'
 
     - name: Add user to the docker group (Red Hat)
       user:
