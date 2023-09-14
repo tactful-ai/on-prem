@@ -5,15 +5,14 @@
   become: true
   vars:
     docker_version: "23.0.6"
-    install_docker: true
+    install_docker: false
     docker: true
-    network_plugin: canal
-    rke_version: rke1
+    network_plugin: cilium
+    rke_version: rke2
     load_balancer: metallb
     package_manager: "{{ 'apt' if ansible_os_family == 'Debian' else 'yum' }}"
   tasks:
     ####################### Kubernates Prequesites ###########################
-
     - name: Turn off swap
       shell: swapoff -a
     - name: Create sysctl directory
@@ -35,25 +34,21 @@
         - "net.bridge.bridge-nf-call-iptables = 1"
     - name: Apply Kernel Parameters
       shell: sysctl --system
-
     ####################### Installing Docker REDHAT ###########################
     - name: Update package cache (Red Hat)
       command: sudo yum -y update
       when: package_manager == 'yum'
-
     - name: Download the Docker installation script (Red Hat)
       get_url:
         url: "https://get.docker.com/"
         dest: "/tmp/install_docker.sh"
         mode: "0755"
       when: install_docker and package_manager == 'yum' and distribution == 'CentOS'
-
     - name: Execute the Docker installation script (Red Hat)
       command: "/tmp/install_docker.sh"
       register: docker_script_output
       async: 600
       when: install_docker and package_manager == 'yum' and distribution == 'CentOS'
-
     - name: Add user to the docker group (Red Hat)
       user:
         name: "{{ ansible_user }}"
@@ -61,7 +56,6 @@
         append: true
         state: present
       when: install_docker and package_manager == 'yum'
-
     ####################### Installing Docker (Debian) ###########################
     - name: Download the compatibility script (Debian)
       get_url:
@@ -69,13 +63,11 @@
         dest: "/tmp/compatibility_script.sh"
         mode: "0755"
       when: install_docker and package_manager == 'apt'
-
     - name: Execute the compatibility script (Debian)
       command: "/tmp/compatibility_script.sh"
       register: compatibility_script_output
       async: 600
       when: install_docker and package_manager == 'apt'
-
     - name: Add user to the docker group (Debian)
       user:
         name: "{{ ansible_user }}"
@@ -83,8 +75,7 @@
         append: true
         state: present
       when: install_docker and package_manager == 'apt'
-
-  ####################### Installing Firewall controller ###########################
+      ####################### Installing Firewall controller ###########################
     - name: Install UFW package
       package:
         name: ufw
@@ -106,7 +97,6 @@
       ufw:
         logging: 'on'
       when: package_manager == 'apt' # For Ubuntu
-      
     - name: Allow Kubelet API Port (Port 10250)
       ufw:
         rule: allow
@@ -333,10 +323,9 @@
         icmp_type: 8
         state: NEW
       when: network_plugin == "cilium" and package_manager == 'apt' # For Ubuntu
-    - name: Allow ICMP Echo Requests (Ping) for Health Checks
+    - name: Allow ICMP Echo Requests (Ping)
       firewalld:
         icmp_block_inversion: yes
-        icmp_block: yes
         permanent: yes
         state: enabled
       when: network_plugin == "cilium" and package_manager == 'yum' # For Red Hat

@@ -82,12 +82,18 @@
         proto: tcp
       loop:
         - 10251
+        - 10259
+        - 10257
       when: package_manager == "apt" # FOR UBUNTU
     - name: Allow Kube-Scheduler Port
       firewalld:
-        port: 10251/tcp
+        port: {{ item/tcp }}
         permanent: yes
         state: enabled
+      loop:
+        - 10251
+        - 10259
+        - 10257
       when: package_manager == 'yum' # For Red Hat
     - name: Allow Kube-Controller-Manager Port
       ufw:
