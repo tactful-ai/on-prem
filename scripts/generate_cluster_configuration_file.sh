@@ -6,6 +6,38 @@ source ./user_fill.sh
 
 print_label "Generating cluster.yml" 1
 
+
+DEFAULT_RKE1_ADDONS=${PWD}/RKE1_addons
+
+
+mkdir -p $DEFAULT_RKE1_ADDONS
+
+
+cat <<EOF > $RKE2_ADDONS_LOCATION/ingress-nginx-controller.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  ports:
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 443
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: ingress-nginx
+    app.kubernetes.io/instance: ingress-nginx
+  sessionAffinity: None
+  type: LoadBalancer
+EOF
+
+
 YAML_FILE=$CLUSTER_FILES_LOCATION/cluster.yml
 
 # Remove the existing YAML file if it exists
@@ -101,6 +133,10 @@ done
 
 # Set empty addons_include
 yq eval '.addons_include = []' -i "$YAML_FILE"
+
+for range in "${DEFAULT_RKE1_ADDONS[@]}"; do
+    yq eval --inplace '.addons_include += ["'"${range}"'"]' -i "$YAML_FILE"
+done
 
 for range in "${RKE_ADDONS_INCLUDE[@]}"; do
     yq eval --inplace '.addons_include += ["'"${range}"'"]' -i "$YAML_FILE"

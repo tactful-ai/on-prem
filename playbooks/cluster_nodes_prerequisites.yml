@@ -37,7 +37,7 @@
     ####################### Installing Docker REDHAT ###########################
     - name: Update package cache (Red Hat)
       command: sudo yum -y update
-      when: package_manager == 'yum'
+      when: package_manager == 'yum' and install_docker
     - name: Download the Docker installation script (Red Hat)
       get_url:
         url: "https://get.docker.com/"

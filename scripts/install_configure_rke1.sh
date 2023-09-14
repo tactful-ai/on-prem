@@ -4,6 +4,9 @@
 source config.sh
 source user_fill.sh
 
+
+
+
 # generate Cluster.yml file for rke
 source ./scripts/generate_cluster_configuration_file.sh
 
