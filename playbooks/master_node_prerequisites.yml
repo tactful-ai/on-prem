@@ -4,7 +4,7 @@
   become: true
   vars:
     network_plugin: canal
-    rke_version: rke1
+    rke_version: rke2
     load_balancer: metallb
     package_manager: "{{ 'apt' if ansible_os_family == 'Debian' else 'yum' }}"
   tasks:
@@ -87,7 +87,7 @@
       when: package_manager == "apt" # FOR UBUNTU
     - name: Allow Kube-Scheduler Port
       firewalld:
-        port: {{ item/tcp }}
+        port: "{{ item }}/tcp"
         permanent: yes
         state: enabled
       loop:
