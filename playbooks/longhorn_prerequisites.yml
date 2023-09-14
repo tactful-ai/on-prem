@@ -3,6 +3,8 @@
   hosts: worker_nodes
   gather_facts: true
   become: true
+  vars:
+    package_manager: "{{ 'apt' if ansible_os_family == 'Debian' else 'yum' }}"
 
   tasks:
 
@@ -12,7 +14,7 @@
 
     - name: install longhorn prerequisites packages (open-iscsi nfs-common jq)
       command: sudo yum -y install iscsi-initiator-utils nfs-utils jq
-      when: ansible_os_family == 'RedHat'
+      when: package_manager == 'yum'
 
     - name: Check if multipath.conf exists
       stat:
@@ -27,6 +29,32 @@
           }
         dest: /etc/multipath.conf
       when: not multipath_conf_stat.stat.exists
+
+    - name: Check if multipathd is installed (RHEL/CentOS)
+      command: rpm -q multipathd
+      register: multipathd_installed_rhel
+      failed_when: false  # Ignore errors if the package is not found
+      when: package_manager == 'yum'
+
+    - name: Install multipathd on RHEL/CentOS if not installed
+      yum:
+        name: device-mapper-multipath
+        state: present
+      when: multipathd_installed_rhel.rc != 0
+
+    - name: Check if multipathd is installed (Debian/Ubuntu)
+      command: dpkg -l | grep multipath-tools
+      register: multipathd_installed_debian
+      failed_when: false  # Ignore errors if the package is not found
+      when: package_manager == 'apt'
+
+    - name: Install multipathd on Debian/Ubuntu if not installed
+      apt:
+        name: multipath-tools
+        state: present
+      when: package_manager == 'apt' and multipathd_installed_debian.rc != 0
+
+
     - name: Restart multipath service
       systemd:
         name: multipathd.service
