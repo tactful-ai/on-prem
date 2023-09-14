@@ -34,7 +34,7 @@
       when: package_manager == "apt" # FOR UBUNTU
     - name: Allow NodePort Services Ports
       firewalld:
-        port: 30776-32767/tcp
+        port: 30000-32767/tcp
         permanent: yes
         state: enabled
       when: package_manager == 'yum' # For Red Hat
