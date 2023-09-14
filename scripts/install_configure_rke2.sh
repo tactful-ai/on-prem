@@ -29,9 +29,11 @@ yq e ".write-kubeconfig-mode = \"0644\"" -i $MASTER_CONFIG
 yq e '.["tls-san"] += [env(ip_address)]' -i $MASTER_CONFIG
 yq e ".[\"cni\"] += [\"$NETWORK_PLUGIN\"]" -i $MASTER_CONFIG
 
-yq e ".node.hostnameOverride = \"master-node\"" -i $MASTER_CONFIG
+yq e ".node-label = \"master-node\"" -i $MASTER_CONFIG
 yq e ".node-taint[0] = \"CriticalAddonsOnly=true:NoExecute\"" -i $MASTER_CONFIG
 
+
+mkdir -p $ADDONS_DIRECTORY
 
 # copy the addons from local to the server
 yq e ".[].tasks[0].copy.src = \"${RKE2_ADDONS_LOCATION}\" " -i $MASTER_PLAYBOOK
