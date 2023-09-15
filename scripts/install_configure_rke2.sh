@@ -155,3 +155,26 @@ if [ "$all_nodes_ready" = false ]; then
     echo "Error: Not all nodes are ready."
     exit 1
 fi
+
+
+
+METRICS_SERVER_DIR=${PWD}/metrics_server
+METRICS_SERVER_VALUES=${METRICS_SERVER_DIR}/metrics-values.yaml
+
+mkdir -p $METRICS_SERVER_DIR
+
+
+echo '' > $METRICS_SERVER_VALUES
+
+
+yq e ".hostNetwork.enabled  = \"true\"" -i $METRICS_SERVER_VALUES
+
+yq e ".defaultArgs += \" ["--kubelet-insecure-tls"]\"" -i $METRICS_SERVER_VALUES
+
+# install metrics server
+
+helm repo add stable https://charts.helm.sh/stable
+
+helm repo update
+
+helm install metrics-server stable/metrics-server -n kube-system -f $METRICS_SERVER_VALUES
