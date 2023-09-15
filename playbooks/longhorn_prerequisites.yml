@@ -6,49 +6,30 @@
     package_manager: "{{ 'apt' if ansible_os_family == 'Debian' else 'yum' }}"
 
   tasks:
-    - name: Update Package Manager Cache (Debian/Ubuntu)
-      apt:
+    - name: Update package cache (Debian/Ubuntu)
+      package:
         update_cache: yes
       when: ansible_os_family == 'Debian'
-
-    - name: Update Package Manager Cache (Red Hat)
+    - name: Update package cache (Red Hat/CentOS)
       yum:
-        name: '*'
-        state: present
+        update_cache: yes
       when: ansible_os_family == 'RedHat'
-
-    - name:  (Debian/Ubuntu)
-      apt:
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - curl
-        - util-linux
-        - grep
-        - awk
-      when: ansible_os_family == 'Debian'
-
-    - name: Install Required Packages (SUSE/OpenSUSE)
+    - name: Update package cache (openSUSE)
       zypper:
-        name: "{{ item }}"
+        name: openssl
         state: present
-      with_items:
-        - curl
-        - util-linux
-        - grep
-        - awk
-      when: ansible_os_family ==  "Suse"
+        update_cache: true
+      when: ansible_os_family == "Suse"
 
-    - name: Install Required Packages (Red Hat)
-      yum:
+    - name: installing curl and jq
+      package:
         name: "{{ item }}"
         state: present
-      with_items:
+      loop:
         - curl
         - util-linux
         - grep
         - awk
-      when: ansible_os_family == 'RedHat'
 
     - name: Install open-iscsi (Debian/Ubuntu)
       apt:
@@ -81,18 +62,6 @@
         name: open-iscsi
         state: present
       when: ansible_os_family ==  "Suse"
-
-    - name: Check NFSv4.1 support in kernel
-      command: cat /boot/config-`uname -r` | grep CONFIG_NFS_V4_1
-      register: nfs_v4_1_support
-      changed_when: false
-      ignore_errors: true
-
-    - name: Check NFSv4.2 support in kernel
-      command: cat /boot/config-`uname -r` | grep CONFIG_NFS_V4_2
-      register: nfs_v4_2_support
-      changed_when: false
-      ignore_errors: true
 
     - name: Install NFSv4 client (Debian/Ubuntu)
       apt:
@@ -130,32 +99,43 @@
     - name: Check if multipathd is installed (RHEL/CentOS)
       command: rpm -q multipathd
       register: multipathd_installed_rhel
-      failed_when: false  # Ignore errors if the package is not found
+      ignore_errors: true
       when: ansible_os_family == 'RedHat'
 
     - name: Install multipathd on RHEL/CentOS if not installed
       yum:
         name: device-mapper-multipath
         state: present
-      when: multipathd_installed_rhel.rc != 0
+      when: ansible_os_family == 'RedHat' and  multipathd_installed_rhel.rc != 0
 
     - name: Check if multipathd is installed (Debian/Ubuntu)
       command: dpkg -l | grep multipath-tools
       register: multipathd_installed_debian
-      failed_when: false  # Ignore errors if the package is not found
-      when: package_manager == 'apt'
+      ignore_errors: true
+      when: ansible_os_family == 'Debian'
 
     - name: Install multipathd on Debian/Ubuntu if not installed
       apt:
         name: multipath-tools
         state: present
-      when: package_manager == 'apt' and multipathd_installed_debian.rc != 0
-
+      when: ansible_os_family == 'Debian' and multipathd_installed_debian.rc != 0
 
     - name: Restart multipath service
       systemd:
         name: multipathd.service
         state: restarted
+      ignore_errors: true
 
     - name: Verify configuration is applied
       command: multipath -t
+      ignore_errors: true
+
+    - name: Start iscsid.service
+      systemd:
+        name: iscsid.service
+        state: started
+
+    - name: Start iscsid.socket
+      systemd:
+        name: iscsid.socket
+        state: started

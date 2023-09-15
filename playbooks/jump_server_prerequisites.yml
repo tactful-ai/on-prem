@@ -22,6 +22,7 @@
         state: present
         update_cache: true
       when: ansible_os_family == "Suse"
+
     - name: installing curl and jq
       package:
         name: "{{ item }}"
@@ -29,6 +30,7 @@
       loop:
         - curl
         - jq
+        - sshpass
     - name: Check if RKE is installed
       stat:
         path: /usr/local/bin/rke
@@ -58,33 +60,14 @@
         mode: '0700'
     - name: Run Helm installation script
       shell: /tmp/get_helm.sh
+      args:
+        creates: /usr/local/bin/helm
     - name: Create a symbolic link for Helm in /usr/local/bin
       file:
         src: /usr/local/bin/helm
         dest: /usr/bin/helm
         state: link
-    - name: Install sshpass (Debian/Ubuntu)
+    - name: Upgrade all packages
       package:
-        name: sshpass
-        state: present
-      when: ansible_os_family == 'Debian'
-    - name: Install sshpass
-      package:
-        name: sshpass
-        state: present
-    - name: Upgrade all packages (Debian/Ubuntu)
-      apt:
-        upgrade: dist
-        autoremove: yes
-        autoclean: yes
-      when: ansible_os_family == 'Debian'
-    - name: Upgrade all packages (Red Hat/CentOS)
-      yum:
-        name: '*'
+        name: "*"
         state: latest
-      when: ansible_os_family == 'RedHat'
-    - name: Upgrade all packages (openSUSE)
-      zypper:
-        name: '-'
-        state: latest
-      when: ansible_os_family == "Suse"
