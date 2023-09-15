@@ -13,32 +13,32 @@
       package:
         name: ufw
         state: present
-      when: package_manager == 'apt' # For Ubuntu
+      when: package_manager == 'apt'
     - name: Install firewalld package
       package:
         name: firewalld
         state: present
-      when: package_manager == 'yum' # For Red Hat
+      when: ansible_os_family == 'RedHat' or ansible_os_family == 'SUSE'
     - name: Ensure Firewalld is started and enabled
       systemd:
         name: firewalld
         state: started
         enabled: yes
-      when: package_manager == 'yum' # For Red Hat
+      when: ansible_os_family == 'RedHat' or ansible_os_family == 'SUSE'
     ####################### allow node ports #######################
     - name: Allow NodePort Services Ports
       ufw:
         rule: allow
         port: 30776:32767
         proto: tcp
-      when: package_manager == "apt" # FOR UBUNTU
+      when: ansible_os_family == 'Debian'
     - name: Allow NodePort Services Ports
       firewalld:
         port: 30000-32767/tcp
         permanent: yes
         state: enabled
-      when: package_manager == 'yum' # For Red Hat
+      when: ansible_os_family == 'RedHat' or ansible_os_family == 'SUSE'
     - name: Reload firewall
       command: firewall-cmd --reload
-      when: package_manager == 'yum' # For Red Hat
+      when: ansible_os_family == 'RedHat' or ansible_os_family == 'SUSE'
 

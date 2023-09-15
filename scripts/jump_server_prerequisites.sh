@@ -4,40 +4,52 @@
 source ./user_fill.sh
 source ./config.sh
 
-# Install git if not installed
-if ! command -v git &>/dev/null; then
-    print_label "Installing git" 1
-    # Check if the system is CentOS or Red Hat
+
+
+# Function to check and install packages using the appropriate package manager
+install_package() {
+    local package_manager
     if [[ -f /etc/redhat-release ]]; then
-      # CentOS/Red Hat
-      sudo yum install -y git
+        package_manager="yum"
+    elif [[ -f /etc/SuSE-release ]]; then
+        package_manager="zypper"
     else
-      # Ubuntu
-      sudo apt update -y
-      sudo apt install git -y
+        package_manager="apt"
     fi
-    print_label "Done installing git" 2
-else
-    print_label "git is already installed." 2
-fi
+
+    # Check if the package is already installed
+    if ! command -v $1 &>/dev/null; then
+        print_label "Installing $1" 1
+
+        # Install the package using the detected package manager
+        case $package_manager in
+            "yum")
+                sudo yum install -y $1
+                ;;
+            "zypper")
+                sudo zypper install -y $1
+                ;;
+            "apt")
+                sudo apt install -y $1
+                ;;
+            *)
+                echo "Unsupported package manager."
+                exit 1
+                ;;
+        esac
+
+        print_label "Done installing $1" 2
+    else
+        print_label "$1 is already installed." 2
+    fi
+}
+
+# Install git if not installed
+install_package "git"
+
 
 # Install wget if not installed
-if ! command -v wget &>/dev/null; then
-    print_label "Installing wget" 1
-    # Check if the system is CentOS or Red Hat
-    if [[ -f /etc/redhat-release ]]; then
-      # CentOS/Red Hat
-      sudo yum install -y wget
-    else
-      # Ubuntu
-      sudo apt update -y
-      sudo apt install wget -y
-    fi
-    print_label "Done installing wget" 2
-else
-    print_label "wget is already installed." 2
-fi
-
+install_package "wget"
 
 # Install yq if not installed
 if ! command -v yq &>/dev/null; then
@@ -50,22 +62,7 @@ else
 fi
 
 # Install Ansible if not installed
-if ! command -v ansible &>/dev/null; then
-    print_label "Installing Ansible" 1
-    # Check if the system is CentOS or Red Hat
-    if [[ -f /etc/redhat-release ]]; then
-      # CentOS/Red Hat
-    sudo dnf install -y ansible-core
-    else
-      # Ubuntu
-      sudo apt-add-repository ppa:ansible/ansible -y
-      sudo apt update -y
-      sudo apt install ansible -y
-    fi
-    print_label "Done installing Ansible" 2
-else
-    print_label "Ansible is already installed." 2
-fi
+install_package "ansible"
 
 # generate inventory file for ansible
 source ./scripts/generate_inventory.sh

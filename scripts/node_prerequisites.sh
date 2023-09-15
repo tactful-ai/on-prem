@@ -68,8 +68,6 @@ yq e ".[].vars.load_balancer = \"$LOAD_BALANCER\" " -i $WORKER_NODE_PREQUISITES_
 
 
 
-
-
 # install prerequisites for master nodes
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION
 
