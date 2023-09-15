@@ -4,7 +4,7 @@
 source ./user_fill.sh
 source ./config.sh
 
-local package_manager
+package_manager=""
 if [[ -f /etc/redhat-release ]]; then
     package_manager="yum"
 elif [[ -f /etc/SuSE-release ]]; then
