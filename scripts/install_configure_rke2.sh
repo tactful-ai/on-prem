@@ -29,7 +29,7 @@ yq e ".write-kubeconfig-mode = \"0644\"" -i $MASTER_CONFIG
 yq e '.["tls-san"] += [env(ip_address)]' -i $MASTER_CONFIG
 yq e ".[\"cni\"] += [\"$NETWORK_PLUGIN\"]" -i $MASTER_CONFIG
 
-yq e ".node-label = \"master-node\"" -i $MASTER_CONFIG
+yq e ".node-name = \"master-node\"" -i $MASTER_CONFIG
 yq e ".node-taint[0] = \"CriticalAddonsOnly=true:NoExecute\"" -i $MASTER_CONFIG
 
 
@@ -92,8 +92,13 @@ server: https://$ip_address:9345
 token: $(cat $CLUSTER_TOKEN_LOCATION)
 EOL
 
-# Use yq to validate and format the YAML file (optional)
+# Use yq to validate and format the YAML file
 yq eval '.' -i "$YAML_FILE"
+
+yq e ".node-name = \"Worker-node\"" -i $YAML_FILE
+yq e ".with-node-id  = \"true\"" -i $YAML_FILE
+
+
 
 yq e ".[].tasks[1].copy.src = \"${WORKER_CONFIG}\" " -i $WORKERS_PLAYBOOK
 

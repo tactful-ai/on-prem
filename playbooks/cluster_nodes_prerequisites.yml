@@ -392,8 +392,27 @@
       command: firewall-cmd --reload
       when: package_manager == 'yum' # For Red Hat
     ####################### Disable nm-cloud-setup.service #######################
-    - name: Disable nm-cloud-setup.service
+    - name: Disable nm-cloud-setup services (if applicable)
       systemd:
-        name: nm-cloud-setup.service
+        name: "{{ item }}"
         enabled: no
-      when: ansible_os_family == 'RedHat'
+        state: stopped
+      loop:
+        - nm-cloud-setup.service
+        - nm-cloud-setup.timer
+      ignore_errors: true
+      when: package_manager == 'yum' # For Red Hat
+    - name: Create rke2-canal.conf file
+      copy:
+        content: |
+          [keyfile]
+          unmanaged-devices=interface-name:cali*;interface-name:flannel*
+        dest: /etc/NetworkManager/conf.d/rke2-canal.conf
+      notify: Reload NetworkManager
+
+
+  handlers:
+    - name: Reload NetworkManager
+      systemd:
+        name: NetworkManager
+        state: reloaded
