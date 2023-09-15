@@ -4,22 +4,47 @@
 source ./user_fill.sh
 source ./config.sh
 
+local package_manager
+if [[ -f /etc/redhat-release ]]; then
+    package_manager="yum"
+elif [[ -f /etc/SuSE-release ]]; then
+    package_manager="zypper"
+elif [[ -f /etc/os-release ]]; then
+    source /etc/os-release
+    if [[ $ID == "ubuntu" || $ID == "debian" ]]; then
+        package_manager="apt"
+    elif [[ $ID == "sles" ]]; then
+        package_manager="zypper"
+    else
+        echo "Unsupported package manager."
+        exit 1
+    fi
+else
+    echo "Unsupported package manager."
+    exit 1
+fi
 
+case $package_manager in
+    "yum")
+        ;;
+    "zypper")
+        sudo SUSEConnect -p PackageHub/15.5/x86_64
+        ;;
+    "apt")
+        sudo apt-add-repository ppa:ansible/ansible -y
+        ;;
+    *)
+        echo "Unsupported package manager."
+        exit 1
+        ;;
+esac
 
 # Function to check and install packages using the appropriate package manager
 install_package() {
-    local package_manager
-    if [[ -f /etc/redhat-release ]]; then
-        package_manager="yum"
-    elif [[ -f /etc/SuSE-release ]]; then
-        package_manager="zypper"
-    else
-        package_manager="apt"
-    fi
 
     # Check if the package is already installed
     if ! command -v $1 &>/dev/null; then
-        print_label "Installing $1" 1
+        print_label "Installing $1 using $package_manager" 1
 
         # Install the package using the detected package manager
         case $package_manager in

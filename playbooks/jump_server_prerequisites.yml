@@ -5,21 +5,23 @@
     install_rke: false
     rke_version: "v1.4.9"
   tasks:
+    - name: Print ansible_os_family
+      debug:
+        var: ansible_os_family
     - name: Update package cache (Debian/Ubuntu)
       package:
         update_cache: yes
       when: ansible_os_family == 'Debian'
-
     - name: Update package cache (Red Hat/CentOS)
       yum:
         update_cache: yes
       when: ansible_os_family == 'RedHat'
-
     - name: Update package cache (openSUSE)
       zypper:
-        update_cache: yes
-      when: ansible_os_family == 'SUSE'
-
+        name: openssl
+        state: present
+        update_cache: true
+      when: ansible_os_family == "Suse"
     - name: installing curl and jq
       package:
         name: "{{ item }}"
@@ -27,20 +29,16 @@
       loop:
         - curl
         - jq
-
     - name: Check if RKE is installed
       stat:
         path: /usr/local/bin/rke
       register: rke_installed
-
     - name: Download and Install RKE (Linux)
       shell: |
         wget https://github.com/rancher/rke/releases/download/{{ rke_version }}/rke_linux-amd64
         chmod +x rke_linux-amd64
         sudo mv rke_linux-amd64 /usr/local/bin/rke
       when: not rke_installed.stat.exists and install_rke
-
-
     - name: Install kubectl
       shell: |
         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -48,54 +46,45 @@
         sudo mv kubectl /usr/local/bin/
       args:
         creates: /usr/local/bin/kubectl
-
     - name: Create a symbolic link for kubectl in /usr/local/bin
       file:
         src: /usr/local/bin/kubectl
         dest: /usr/bin/kubectl
         state: link
-
     - name: Download Helm installation script
       get_url:
         url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
         dest: /tmp/get_helm.sh
         mode: '0700'
-
     - name: Run Helm installation script
       shell: /tmp/get_helm.sh
-
     - name: Create a symbolic link for Helm in /usr/local/bin
       file:
         src: /usr/local/bin/helm
         dest: /usr/bin/helm
         state: link
-
     - name: Install sshpass (Debian/Ubuntu)
       package:
         name: sshpass
         state: present
       when: ansible_os_family == 'Debian'
-
     - name: Install sshpass
       package:
         name: sshpass
         state: present
-
     - name: Upgrade all packages (Debian/Ubuntu)
       apt:
         upgrade: dist
         autoremove: yes
         autoclean: yes
       when: ansible_os_family == 'Debian'
-
     - name: Upgrade all packages (Red Hat/CentOS)
       yum:
         name: '*'
         state: latest
       when: ansible_os_family == 'RedHat'
-
     - name: Upgrade all packages (openSUSE)
       zypper:
         name: '-'
         state: latest
-      when: ansible_os_family == 'SUSE'
+      when: ansible_os_family == "Suse"

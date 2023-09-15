@@ -37,7 +37,7 @@
         - util-linux
         - grep
         - awk
-      when: ansible_os_family == 'Suse'
+      when: ansible_os_family ==  "Suse"
 
     - name: Install Required Packages (Red Hat)
       yum:
@@ -80,7 +80,7 @@
       zypper:
         name: open-iscsi
         state: present
-      when: ansible_os_family == 'Suse'
+      when: ansible_os_family ==  "Suse"
 
     - name: Check NFSv4.1 support in kernel
       command: cat /boot/config-`uname -r` | grep CONFIG_NFS_V4_1
@@ -111,7 +111,7 @@
       zypper:
         name: nfs-client
         state: present
-      when: ansible_os_family == 'Suse'
+      when: ansible_os_family ==  "Suse"
 
     - name: Check if multipath.conf exists
       stat:

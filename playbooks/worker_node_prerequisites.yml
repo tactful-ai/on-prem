@@ -18,13 +18,13 @@
       package:
         name: firewalld
         state: present
-      when: ansible_os_family == 'RedHat' or ansible_os_family == 'SUSE'
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
     - name: Ensure Firewalld is started and enabled
       systemd:
         name: firewalld
         state: started
         enabled: yes
-      when: ansible_os_family == 'RedHat' or ansible_os_family == 'SUSE'
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
     ####################### allow node ports #######################
     - name: Allow NodePort Services Ports
       ufw:
@@ -37,8 +37,8 @@
         port: 30000-32767/tcp
         permanent: yes
         state: enabled
-      when: ansible_os_family == 'RedHat' or ansible_os_family == 'SUSE'
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
     - name: Reload firewall
       command: firewall-cmd --reload
-      when: ansible_os_family == 'RedHat' or ansible_os_family == 'SUSE'
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
 
