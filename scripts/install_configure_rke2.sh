@@ -32,6 +32,14 @@ yq e ".[\"cni\"] += [\"$NETWORK_PLUGIN\"]" -i $MASTER_CONFIG
 yq e ".node-name = \"master-node\"" -i $MASTER_CONFIG
 yq e ".node-taint[0] = \"CriticalAddonsOnly=true:NoExecute\"" -i $MASTER_CONFIG
 
+yq e ".cluster-cidr = \"${CLUSTER_CIDR}\"" -i $MASTER_CONFIG
+
+yq e ".service-cidr = \"${SERVICE_CLUSTER_IP_RANGE}\"" -i $MASTER_CONFIG
+
+yq e ".cluster-dns  = \"${CLUSTER_DNS_SERVER}\"" -i $MASTER_CONFIG
+
+yq e ".disable-scheduler += \"[rke2-metrics-server]\"" -i $MASTER_CONFIG
+
 
 mkdir -p $ADDONS_DIRECTORY
 
