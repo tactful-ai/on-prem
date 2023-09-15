@@ -166,15 +166,13 @@ mkdir -p $METRICS_SERVER_DIR
 
 echo '' > $METRICS_SERVER_VALUES
 
-
 yq e ".hostNetwork.enabled  = \"true\"" -i $METRICS_SERVER_VALUES
 
 yq e ".defaultArgs += \" ["--kubelet-insecure-tls"]\"" -i $METRICS_SERVER_VALUES
 
 # install metrics server
-
-helm repo add stable https://charts.helm.sh/stable
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
 
 helm repo update
 
-helm install metrics-server stable/metrics-server -n kube-system -f $METRICS_SERVER_VALUES
+helm upgrade --install metrics-server metrics-server/metrics-server  -n kube-system -f $METRICS_SERVER_VALUES
