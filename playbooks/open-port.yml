@@ -1,0 +1,10 @@
+- name: Configure worker_node
+  hosts: worker_nodes
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Allow HTTPS (Port 443 TCP)
+      firewalld:
+        port: "{{ port }}/tcp"
+        permanent: yes
+        state: enabled
