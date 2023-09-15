@@ -7,7 +7,7 @@
     docker_version: "23.0.6"
     install_docker: false
     docker: true
-    network_plugin: cilium
+    network_plugin: canal
     rke_version: rke2
     load_balancer: metallb
   tasks:
@@ -79,7 +79,7 @@
       package:
         name: ufw
         state: present
-      when: package_manager == 'apt'
+      when: ansible_os_family == 'Debian'
     - name: Install firewalld package
       package:
         name: firewalld
@@ -401,6 +401,12 @@
         - nm-cloud-setup.timer
       ignore_errors: true
       when: ansible_os_family == 'RedHat'
+    - name: Create rke2-canal.conf directory (if not exists)
+      file:
+        path: /etc/NetworkManager/conf.d
+        state: directory
+        mode: '0755'
+      register: nm_conf_dir_created
     - name: Create rke2-canal.conf file
       copy:
         content: |
@@ -414,3 +420,4 @@
       systemd:
         name: NetworkManager
         state: reloaded
+      ignore_errors: true
