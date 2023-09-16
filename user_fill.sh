@@ -76,3 +76,6 @@ INSTALL_ADMINER="yes"
 # do you want to install redis
 # if you dont want to install write yes
 INSTALL_REDIS="yes"
+
+# do you want install k8s-dashboard
+INSTALL_DASHBOARD="yes"
