@@ -87,7 +87,12 @@ else
 fi
 
 # Install Ansible if not installed
-install_package "ansible"
+if [ $package_manager == "yum" ]; then
+    sudo dnf install -y ansible-core
+else
+    install_package "ansible"
+fi
+
 
 # generate inventory file for ansible
 source ./scripts/generate_inventory.sh

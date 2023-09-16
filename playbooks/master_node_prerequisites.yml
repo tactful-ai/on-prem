@@ -1,4 +1,4 @@
-- name: Configure worker_node
+- name: Configure master nodes
   hosts: master_nodes
   gather_facts: true
   become: true
@@ -6,14 +6,13 @@
     network_plugin: canal
     rke_version: rke2
     load_balancer: metallb
-    package_manager: "{{ 'apt' if ansible_os_family == 'Debian' else 'yum' }}"
   tasks:
     ####################### install the packges that can control the firewall with #######################
     - name: Install UFW package
       package:
         name: ufw
         state: present
-      when: package_manager == 'apt'
+      when: ansible_os_family == 'Debian'
     - name: Install firewalld package
       package:
         name: firewalld
