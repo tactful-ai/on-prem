@@ -1,5 +1,5 @@
 - name: Configure worker_node
-  hosts: worker_nodes
+  hosts: "worker_nodes,master_nodes"
   gather_facts: true
   become: true
   vars:
