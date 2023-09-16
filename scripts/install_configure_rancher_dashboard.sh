@@ -18,7 +18,7 @@ kubectl create namespace "${RANCHER_NAMESPACE}"
 
 # Step 3: Install Rancher with Helm
 echo "Step 3: Installing Rancher with Helm..."
-helm install rancher rancher-latest/rancher --namespace "${RANCHER_NAMESPACE}" --set hostname="${RANCHER_HOSTNAME}" --set replicas="${RANCHER_REPLICAS}" --wait
+helm install rancher rancher-latest/rancher --namespace "${RANCHER_NAMESPACE}" --set hostname="${RANCHER_HOSTNAME}" --set replicas="${RANCHER_REPLICAS}" 
 
 # Step 4: Verify that the Rancher server is successfully deployed
 echo "Step 4: Verifying Rancher installation..."
