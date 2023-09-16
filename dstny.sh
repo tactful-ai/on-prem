@@ -11,6 +11,8 @@ source ./scripts/jump_server_prerequisites.sh
 # install the prerequisites for the cluster Nodes
 source ./scripts/node_prerequisites.sh
 
+# Set up error handling to execute rollback.sh on error
+trap './rollback.sh' ERR
 
 # install rke version based on the user choice
 if [ "$RKE_VERSION" = "rke1" ]; then
@@ -89,3 +91,6 @@ if [ "$INSTALL_DASHBOARD" = "yes" ]; then
   print_label "Installing and configuring k8s-dashboard and kindly find your token at ./token/admin-token.text" 1
   source scripts/install_configure_k8s_dashboard.sh
 fi
+
+
+exit 0
