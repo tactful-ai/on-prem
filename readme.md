@@ -29,78 +29,78 @@ This repository contains scripts and configuration files for deploying an on-pre
    - [grafana](#grafana)
 
 ## Scripts
-### change_default_password.sh
+## change_default_password.sh
 
 This script changes the default password for multiple nodes in the cluster. It updates the SSH passwords for each node.
 ./change_default_password.sh
----
 
-### generate_cluster_configuration_file.sh
+
+## generate_cluster_configuration_file.sh
 
 This script generates a cluster configuration file (cluster.yml) for RKE/RKE2 based on node information and user-defined settings.
 ./generate_cluster_configuration_file.sh
----
-### generate_inventory.sh
+
+## generate_inventory.sh
 
 This script generates an Ansible inventory file for managing the cluster nodes with Ansible.
 ./generate_inventory.sh
----
-### install_configure_cert_manager.sh
+
+## install_configure_cert_manager.sh
 
 This script installs Cert-Manager, a certificate management solution, in the Kubernetes cluster.
 ./install_configure_adminer.sh
----
-### install_configure_k8s_dashboard.sh
+
+## install_configure_k8s_dashboard.sh
 
 This script installs the Kubernetes Dashboard in the cluster and retrieves the admin user token.
 ./install_configure_k8s_dashboard.sh
----
-### install_configure_longhorn.sh
+
+## install_configure_longhorn.sh
 
 This script installs Longhorn, a cloud-native distributed storage solution, in the Kubernetes cluster.
 ./install_configure_longhorn.sh
----
-### install_configure_metalLB.sh
+
+## install_configure_metalLB.sh
 
 This script installs MetalLB, a load balancer for bare-metal Kubernetes clusters.
 ./install_configure_metalLB.sh
----
 
-### install_configure_rancher_dashboard.sh
+
+## install_configure_rancher_dashboard.sh
 
 This script installs Rancher, a Kubernetes management platform, in the cluster.
 ./install_configure_rancher_dashboard.sh
----
 
-### install_configure_prometheus_and_grafana.sh
+
+##  install_configure_prometheus_and_grafana.sh
 
 This script installs Prometheus and Grafana for monitoring and visualization in the Kubernetes cluster.
 ./install_configure_prometheus_and_grafana.sh
----
-### install_configure_redis.sh
+
+## install_configure_redis.sh
 
 This script installs Redis in the Kubernetes cluster.
 ./install_configure_redis.sh
----
 
-### install_configure_rke1.sh and install_configure_rke2.sh
+
+##  install_configure_rke1.sh and install_configure_rke2.sh
 
 These scripts deploy a Kubernetes cluster using RKE (Rancher Kubernetes Engine) or RKE2 (Rancher Kubernetes Engine 2) and configure various settings.
 ./install_configure_rke1.sh # For RKE
 ./install_configure_rke2.sh # For RKE2
----
 
-### jump_server_prerequisites.sh
+
+## jump_server_prerequisites.sh
 
 This script installs prerequisites on a jump server to prepare it for managing the Kubernetes cluster.
 ./jump_server_prerequisites.sh
----
 
-### node_prerequisites.sh
+
+## node_prerequisites.sh
 
 This script installs prerequisites on the cluster nodes, including SSH key setup and network configurations.
 ./node_prerequisites.sh
----
+
 
 ## Folders
 
