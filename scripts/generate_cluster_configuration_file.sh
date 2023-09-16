@@ -13,7 +13,7 @@ DEFAULT_RKE1_ADDONS=${PWD}/RKE1_addons
 mkdir -p $DEFAULT_RKE1_ADDONS
 
 
-cat <<EOF > $RKE2_ADDONS_LOCATION/ingress-nginx-controller.yaml
+cat <<EOF > $DEFAULT_RKE1_ADDONS/ingress-nginx-controller.yaml
 ---
 apiVersion: v1
 kind: Service
@@ -126,17 +126,24 @@ yq eval '.dns = {
 # Set monitoring provider and strategy
 yq eval '.monitoring = {"provider": "metrics-server", "update_strategy": {"strategy": "RollingUpdate"}}' -i "$YAML_FILE"
 
+
+for addon_file in ${DEFAULT_RKE1_ADDONS}/*; do
+    if [ -f "$addon_file" ]; then
+      # Add the content of the addon file to the cluster.yml
+      yq eval ".addons += \"\\n$(cat $addon_file)\\n---\"" -i "$YAML_FILE"
+    fi
+done
+
+
 for addon_file in ${ADDONS_DIRECTORY}/*; do
-    # Add the content of the addon file to the cluster.yml
-    yq eval ".addons += \"\\n$(cat $addon_file)\\n---\"" -i "$YAML_FILE"
+    if [ -f "$addon_file" ]; then
+      # Add the content of the addon file to the cluster.yml
+      yq eval ".addons += \"\\n$(cat $addon_file)\\n---\"" -i "$YAML_FILE"
+    fi
 done
 
 # Set empty addons_include
 yq eval '.addons_include = []' -i "$YAML_FILE"
-
-for range in "${DEFAULT_RKE1_ADDONS[@]}"; do
-    yq eval --inplace '.addons_include += ["'"${range}"'"]' -i "$YAML_FILE"
-done
 
 for range in "${RKE_ADDONS_INCLUDE[@]}"; do
     yq eval --inplace '.addons_include += ["'"${range}"'"]' -i "$YAML_FILE"

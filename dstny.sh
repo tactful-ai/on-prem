@@ -11,8 +11,9 @@ source ./scripts/jump_server_prerequisites.sh
 # install the prerequisites for the cluster Nodes
 source ./scripts/node_prerequisites.sh
 
+rm ${ADDONS_DIRECTORY}/.gitkeep
 
-# install rke version based on the user choice
+# install rke version based on the user choiceac
 if [ "$RKE_VERSION" = "rke1" ]; then
   # install rke1
   source ./scripts/install_configure_rke1.sh
