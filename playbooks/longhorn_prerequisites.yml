@@ -8,12 +8,14 @@
   tasks:
     - name: Update package cache (Debian/Ubuntu)
       package:
-        update_cache: yes
+        update_cache: true
       when: ansible_os_family == 'Debian'
+
     - name: Update package cache (Red Hat/CentOS)
       yum:
-        update_cache: yes
+        update_cache: true
       when: ansible_os_family == 'RedHat'
+
     - name: Update package cache (openSUSE)
       zypper:
         name: openssl
@@ -29,7 +31,6 @@
         - curl
         - util-linux
         - grep
-        - awk
 
     - name: Install open-iscsi (Debian/Ubuntu)
       apt:
@@ -41,7 +42,7 @@
       yum:
         name: iscsi-initiator-utils
         state: present
-        update_cache: yes
+        update_cache: true
       when: ansible_os_family == 'RedHat'
 
     - name: Create initiatorname.iscsi file (Red Hat)
@@ -53,7 +54,7 @@
     - name: Enable and start iscsid service (Red Hat)
       systemd:
         name: iscsid
-        enabled: yes
+        enabled: true
         state: started
       when: ansible_os_family == 'RedHat'
 
@@ -73,7 +74,7 @@
       yum:
         name: nfs-utils
         state: present
-        update_cache: yes
+        update_cache: true
       when: ansible_os_family == 'RedHat'
 
     - name: Install NFSv4 client (SUSE/OpenSUSE)
@@ -130,12 +131,28 @@
       command: multipath -t
       ignore_errors: true
 
-    - name: Start iscsid.service
+    - name: Check if iscsid.service is running
       systemd:
         name: iscsid.service
         state: started
+      register: iscsid_service_status
+      ignore_errors: true
 
-    - name: Start iscsid.socket
+    - name: Check if iscsid.socket is running
       systemd:
         name: iscsid.socket
         state: started
+      register: iscsid_socket_status
+      ignore_errors: true
+
+    - name: Start iscsid.service if not already running
+      systemd:
+        name: iscsid.service
+        state: started
+      when: iscsid_service_status.changed
+
+    - name: Start iscsid.socket if not already running
+      systemd:
+        name: iscsid.socket
+        state: started
+      when: iscsid_socket_status.changed
