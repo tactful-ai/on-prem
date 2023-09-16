@@ -33,47 +33,25 @@
         - "net.bridge.bridge-nf-call-iptables = 1"
     - name: Apply Kernel Parameters
       shell: sysctl --system
-    ####################### Installing Docker REDHAT ###########################
-    - name: Update package cache (Red Hat)
-      command: sudo yum -y update
-      when: ansible_os_family == 'RedHat' and install_docker
-    - name: Download the Docker installation script (Red Hat)
-      get_url:
-        url: "https://get.docker.com/"
-        dest: "/tmp/install_docker.sh"
-        mode: "0755"
-      when: install_docker and ansible_os_family == 'RedHat' and distribution == 'CentOS'
-    - name: Execute the Docker installation script (Red Hat)
-      command: "/tmp/install_docker.sh"
-      register: docker_script_output
-      async: 600
-      when: install_docker and ansible_os_family == 'RedHat' and distribution == 'CentOS'
-    - name: Add user to the docker group (Red Hat)
-      user:
-        name: "{{ ansible_user }}"
-        groups: docker
-        append: true
-        state: present
-      when: install_docker and ansible_os_family == 'RedHat'
     ####################### Installing Docker (Debian) ###########################
     - name: Download the compatibility script (Debian)
       get_url:
         url: "https://releases.rancher.com/install-docker/{{ docker_version }}.sh"
         dest: "/tmp/compatibility_script.sh"
         mode: "0755"
-      when: install_docker and (ansible_os_family == 'Debian' or ansible_os_family ==  "Suse")
+      when: install_docker and (ansible_os_family == 'Debian')
     - name: Execute the compatibility script (Debian)
       command: "/tmp/compatibility_script.sh"
       register: compatibility_script_output
       async: 600
-      when: install_docker and (ansible_os_family == 'Debian' or ansible_os_family ==  "Suse")
+      when: install_docker and (ansible_os_family == 'Debian')
     - name: Add user to the docker group (Debian)
       user:
         name: "{{ ansible_user }}"
         groups: docker
         append: true
         state: present
-      when: install_docker and (ansible_os_family == 'Debian' or ansible_os_family ==  "Suse")
+      when: install_docker and (ansible_os_family == 'Debian')
       ####################### Installing Firewall controller ###########################
     - name: Install UFW package
       package:
