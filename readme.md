@@ -218,8 +218,5 @@ Usage: Run this script to ensure that the cluster nodes are ready for cluster de
 
 These scripts and configurations collectively automate the deployment and management of a Kubernetes cluster, making it easier to set up and maintain an on-premises Kubernetes environment. Users can execute these scripts according to their requirements and customize configurations as needed.
 
-
-
-.
-
+```
 
