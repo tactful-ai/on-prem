@@ -1,19 +1,45 @@
-- name: Configure worker_node
+- name: Configure master nodes
   hosts: master_nodes
   gather_facts: true
   become: true
+  vars:
+    network_plugin: canal
+    rke_version: rke2
+    load_balancer: metallb
   tasks:
-  ####################### RKE2 PORTS Require #######################
-    - name: Allow communication for worker nodes to master
+    ####################### install the packges that can control the firewall with #######################
+    - name: Install UFW package
+      package:
+        name: ufw
+        state: present
+      when: ansible_os_family == 'Debian'
+    - name: Install firewalld package
+      package:
+        name: firewalld
+        state: present
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
+    - name: Ensure Firewalld is started and enabled
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
+      ####################### RKE2 PORTS Require #######################
+    - name: Allow communication for worker nodes to master (Ubuntu)
       ufw:
         rule: allow
         port: "{{ item }}"
         proto: tcp
       loop:
         - 9345
-      when: rke_version == "rke2"
-
-  ######################### K8S NODES PORTS #######################
+      when: rke_version == "rke2" and ansible_os_family == 'Debian'
+    - name: Allow communication for worker nodes to master (Red Hat)
+      firewalld:
+        port: 9345/tcp
+        permanent: yes
+        state: enabled
+      when: rke_version == "rke2" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+      ######################### K8S NODES PORTS #######################
     - name: Allow Control Plane Node Ports
       ufw:
         rule: allow
@@ -21,6 +47,13 @@
         proto: tcp
       loop:
         - 6443
+      when: ansible_os_family == 'Debian'
+    - name: Allow Worker Node Ports
+      firewalld:
+        port: 6443/tcp
+        permanent: yes
+        state: enabled
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow etcd Ports
       ufw:
         rule: allow
@@ -29,6 +62,18 @@
       loop:
         - 2379
         - 2380
+        - 2381
+      when: ansible_os_family == 'Debian'
+    - name: Allow etcd Ports
+      firewalld:
+        port: "{{ item }}/tcp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 2379
+        - 2380
+        - 2381
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow Kube-Scheduler Port
       ufw:
         rule: allow
@@ -36,6 +81,19 @@
         proto: tcp
       loop:
         - 10251
+        - 10259
+        - 10257
+      when: ansible_os_family == 'Debian'
+    - name: Allow Kube-Scheduler Port
+      firewalld:
+        port: "{{ item }}/tcp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 10251
+        - 10259
+        - 10257
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow Kube-Controller-Manager Port
       ufw:
         rule: allow
@@ -43,8 +101,13 @@
         proto: tcp
       loop:
         - 10252
-
-  vars:
-    network_plugin: canal
-    rke_version: rke1
-    load_balancer: metallb
+      when: ansible_os_family == 'Debian'
+    - name: Allow Kube-Controller-Manager Port
+      firewalld:
+        port: 10252/tcp
+        permanent: yes
+        state: enabled
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    - name: Reload firewall
+      command: firewall-cmd --reload
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")

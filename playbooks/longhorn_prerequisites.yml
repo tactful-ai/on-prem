@@ -1,13 +1,87 @@
----
 - name: Configure Servers
   hosts: worker_nodes
   gather_facts: true
   become: true
+  vars:
+    package_manager: "{{ 'apt' if ansible_os_family == 'Debian' else 'yum' }}"
 
   tasks:
+    - name: Update package cache (Debian/Ubuntu)
+      package:
+        update_cache: true
+      when: ansible_os_family == 'Debian'
 
-    - name: install longhorn prerequisites packages (open-iscsi nfs-common jq)
-      command: sudo apt-get install open-iscsi nfs-common jq -y
+    - name: Update package cache (Red Hat/CentOS)
+      yum:
+        update_cache: true
+      when: ansible_os_family == 'RedHat'
+
+    - name: Update package cache (openSUSE)
+      zypper:
+        name: openssl
+        state: present
+        update_cache: true
+      when: ansible_os_family == "Suse"
+
+    - name: installing curl and jq
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - curl
+        - util-linux
+        - grep
+
+    - name: Install open-iscsi (Debian/Ubuntu)
+      apt:
+        name: open-iscsi
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Install iscsi-initiator-utils (Red Hat)
+      yum:
+        name: iscsi-initiator-utils
+        state: present
+        update_cache: true
+      when: ansible_os_family == 'RedHat'
+
+    - name: Create initiatorname.iscsi file (Red Hat)
+      copy:
+        content: "InitiatorName=$(/sbin/iscsi-iname)"
+        dest: /etc/iscsi/initiatorname.iscsi
+      when: ansible_os_family == 'RedHat'
+
+    - name: Enable and start iscsid service (Red Hat)
+      systemd:
+        name: iscsid
+        enabled: true
+        state: started
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install open-iscsi client (SUSE/OpenSUSE)
+      zypper:
+        name: open-iscsi
+        state: present
+      when: ansible_os_family ==  "Suse"
+
+    - name: Install NFSv4 client (Debian/Ubuntu)
+      apt:
+        name: nfs-common
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Install NFSv4 client (Red Hat)
+      yum:
+        name: nfs-utils
+        state: present
+        update_cache: true
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install NFSv4 client (SUSE/OpenSUSE)
+      zypper:
+        name: nfs-client
+        state: present
+      when: ansible_os_family ==  "Suse"
 
     - name: Check if multipath.conf exists
       stat:
@@ -22,10 +96,51 @@
           }
         dest: /etc/multipath.conf
       when: not multipath_conf_stat.stat.exists
+
+    - name: Check if multipathd is installed (RHEL/CentOS)
+      command: rpm -q multipathd
+      register: multipathd_installed_rhel
+      ignore_errors: true
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install multipathd on RHEL/CentOS if not installed
+      yum:
+        name: device-mapper-multipath
+        state: present
+      when: ansible_os_family == 'RedHat' and  multipathd_installed_rhel.rc != 0
+
+    - name: Check if multipathd is installed (Debian/Ubuntu)
+      command: dpkg -l | grep multipath-tools
+      register: multipathd_installed_debian
+      ignore_errors: true
+      when: ansible_os_family == 'Debian'
+
+    - name: Install multipathd on Debian/Ubuntu if not installed
+      apt:
+        name: multipath-tools
+        state: present
+      when: ansible_os_family == 'Debian' and multipathd_installed_debian.rc != 0
+
     - name: Restart multipath service
       systemd:
         name: multipathd.service
         state: restarted
+      ignore_errors: true
 
     - name: Verify configuration is applied
       command: multipath -t
+      ignore_errors: true
+
+    - name: Start iscsid.service if not already running
+      systemd:
+        name: iscsid.service
+        state: started
+      when: iscsid_service_status.changed
+      ignore_errors: true
+
+    - name: Start iscsid.socket if not already running
+      systemd:
+        name: iscsid.socket
+        state: started
+      when: iscsid_socket_status.changed
+      ignore_errors: true

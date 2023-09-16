@@ -1,6 +1,6 @@
 ---
 - name: Configure Servers
-  hosts: "worker_nodes , master_nodes"
+  hosts: "worker_nodes,master_nodes"
   gather_facts: true
   become: true
   vars:
@@ -8,9 +8,10 @@
     install_docker: false
     docker: true
     network_plugin: canal
-    rke_version: rke1
+    rke_version: rke2
     load_balancer: metallb
   tasks:
+    ####################### Kubernates Prequesites ###########################
     - name: Turn off swap
       shell: swapoff -a
     - name: Create sysctl directory
@@ -32,84 +33,164 @@
         - "net.bridge.bridge-nf-call-iptables = 1"
     - name: Apply Kernel Parameters
       shell: sysctl --system
-      # Install docker engine
-    - name: Download the compatibility script
+    ####################### Installing Docker (Debian) ###########################
+    - name: Download the compatibility script (Debian)
       get_url:
-        url: "https://releases.rancher.com/install-docker/{{docker_version}}.sh"
+        url: "https://releases.rancher.com/install-docker/{{ docker_version }}.sh"
         dest: "/tmp/compatibility_script.sh"
         mode: "0755"
-      when: install_docker
-    - name: Execute the script
+      when: install_docker and (ansible_os_family == 'Debian')
+    - name: Execute the compatibility script (Debian)
       command: "/tmp/compatibility_script.sh"
-      register: script_output
+      register: compatibility_script_output
       async: 600
-      when: install_docker
-    - name: Add user to the docker group
+      when: install_docker and (ansible_os_family == 'Debian')
+    - name: Add user to the docker group (Debian)
       user:
         name: "{{ ansible_user }}"
         groups: docker
         append: true
         state: present
-      when: install_docker
-####################### network for both master and worker nodes #######################
+      when: install_docker and (ansible_os_family == 'Debian')
+      ####################### Installing Firewall controller ###########################
+    - name: Install UFW package
+      package:
+        name: ufw
+        state: present
+      when: ansible_os_family == 'Debian'
+    - name: Install firewalld package
+      package:
+        name: firewalld
+        state: present
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
+    - name: Ensure Firewalld is started and enabled
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
+
+    ####################### ENABLE FIREWALL FOR ALL NODES #######################
+    - name: Enable UFW
+      ufw:
+        state: enabled
+      when: ansible_os_family == 'Debian'
+    - name: Enable Firewalld
+      firewalld:
+        state: enabled
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    - name: Reload firewall
+      command: firewall-cmd --reload
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+
+    ####################### network for both master and worker nodes #######################
     - name: Set logging
       ufw:
         logging: 'on'
-    - name: Allow Kubelet API Port
+      when: ansible_os_family == 'Debian'
+    - name: Allow Kubelet API Port (Port 10250)
       ufw:
         rule: allow
-        port: "{{ item }}"
+        port: 10250
         proto: tcp
-      loop:
-        - 10250
-    - name: Allow SSH
+      when: ansible_os_family == 'Debian'
+    - name: Allow Kubelet API Port (Port 10250)
+      firewalld:
+        port: 10250/tcp
+        permanent: yes
+        state: enabled
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    - name: Allow SSH (Port 22)
       ufw:
         rule: allow
         port: 22
-        comment: "Allow SSH"
-####################### LOAD BALANCER CONFIGURATION PORTS #######################
-    - name: Allow TCP speackers for metalLB
+        proto: tcp
+      when: ansible_os_family == 'Debian'
+    - name: Allow SSH (Port 22)
+      firewalld:
+        service: ssh
+        permanent: yes
+        state: enabled
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    ####################### LOAD BALANCER CONFIGURATION PORTS #######################
+    - name: Allow TCP speakers for MetalLB
       ufw:
         rule: allow
         port: "{{ item }}"
         proto: tcp
       loop:
         - 7946
-      when: load_balancer == "metallb"
-    - name: Allow UDP speackers for metalLB
+      when: load_balancer == "metallb" and ansible_os_family == 'Debian'
+    - name: Allow TCP speakers for MetalLB
+      firewalld:
+        port: "{{ item }}/tcp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 7946
+      when: load_balancer == "metallb" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    - name: Allow UDP speakers for MetalLB
       ufw:
         rule: allow
         port: "{{ item }}"
         proto: "udp"
       loop:
         - 7946
-      when: load_balancer == "metallb"
-####################### cannel Network Plugin #######################
-    - name: Allow Network Plugin(canal) Port TCP
+      when: load_balancer == "metallb" and ansible_os_family == 'Debian'
+    - name: Allow UDP speakers for MetalLB
+      firewalld:
+        port: "{{ item }}/udp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 7946
+      when: load_balancer == "metallb" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    ####################### Canal Network Plugin #######################
+    - name: Allow Canal Network Plugin Port TCP
       ufw:
         rule: allow
         port: "{{ item }}"
         proto: tcp
       loop:
         - 8472
-      when: network_plugin == "canal"
-    - name: Allow Network Plugin(canal) Port-UDP
+      when: network_plugin == "canal" and ansible_os_family == 'Debian'
+    - name: Allow Canal Network Plugin Port TCP
+      firewalld:
+        port: "{{ item }}/tcp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 8472
+      when: network_plugin == "canal"  and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    - name: Allow Canal Network Plugin Port UDP
       ufw:
         rule: allow
         port: "{{ item }}"
         proto: udp
       loop:
         - 8472
-      when: network_plugin == "canal"
-
+      when: network_plugin == "canal" and ansible_os_family == 'Debian'
+    - name: Allow Canal Network Plugin Port UDP
+      firewalld:
+        port: "{{ item }}/udp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 8472
+      when: network_plugin == "canal" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow Canal livenessProbe/readinessProbe
       ufw:
         rule: allow
         port: 9099
         proto: tcp
-      when: network_plugin == "canal"
-
-    - name: Allow Network Plugin(canal) Wireguard Port UDP
+      when: network_plugin == "canal" and ansible_os_family == 'Debian'
+    - name: Allow Canal livenessProbe/readinessProbe
+      firewalld:
+        port: 9099/tcp
+        permanent: yes
+        state: enabled
+      when: network_plugin == "canal" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    - name: Allow Canal Network Plugin Wireguard Port UDP
       ufw:
         rule: allow
         port: "{{ item }}"
@@ -117,10 +198,17 @@
       loop:
         - 51820
         - 51821
-      when: network_plugin == "canal"
-
-####################### Weave Network Plugin #######################
-
+      when: network_plugin == "canal" and ansible_os_family == 'Debian'
+    - name: Allow Canal Network Plugin Wireguard Port UDP
+      firewalld:
+        port: "{{ item }}/udp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 51820
+        - 51821
+      when: network_plugin == "canal" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    ####################### Weave Network Plugin #######################
     - name: Allow Weave Network Plugin Ports
       ufw:
         rule: allow
@@ -128,8 +216,15 @@
         proto: tcp
       loop:
         - 6783
-      when: network_plugin == "weave"
-
+      when: network_plugin == "weave" and ansible_os_family == 'Debian'
+    - name: Allow Weave Network Plugin Ports
+      firewalld:
+        port: "{{ item }}/tcp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 6783
+      when: network_plugin == "weave" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow Weave Network Plugin UDP Ports
       ufw:
         rule: allow
@@ -138,10 +233,17 @@
       loop:
         - 6783
         - 6784
-      when: network_plugin == "weave"
-
-####################### Calico Network Plugin #######################
-
+      when: network_plugin == "weave" and ansible_os_family == 'Debian'
+    - name: Allow Weave Network Plugin UDP Ports
+      firewalld:
+        port: "{{ item }}/udp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 6783
+        - 6784
+      when: network_plugin == "weave" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    ####################### Calico Network Plugin #######################
     - name: Allow Calico Network Plugin Ports
       ufw:
         rule: allow
@@ -149,8 +251,15 @@
         proto: tcp
       loop:
         - 179
-      when: network_plugin == "calico"
-
+      when: network_plugin == "calico" and ansible_os_family == 'Debian'
+    - name: Allow Calico Network Plugin Ports
+      firewalld:
+        port: "{{ item }}/tcp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 179
+      when: network_plugin == "calico" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow Calico Network Plugin Ports (VXLAN)
       ufw:
         rule: allow
@@ -158,17 +267,28 @@
         proto: udp
       loop:
         - 4789
-      when: network_plugin == "calico"
-
+      when: network_plugin == "calico" and ansible_os_family == 'Debian'
+    - name: Allow Calico Network Plugin Ports (VXLAN)
+      firewalld:
+        port: "{{ item }}/udp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 4789
+      when: network_plugin == "calico" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow Calico Network Plugin Port for Typha
       ufw:
         rule: allow
         port: 5473
         proto: tcp
-      when: network_plugin == "calico"
-
-####################### Cilium Network Plugin #######################
-
+      when: network_plugin == "calico" and ansible_os_family == 'Debian'
+    - name: Allow Calico Network Plugin Port for Typha
+      firewalld:
+        port: 5473/tcp
+        permanent: yes
+        state: enabled
+      when: network_plugin == "calico" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    ####################### Cilium Network Plugin #######################
     - name: Allow Cilium Network Plugin Ports
       ufw:
         rule: allow
@@ -177,43 +297,135 @@
       loop:
         - 8472
         - 4240
-      when: network_plugin == "cilium"
-
+      when: network_plugin == "cilium" and ansible_os_family == 'Debian'
+    - name: Allow Cilium Network Plugin Ports
+      firewalld:
+        port: "{{ item }}/tcp"
+        permanent: yes
+        state: enabled
+      loop:
+        - 8472
+        - 4240
+      when: network_plugin == "cilium" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow ICMP Echo Requests (Ping) for Health Checks
       ufw:
         rule: allow
         proto: icmp
         icmp_type: 8
         state: NEW
-      when: network_plugin == "cilium"
-
-####################### Flannel Network Plugin #######################
-
+      when: network_plugin == "cilium" and ansible_os_family == 'Debian'
+    - name: Allow ICMP Echo Requests (Ping)
+      firewalld:
+        icmp_block_inversion: yes
+        permanent: yes
+        state: enabled
+      when: network_plugin == "cilium" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    ####################### Flannel Network Plugin #######################
     - name: Allow Flannel Network Plugin VXLAN Port on Kubernetes Worker Nodes
       ufw:
         rule: allow
         port: 8472
         proto: udp
-      when: network_plugin == "flannel"
-
-####################### Nginx ingress Network Plugin #######################
-
+      when: network_plugin == "flannel" and ansible_os_family == 'Debian'
+    - name: Allow Flannel Network Plugin VXLAN Port on Kubernetes Worker Nodes
+      firewalld:
+        port: 8472/udp
+        permanent: yes
+        state: enabled
+      when: network_plugin == "flannel" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    ####################### Nginx ingress Network Plugin #######################
     - name: Allow Nginx Ingress's Validating Webhook
       ufw:
         rule: allow
         port: 8443
         proto: tcp
-    - name: Allow https
-      ufw:
-        rule: allow
-        port: 443
-        proto: tcp
-    - name: Allow http
+      when: ansible_os_family == 'Debian'
+    - name: Allow Nginx Ingress's Validating Webhook
+      firewalld:
+        port: 8443/tcp
+        permanent: yes
+        state: enabled
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    - name: Allow HTTP (Port 80 TCP)
       ufw:
         rule: allow
         port: 80
         proto: tcp
-####################### ENABLE FIREWALL FOR ALL NODES #######################
-    - name: Enable UFW
-      ufw:
+      when: ansible_os_family == 'Debian'
+    - name: Allow HTTP (Port 80 TCP)
+      firewalld:
+        port: 80/tcp
+        permanent: yes
         state: enabled
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    - name: Allow HTTPS (Port 443 TCP)
+      ufw:
+        rule: allow
+        port: 443
+        proto: tcp
+      when: ansible_os_family == 'Debian'
+    - name: Allow HTTPS (Port 443 TCP)
+      firewalld:
+        port: 443/tcp
+        permanent: yes
+        state: enabled
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    ####################### open nodeports #######################
+
+    - name: Allow NodePort Services Ports
+      ufw:
+        rule: allow
+        port: 30000:32767
+        proto: tcp
+      when: ansible_os_family == 'Debian'
+    - name: Allow NodePort Services Ports
+      firewalld:
+        port: 30000-32767/tcp
+        permanent: yes
+        state: enabled
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
+
+    - name: Allow NodePort Services Ports
+      ufw:
+        rule: allow
+        port: 30000:32767
+        proto: udp
+      when: ansible_os_family == 'Debian'
+    - name: Allow NodePort Services Ports
+      firewalld:
+        port: 30000-32767/udp
+        permanent: yes
+        state: enabled
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
+
+    ####################### Disable nm-cloud-setup.service #######################
+    - name: Disable nm-cloud-setup services (if applicable)
+      systemd:
+        name: "{{ item }}"
+        enabled: no
+        state: stopped
+      loop:
+        - nm-cloud-setup.service
+        - nm-cloud-setup.timer
+      ignore_errors: true
+      when: ansible_os_family == 'RedHat'
+    - name: Create rke2-canal.conf directory (if not exists)
+      file:
+        path: /etc/NetworkManager/conf.d
+        state: directory
+        mode: '0755'
+      register: nm_conf_dir_created
+    - name: Create rke2-canal.conf file
+      copy:
+        content: |
+          [keyfile]
+          unmanaged-devices=interface-name:cali*;interface-name:flannel*
+        dest: /etc/NetworkManager/conf.d/rke2-canal.conf
+      notify: Reload NetworkManager
+
+  handlers:
+    - name: Reload NetworkManager
+      systemd:
+        name: NetworkManager
+        state: reloaded
+      ignore_errors: true

@@ -4,31 +4,98 @@
 source ./user_fill.sh
 source ./config.sh
 
-# install yq if not installed
+package_manager=""
+if [[ -f /etc/redhat-release ]]; then
+    package_manager="yum"
+elif [[ -f /etc/SuSE-release ]]; then
+    package_manager="zypper"
+elif [[ -f /etc/os-release ]]; then
+    source /etc/os-release
+    if [[ $ID == "ubuntu" || $ID == "debian" ]]; then
+        package_manager="apt"
+    elif [[ $ID == "sles" ]]; then
+        package_manager="zypper"
+    else
+        echo "Unsupported package manager."
+        exit 1
+    fi
+else
+    echo "Unsupported package manager."
+    exit 1
+fi
+
+case $package_manager in
+    "yum")
+        ;;
+    "zypper")
+        sudo SUSEConnect -p PackageHub/15.5/x86_64
+        ;;
+    "apt")
+        sudo apt-add-repository ppa:ansible/ansible -y
+        ;;
+    *)
+        echo "Unsupported package manager."
+        exit 1
+        ;;
+esac
+
+# Function to check and install packages using the appropriate package manager
+install_package() {
+
+    # Check if the package is already installed
+    if ! command -v $1 &>/dev/null; then
+        print_label "Installing $1 using $package_manager" 1
+
+        # Install the package using the detected package manager
+        case $package_manager in
+            "yum")
+                sudo yum install -y $1
+                ;;
+            "zypper")
+                sudo zypper install -y $1
+                ;;
+            "apt")
+                sudo apt install -y $1
+                ;;
+            *)
+                echo "Unsupported package manager."
+                exit 1
+                ;;
+        esac
+
+        print_label "Done installing $1" 2
+    else
+        print_label "$1 is already installed." 2
+    fi
+}
+
+# Install git if not installed
+install_package "git"
+
+
+# Install wget if not installed
+install_package "wget"
+
+# Install yq if not installed
 if ! command -v yq &>/dev/null; then
-    print_label "installing yq" 1
+    print_label "Installing yq" 1
     wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
     chmod +x /usr/bin/yq
     print_label "Done installing yq" 2
 else
-    print_label "YQ is already installed." 2
+    print_label "yq is already installed." 2
 fi
 
-# install ansible if not installed
-if ! command -v ansible &>/dev/null; then
-    print_label "installing ansible" 1
-    sudo apt-add-repository ppa:ansible/ansible -y
-    sudo apt update -y
-    sudo apt install ansible -y
-    print_label "Done installing ansible" 2
+# Install Ansible if not installed
+if [ $package_manager == "yum" ]; then
+    sudo dnf install -y ansible-core
 else
-    print_label "ANSIBLE is already installed." 2
-    echo "ANSIBLE is already installed."
+    install_package "ansible"
 fi
+
 
 # generate inventory file for ansible
 source ./scripts/generate_inventory.sh
-
 
 if [ "$RKE_VERSION" = "rke1" ]; then
   echo "enable rke1"
@@ -51,7 +118,8 @@ elif [ "$RKE_VERSION" = "rke2" ]; then
   yq e ".[].vars.install_docker = false " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
 fi
 
-
+# installing the ansible.posix community.general to ensure that the firewall and ufw modules are available
+ansible-galaxy collection install ansible.posix community.general
 
 # install prerequisites for jump server
 ansible-playbook -i ./playbooks/inventory.yml ./playbooks/jump_server_prerequisites.yml

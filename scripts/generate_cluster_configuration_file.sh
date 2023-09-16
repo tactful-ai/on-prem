@@ -6,6 +6,38 @@ source ./user_fill.sh
 
 print_label "Generating cluster.yml" 1
 
+
+DEFAULT_RKE1_ADDONS=${PWD}/RKE1_addons
+
+
+mkdir -p $DEFAULT_RKE1_ADDONS
+
+
+cat <<EOF > $DEFAULT_RKE1_ADDONS/ingress-nginx-controller.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  ports:
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 443
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: ingress-nginx
+    app.kubernetes.io/instance: ingress-nginx
+  sessionAffinity: None
+  type: LoadBalancer
+EOF
+
+
 YAML_FILE=$CLUSTER_FILES_LOCATION/cluster.yml
 
 # Remove the existing YAML file if it exists
@@ -94,9 +126,20 @@ yq eval '.dns = {
 # Set monitoring provider and strategy
 yq eval '.monitoring = {"provider": "metrics-server", "update_strategy": {"strategy": "RollingUpdate"}}' -i "$YAML_FILE"
 
+
+for addon_file in ${DEFAULT_RKE1_ADDONS}/*; do
+    if [ -f "$addon_file" ]; then
+      # Add the content of the addon file to the cluster.yml
+      yq eval ".addons += \"\\n$(cat $addon_file)\\n---\"" -i "$YAML_FILE"
+    fi
+done
+
+
 for addon_file in ${ADDONS_DIRECTORY}/*; do
-    # Add the content of the addon file to the cluster.yml
-    yq eval ".addons += \"\\n$(cat $addon_file)\\n---\"" -i "$YAML_FILE"
+    if [ -f "$addon_file" ]; then
+      # Add the content of the addon file to the cluster.yml
+      yq eval ".addons += \"\\n$(cat $addon_file)\\n---\"" -i "$YAML_FILE"
+    fi
 done
 
 # Set empty addons_include

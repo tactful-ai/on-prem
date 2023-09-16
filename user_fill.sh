@@ -33,7 +33,7 @@ num_nodes=${#node_info[@]}
 # we have rke1, rke2
 # rke1 is the old version of rke that use docker as container runtime
 # rke2 is the new version of rke that use containerd as container runtime
-RKE_VERSION="rke1"
+RKE_VERSION="rke2"
 
 # select the docker version that compatible with you os and the k8s
 # to know the used k8s version you can run

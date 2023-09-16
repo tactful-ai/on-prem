@@ -186,3 +186,6 @@ https://docs.tigera.io/archive/v3.8/reference/node/configuration#interfaceinterf
 
 
 
+kubectl patch svc rancher -n cattle-system -p '{"spec": {"type": "NodePort"}}'
+
+

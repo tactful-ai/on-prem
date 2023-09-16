@@ -4,6 +4,10 @@
 source config.sh
 source ./user_fill.sh
 
+
+DISABLE_FIREWALLD_ONREDHAT_SYSTEM_PLAYBOOK_FILE="${ANSIBLE_PLAYBOOKS_LOCATION}/disable_firewalld_on_redhat_system.yml"
+ansible-playbook -i $ANSIBLE_INVENTORY_FILE $DISABLE_FIREWALLD_ONREDHAT_SYSTEM_PLAYBOOK_FILE
+
 mkdir -p $CLUSTER_FILES_LOCATION
 
 MASTER_CONFIG=$CLUSTER_FILES_LOCATION/Master.yml
@@ -29,9 +33,18 @@ yq e ".write-kubeconfig-mode = \"0644\"" -i $MASTER_CONFIG
 yq e '.["tls-san"] += [env(ip_address)]' -i $MASTER_CONFIG
 yq e ".[\"cni\"] += [\"$NETWORK_PLUGIN\"]" -i $MASTER_CONFIG
 
-yq e ".node.hostnameOverride = \"master-node\"" -i $MASTER_CONFIG
+yq e ".node-name = \"master-node\"" -i $MASTER_CONFIG
 yq e ".node-taint[0] = \"CriticalAddonsOnly=true:NoExecute\"" -i $MASTER_CONFIG
 
+yq e ".cluster-cidr = \"${CLUSTER_CIDR}\"" -i $MASTER_CONFIG
+
+yq e ".service-cidr = \"${SERVICE_CLUSTER_IP_RANGE}\"" -i $MASTER_CONFIG
+
+yq e ".cluster-dns  = \"${CLUSTER_DNS_SERVER}\"" -i $MASTER_CONFIG
+
+
+
+mkdir -p $ADDONS_DIRECTORY
 
 # copy the addons from local to the server
 yq e ".[].tasks[0].copy.src = \"${RKE2_ADDONS_LOCATION}\" " -i $MASTER_PLAYBOOK
@@ -71,7 +84,6 @@ EOF
 
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_PLAYBOOK
 
-
 yq e ".clusters[0].cluster.server = \"https://${ip_address}:6443\" " -i $CLUSTER_CONFIG_LOCATION
 
 
@@ -91,8 +103,13 @@ server: https://$ip_address:9345
 token: $(cat $CLUSTER_TOKEN_LOCATION)
 EOL
 
-# Use yq to validate and format the YAML file (optional)
+# Use yq to validate and format the YAML file
 yq eval '.' -i "$YAML_FILE"
+
+yq e ".node-name = \"Worker-node\"" -i $YAML_FILE
+yq e ".with-node-id  = \"true\"" -i $YAML_FILE
+
+
 
 yq e ".[].tasks[1].copy.src = \"${WORKER_CONFIG}\" " -i $WORKERS_PLAYBOOK
 
@@ -103,6 +120,8 @@ ansible-playbook -i $ANSIBLE_INVENTORY_FILE $WORKERS_PLAYBOOK
 
 mkdir ~/.kube
 cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config
+chmod 600 /root/.kube/config
+
 
 # Number of nodes expected to be in "Ready" state
 expected_nodes_count=$num_nodes

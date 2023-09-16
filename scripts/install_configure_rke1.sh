@@ -4,6 +4,9 @@
 source config.sh
 source user_fill.sh
 
+
+
+
 # generate Cluster.yml file for rke
 source ./scripts/generate_cluster_configuration_file.sh
 
@@ -20,3 +23,4 @@ chmod +r $CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 
 mkdir ~/.kube
 cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config
+chmod 600 /root/.kube/config

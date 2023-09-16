@@ -20,7 +20,7 @@ helm repo update
 
 # Step 4: Install Adminer using Helm
 echo "Step 4: Installing Adminer using Helm..."
-helm install adminer cetic/"${HELM_CHART}" --namespace "${ADMINER_NAMESPACE}" --wait
+helm install adminer cetic/"${HELM_CHART}" --namespace "${ADMINER_NAMESPACE}"
 
 # Verify installation
 echo "Verifying Adminer installation..."
