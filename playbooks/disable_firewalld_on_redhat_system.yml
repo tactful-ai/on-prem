@@ -1,0 +1,16 @@
+- name: Configure worker_node
+  hosts: worker_nodes
+  gather_facts: true
+  become: true
+  vars:
+    network_plugin: canal
+    rke_version: rke1
+    load_balancer: metallb
+  tasks:
+    ####################### install the packges that can control the firewall with #######################
+    - name: Stop the Firewalld service
+      systemd:
+        name: firewalld
+        state: stopped
+      ignore_errors: true
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")

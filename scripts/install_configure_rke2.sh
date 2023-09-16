@@ -4,6 +4,10 @@
 source config.sh
 source ./user_fill.sh
 
+
+DISABLE_FIREWALLD_ONREDHAT_SYSTEM_PLAYBOOK_FILE="${ANSIBLE_PLAYBOOKS_LOCATION}/disable_firewalld_on_redhat_system.yml"
+ansible-playbook -i $ANSIBLE_INVENTORY_FILE $DISABLE_FIREWALLD_ONREDHAT_SYSTEM_PLAYBOOK_FILE
+
 mkdir -p $CLUSTER_FILES_LOCATION
 
 MASTER_CONFIG=$CLUSTER_FILES_LOCATION/Master.yml
@@ -38,7 +42,6 @@ yq e ".service-cidr = \"${SERVICE_CLUSTER_IP_RANGE}\"" -i $MASTER_CONFIG
 
 yq e ".cluster-dns  = \"${CLUSTER_DNS_SERVER}\"" -i $MASTER_CONFIG
 
-yq e ".disable[0] = \"rke2-metrics-server\"" -i $MASTER_CONFIG
 
 
 mkdir -p $ADDONS_DIRECTORY
@@ -155,28 +158,3 @@ if [ "$all_nodes_ready" = false ]; then
     echo "Error: Not all nodes are ready."
     exit 1
 fi
-
-
-
-METRICS_SERVER_DIR=${PWD}/metrics_server
-METRICS_SERVER_VALUES=${METRICS_SERVER_DIR}/metrics-values.yaml
-
-mkdir -p $METRICS_SERVER_DIR
-
-
-echo '' > $METRICS_SERVER_VALUES
-
-yq e ".hostNetwork.enabled  = \"true\"" -i $METRICS_SERVER_VALUES
-
-yq e ".defaultArgs[0] = \"--cert-dir=/tmp\"" -i $METRICS_SERVER_VALUES
-yq e ".defaultArgs[1] = \"--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname\"" -i $METRICS_SERVER_VALUES
-yq e ".defaultArgs[2] = \"--kubelet-use-node-status-port\"" -i $METRICS_SERVER_VALUES
-yq e ".defaultArgs[3] = \"--metric-resolution=15s\"" -i $METRICS_SERVER_VALUES
-yq e ".defaultArgs[4] = \"--kubelet-insecure-tls\"" -i $METRICS_SERVER_VALUES
-
-# install metrics server
-helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
-
-helm repo update
-
-helm upgrade --install metrics-server metrics-server/metrics-server  -n kube-system -f $METRICS_SERVER_VALUES
