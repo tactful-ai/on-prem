@@ -91,6 +91,20 @@
         state: started
         enabled: yes
       when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
+
+    ####################### ENABLE FIREWALL FOR ALL NODES #######################
+    - name: Enable UFW
+      ufw:
+        state: enabled
+      when: ansible_os_family == 'Debian'
+    - name: Enable Firewalld
+      firewalld:
+        state: enabled
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+    - name: Reload firewall
+      command: firewall-cmd --reload
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+
     ####################### network for both master and worker nodes #######################
     - name: Set logging
       ufw:
@@ -378,18 +392,34 @@
         permanent: yes
         state: enabled
       when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
-    ####################### ENABLE FIREWALL FOR ALL NODES #######################
-    - name: Enable UFW
+    ####################### open nodeports #######################
+
+    - name: Allow NodePort Services Ports
       ufw:
-        state: enabled
+        rule: allow
+        port: 30000:32767
+        proto: tcp
       when: ansible_os_family == 'Debian'
-    - name: Enable Firewalld
+    - name: Allow NodePort Services Ports
       firewalld:
+        port: 30000-32767/tcp
+        permanent: yes
         state: enabled
-      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
-    - name: Reload firewall
-      command: firewall-cmd --reload
-      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
+
+    - name: Allow NodePort Services Ports
+      ufw:
+        rule: allow
+        port: 30000:32767
+        proto: udp
+      when: ansible_os_family == 'Debian'
+    - name: Allow NodePort Services Ports
+      firewalld:
+        port: 30000-32767/udp
+        permanent: yes
+        state: enabled
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
+
     ####################### Disable nm-cloud-setup.service #######################
     - name: Disable nm-cloud-setup services (if applicable)
       systemd:

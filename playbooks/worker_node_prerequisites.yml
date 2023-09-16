@@ -26,18 +26,6 @@
         enabled: yes
       when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
     ####################### allow node ports #######################
-    - name: Allow NodePort Services Ports
-      ufw:
-        rule: allow
-        port: 30776:32767
-        proto: tcp
-      when: ansible_os_family == 'Debian'
-    - name: Allow NodePort Services Ports
-      firewalld:
-        port: 30000-32767/tcp
-        permanent: yes
-        state: enabled
-      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
     - name: Reload firewall
       command: firewall-cmd --reload
       when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
