@@ -120,6 +120,8 @@ ansible-playbook -i $ANSIBLE_INVENTORY_FILE $WORKERS_PLAYBOOK
 
 mkdir ~/.kube
 cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config
+chmod 600 /root/.kube/config
+
 
 # Number of nodes expected to be in "Ready" state
 expected_nodes_count=$num_nodes

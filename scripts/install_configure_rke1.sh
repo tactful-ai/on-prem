@@ -23,3 +23,4 @@ chmod +r $CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 
 mkdir ~/.kube
 cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config
+chmod 600 /root/.kube/config

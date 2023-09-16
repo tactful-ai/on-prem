@@ -131,28 +131,16 @@
       command: multipath -t
       ignore_errors: true
 
-    - name: Check if iscsid.service is running
-      systemd:
-        name: iscsid.service
-        state: started
-      register: iscsid_service_status
-      ignore_errors: true
-
-    - name: Check if iscsid.socket is running
-      systemd:
-        name: iscsid.socket
-        state: started
-      register: iscsid_socket_status
-      ignore_errors: true
-
     - name: Start iscsid.service if not already running
       systemd:
         name: iscsid.service
         state: started
       when: iscsid_service_status.changed
+      ignore_errors: true
 
     - name: Start iscsid.socket if not already running
       systemd:
         name: iscsid.socket
         state: started
       when: iscsid_socket_status.changed
+      ignore_errors: true
