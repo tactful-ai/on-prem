@@ -129,7 +129,94 @@ This folder contains Grafana-related configurations, including dashboards and se
 This repository is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ------------------------------------------------------------------------------------------------------
+## Functionality
 
+```
+1- change_default_password.sh
+
+Functionality: This script is responsible for changing the default SSH passwords on multiple nodes within the cluster. It updates the SSH passwords for each specified node based on the provided information in the user_fill.sh and config.sh files.
+
+Usage: When executed, the script will iterate through the nodes, connect to each one, and change the SSH password as specified in the configuration files.
+
+2-generate_cluster_configuration_file.sh
+
+Functionality: This script generates a cluster configuration file (cluster.yml) required for setting up a Kubernetes cluster using either RKE (Rancher Kubernetes Engine) or RKE2 (Rancher Kubernetes Engine 2). It constructs the cluster configuration based on user-defined settings and node information.
+
+Usage: Running this script will create a cluster.yml file in the cluster_configuration folder with the necessary configuration for your Kubernetes cluster. Users can customize this file before deploying the cluster.
+
+3- generate_inventory.sh
+
+Functionality: This script generates an Ansible inventory file (inventory.yml) that defines the cluster nodes. This inventory file is used for managing and provisioning nodes with Ansible.
+
+Usage: Execute this script to create an inventory.yml file in the root directory, which lists the nodes and their details.
+
+4-install_configure_adminer.sh
+
+Functionality: This script automates the installation of Adminer, a web-based database management tool, into the Kubernetes cluster. It performs tasks such as creating a namespace, adding Helm repositories, and installing the Adminer Helm chart.
+
+Usage: Run this script to install Adminer in your cluster, providing a convenient web interface for database management.
+
+5-install_configure_cert_manager.sh
+
+Functionality: This script automates the installation of Cert-Manager, a certificate management solution, into the Kubernetes cluster. It downloads the Cert-Manager CRDs (Custom Resource Definitions) and deploys the Helm chart with user-defined settings.
+
+Usage: Execute this script to install Cert-Manager in your cluster, enabling certificate issuance and management.
+
+6-install_configure_k8s_dashboard.sh
+
+Functionality: This script installs the Kubernetes Dashboard, a web-based UI for managing and monitoring your Kubernetes cluster. It deploys necessary Kubernetes resources and fetches an admin user token for dashboard access.
+
+Usage: Run this script to set up the Kubernetes Dashboard in your cluster, making it easier to manage Kubernetes resources.
+
+7-install_configure_longhorn.sh
+
+Functionality: This script automates the installation of Longhorn, a distributed storage solution for Kubernetes, in the cluster. It uses Helm to deploy Longhorn and waits for the Longhorn pods to become "Running."
+
+Usage: Execute this script to set up Longhorn, providing persistent storage capabilities for your cluster applications.
+
+8-install_configure_metalLB.sh
+
+Functionality: This script installs MetalLB, a load balancer for bare-metal Kubernetes clusters. It adds Helm repositories, deploys MetalLB using Helm, and configures IP address pools.
+
+Usage: Run this script to enable load balancing capabilities for your bare-metal Kubernetes cluster.
+
+9-install_configure_prometheus_and_grafana.sh
+
+Functionality: This script installs Prometheus and Grafana for monitoring and visualization in the Kubernetes cluster. It configures various settings, such as Grafana password and Kubernetes version override.
+
+Usage: Execute this script to set up monitoring and visualization tools in your cluster, allowing you to monitor cluster health and applications.
+
+10-install_configure_rancher_dashboard.sh
+
+Functionality: This script installs Rancher, a Kubernetes management platform, into the cluster. It adds Helm repositories, creates a Rancher namespace, and deploys Rancher with specified settings.
+
+Usage: Run this script to deploy Rancher and use it as a management platform for your Kubernetes clusters.
+
+11-install_configure_redis.sh
+
+Functionality: This script installs Redis in the Kubernetes cluster using Helm. It creates the redis-system namespace and installs the Redis Helm chart with user-defined values.
+
+Usage: Execute this script to set up Redis in your cluster, providing a high-performance, in-memory data store.
+
+12-install_configure_rke1.sh and install_configure_rke2.sh
+
+Functionality: These scripts deploy a Kubernetes cluster using RKE (Rancher Kubernetes Engine) or RKE2 (Rancher Kubernetes Engine 2). They automate the entire cluster creation process, including node setup and cluster configuration.
+
+Usage: Choose the appropriate script based on whether you want to use RKE1 or RKE2, and run it to create a Kubernetes cluster.
+
+13-jump_server_prerequisites.sh
+
+Functionality: This script installs prerequisites on a jump server to prepare it for managing the Kubernetes cluster. It installs Ansible and other required tools.
+
+Usage: Execute this script to prepare a jump server for managing the Kubernetes cluster.
+
+14-node_prerequisites.sh
+
+Functionality: This script installs prerequisites on the cluster nodes, including setting up SSH keys, configuring network settings, and preparing the nodes for cluster deployment.
+
+Usage: Run this script to ensure that the cluster nodes are ready for cluster deployment and management.
+
+These scripts and configurations collectively automate the deployment and management of a Kubernetes cluster, making it easier to set up and maintain an on-premises Kubernetes environment. Users can execute these scripts according to their requirements and customize configurations as needed.
 
 
 
