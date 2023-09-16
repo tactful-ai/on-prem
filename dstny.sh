@@ -81,3 +81,11 @@ if [ "$INSTALL_ADMINER" = "yes" ]; then
   print_label "Installing and configuring Adminer" 1
   source scripts/install_configure_adminer.sh
 fi
+
+
+# if the user wants to install the k8s-dashboard
+if [ "$INSTALL_DASHBOARD" = "yes" ]; then
+  # install and configure redis
+  print_label "Installing and configuring k8s-dashboard and kindly find your token at ./token/admin-token.text" 1
+  source scripts/install_configure_k8s_dashboard.sh
+fi
