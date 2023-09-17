@@ -47,6 +47,41 @@
             <option value="NO">NO</option>
         </select><br><br>
 
+        <label for="rkeVersion">RKE Version:</label>
+        <select id="rkeVersion" name="rkeVersion">
+            <option value="rke1">RKE Version 1</option>
+            <option value="rke2">RKE Version 2</option>
+        </select><br><br>
+
+        <label for="dockerVersion">Docker Version:</label>
+        <select id="dockerVersion" name="dockerVersion">
+            <option value="23.0.6">23.0.6</option>
+        </select><br><br>
+
+        <label for="certManager">Certificate Manager:</label>
+        <select id="certManager" name="certManager">
+            <option value="None">NONE</option>
+            <option value="cert-manager">Cert-Manager</option>
+        </select><br><br>
+
+        <label for="installRancher">Do you want to install Rancher Dashboard? </label>
+        <select id="installRancher" name="installRancher">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select><br><br>
+
+        <label for="installAdminer">Do you want to install Adminer? </label>
+        <select id="installAdminer" name="installAdminer">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select><br><br>
+
+        <label for="installKubeDash">Do you want to install Kubernetes Dashboard? </label>
+        <select id="installKubeDash" name="installKubeDash">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select><br><br>
+
         <div id="nodeInfoFields">
             <!-- Form fields for nodes will be added here dynamically using JavaScript -->
         </div>

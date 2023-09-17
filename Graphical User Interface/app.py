@@ -28,6 +28,12 @@ def generate_script():
     load_balancer = request.form['loadBalancer']
     monitoring_system = request.form['monitoringSystem']
     install_redis = request.form['installRedis']
+    rke_version = request.form['rkeVersion']
+    docker_version = request.form['dockerVersion']
+    cert_manager = request.form['certManager']
+    install_rancher = request.form['installRancher']
+    install_adminer = request.form['installAdminer']
+    install_kubedash = request.form['installKubeDash']
 
     # Create a list to store the node_info lines
     node_info_lines = []
@@ -62,7 +68,24 @@ CONNECTION_WAY={connection_way}
 
 # Number of nodes
 num_nodes={num_nodes}
+
+# chose whicih rke version you want to install
+# we have rke1, rke2
+# rke1 is the old version of rke that use docker as container runtime
+# rke2 is the new version of rke that use containerd as container runtime
+RKE_VERSION="{rke_version}"
+
+# select the docker version that compatible with you os and the k8s
+# to know the used k8s version you can run
+docker_version="{docker_version}"
+
+
 ################################# Services Section #################################
+
+# chose certification manager you want
+# we have cert-manager, None
+# if you dont want to install one of them write NONE
+CERT_MANAGER="{cert_manager}"
 
 # chose storage system you want to install
 # we have longhorn, none
@@ -79,12 +102,24 @@ LOAD_BALANCER="{load_balancer}"
 # if you don't want to install one of them, write NONE
 MONITORING_SYSTEM="{monitoring_system}"
 
+# do you want to install Rancher DashBoard
+# if you dont want to install write yes
+INSTALL_RANCHER_DASHBOARD="{install_rancher}"
+
 # do you want to install redis
 INSTALL_REDIS="{install_redis}"
+
+# do you want to install Adminer
+# if you dont want to install write yes
+INSTALL_ADMINER="{install_adminer}"
+
+# do you want install k8s-dashboard
+INSTALL_DASHBOARD="{install_kubedash}"
+
 '''
 
     # Save the generated script to 'user_fill.sh'
-    with open('user_fill.sh', 'w') as script_file:
+    with open('./user_fill.sh', 'w') as script_file:
         script_file.write(script_content)
 
     # Redirect to the 'run.html' page
