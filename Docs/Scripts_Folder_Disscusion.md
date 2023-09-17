@@ -353,3 +353,46 @@ Completion Message:
 
 Finally, the script prints a message indicating that the Sonobuoy tests are completed and provides the path to where the results are stored.
 
+
+## Rollback Scripts
+
+### Idea of Rollback:
+Rollback is a critical component of any deployment or automation process. It provides a mechanism to revert changes made during an installation or configuration process to a previous state, ensuring system stability and reliability. In your case, the rollback.sh script serves as the orchestrator for the rollback process, allowing users to selectively undo the installation or configuration of various components in a Kubernetes cluster.
+
+### How Each Rollback Script Connects with rollback.sh:
+
+### Adminer Rollback (uninstall_configure_adminer.sh):
+
+When the LOAD_BALANCER_INSTALLED variable is set to "yes" in config.sh, rollback.sh executes uninstall_configure_adminer.sh.
+This script uninstalls Adminer from the Kubernetes cluster by deleting the Adminer Helm release and its associated namespace.
+rollback.sh ensures the correct sequence of execution and provides a centralized place for users to manage rollback operations.
+### Cert-Manager Rollback (uninstall_configure_cert_manager.sh):
+
+When the CERT_MANAGER_INSTALLED variable is set to "yes" in config.sh, rollback.sh executes uninstall_configure_cert_manager.sh.
+This script uninstalls Cert-Manager from the Kubernetes cluster by deleting the Cert-Manager Helm release and its associated namespace.
+rollback.sh maintains a logical flow for rolling back components, making it easier for users to manage the process.
+### Longhorn Rollback (uninstall_configure_longhorn.sh):
+
+When the STORAGE_SYSTEM_INSTALLED variable is set to "yes" in config.sh, rollback.sh executes uninstall_configure_longhorn.sh.
+This script uninstalls Longhorn from the Kubernetes cluster by deleting the Longhorn Helm release and its associated namespace.
+rollback.sh provides a consistent approach for undoing changes made during installation.
+### MetalLB Rollback (uninstall_configure_metalLB.sh):
+
+When the LOAD_BALANCER_INSTALLED variable is set to "yes" in config.sh, rollback.sh executes uninstall_configure_metalLB.sh.
+This script uninstalls MetalLB from the Kubernetes cluster by deleting its configurations, Helm release, and the Helm repository.
+rollback.sh ensures that the rollback process is organized and easy to follow.
+### Prometheus and Grafana Rollback (uninstall_configure_promethus_and_grafana.sh):
+
+When the MONITORING_SYSTEM_INSTALLED variable is set to "yes" in config.sh, rollback.sh executes uninstall_configure_promethus_and_grafana.sh.
+This script uninstalls Prometheus and Grafana from the Kubernetes cluster by deleting their Helm release, namespace, and optionally, restoring the original configuration values.
+rollback.sh maintains a clear structure for handling the rollback of monitoring components.
+### Rancher Dashboard Rollback (uninstall_configure_rancher_dashboard.sh):
+
+When the INSTALL_RANCHER_DASHBOARD variable is set to "yes" in config.sh, rollback.sh executes uninstall_configure_rancher_dashboard.sh.
+This script uninstalls the Rancher dashboard from the Kubernetes cluster by deleting its Helm release and namespace.
+rollback.sh ensures that the rollback process is well-organized and straightforward.
+### Redis Rollback (uninstall_configure_redis.sh):
+
+When the INSTALL_REDIS variable is set to "yes" in config.sh, rollback.sh executes uninstall_configure_redis.sh.
+This script uninstalls Redis from the Kubernetes cluster by deleting its Helm release and namespace.
+rollback.sh provides a centralized location to trigger the rollback of Redis and other components.
