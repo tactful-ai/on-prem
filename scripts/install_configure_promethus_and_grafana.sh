@@ -3,7 +3,6 @@ source config.sh
 
 
 VALUES_FILE_LOCATION=$PROMETHEUS_GRAFANA_FILES_LOCATION/values.yaml
-PROMTHUS_NAMESPACE="prometheus"
 
 mkdir -p $PROMETHEUS_GRAFANA_FILES_LOCATION
 
@@ -33,6 +32,8 @@ done
 
 helm install $MONITOR_NAMESPACE prometheus-community/kube-prometheus-stack --namespace $MONITOR_NAMESPACE --values $VALUES_FILE_LOCATION --wait
 
-service_link=$(get_service_info $MONITOR_NAMESPACE grafana)
+SERVICE_NAME=$MONITOR_NAMESPACE-grafana
 
-add_service_to_readme "Grafana Link" $service_link $GRAFANA_ADMIN_PASSWORD
+service_link=$(get_service_info $MONITOR_NAMESPACE $SERVICE_NAME)
+
+add_service_to_readme "Grafana" $service_link $GRAFANA_ADMIN_PASSWORD

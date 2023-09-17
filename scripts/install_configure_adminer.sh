@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ./config.sh
+
 # Define the namespace where Adminer will be installed
 ADMINER_NAMESPACE="adminer"
 
@@ -26,7 +28,7 @@ helm install adminer cetic/"${HELM_CHART}" --namespace "${ADMINER_NAMESPACE}" --
 echo "Verifying Adminer installation..."
 kubectl get pods -n "${ADMINER_NAMESPACE}"
 
-service_link=$(get_service_info $ADMINER_NAMESPACE adminer)
+service_link=$(get_service_info $ADMINER_NAMESPACE)
 
 add_service_to_readme "ADMINER Link" $service_link
 
