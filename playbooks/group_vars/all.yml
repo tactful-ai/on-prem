@@ -1,0 +1,11 @@
+install_rke: false
+install_docker: false
+network_plugin: canal
+load_balancer: metallb
+rke_version: rke2
+RKE2_ADDONS_LOCATION: '../RKE2_addons'
+ADDONS_DIRECTORY: '../addons'
+MASTER_CONFIG: '../cluster_configurations/Master.yml'
+CLUSTER_TOKEN_LOCATION: '../cluster_configurations/rke2_token'
+CLUSTER_CONFIG_LOCATION: '../cluster_configurations/kube_config_cluster.yml'
+WORKER_CONFIG: '../cluster_configurations/worker.yml'
