@@ -1,191 +1,154 @@
-Address
+# Important Notes for Project On-Prem
 
-The address directive will be used to set the hostname or IP address of the node. RKE must be able to connect to this address.
-Internal Address
+These important notes are intended to provide crucial information about the "On-Prem" project. Please read and consider these notes carefully, especially if you plan to use this project in a production environment.
 
-The internal_address provides the ability to have nodes with multiple addresses set a specific address to use for inter-host communication on a private network. If the internal_address is not set, the address is used for inter-host communication. The internal_address directive will set the address used for inter-host communication of the Kubernetes components, e.g. kube-apiserver and etcd. To change the interface used for the vxlan traffic of the Canal or Flannel network plug-ins please refer to the Network Plug-ins Documentation.
+## Table of Contents
+- [Important Notes for Project On-Prem](#important-notes-for-project-on-prem)
+  - [Table of Contents](#table-of-contents)
+  - [Latest Version of RKE1 and Docker Compatibility](#latest-version-of-rke1-and-docker-compatibility)
+  - [Network Plugin and Load Balancer Limitations](#network-plugin-and-load-balancer-limitations)
+  - [Limitation of Using Docker with RKE1](#limitation-of-using-docker-with-rke1)
+    - [Limitations and Considerations with Docker](#limitations-and-considerations-with-docker)
+      - [Production Challenges](#production-challenges)
+      - [Security Issues](#security-issues)
+    - [The RKE2 Solution](#the-rke2-solution)
+  - [Known Issues and Limitations with RKE2](#known-issues-and-limitations-with-rke2)
+    - [Firewalld conflicts with default networking](#firewalld-conflicts-with-default-networking)
+    - [NetworkManager](#networkmanager)
+    - [Istio in Selinux Enforcing System Fails by Default](#istio-in-selinux-enforcing-system-fails-by-default)
+    - [Control Groups V2](#control-groups-v2)
+    - [Calico with vxlan encapsulation](#calico-with-vxlan-encapsulation)
+    - [Wicked](#wicked)
+    - [Canal and IP exhaustion](#canal-and-ip-exhaustion)
+    - [Ingress in CIS Mode](#ingress-in-cis-mode)
+  - [Choosing Your Network Provider](#choosing-your-network-provider)
+    - [Considerations](#considerations)
+  - [Including Kubernetes Manifests by Default](#including-kubernetes-manifests-by-default)
+    - [Using the "addons" Folder](#using-the-addons-folder)
+    - [Including Additional Manifests with `RKE_ADDONS_INCLUDE`](#including-additional-manifests-with-rke_addons_include)
 
-https://rke.docs.rancher.com/config-options/nodes
+## Latest Version of RKE1 and Docker Compatibility
 
+Before you start using the "On-Prem" project, it's essential to ensure that you are using the latest compatible version of RKE1 and Docker. We recommend following these steps:
 
---------------------------------------------------------------
+1. **Check the Latest RKE1 Version:** Visit the [RKE1 Support Matrix](https://www.suse.com/suse-rke1/support-matrix/all-supported-versions/rke1-v1-26/) to find the latest supported version of RKE1. Make a note of this version number.
 
-Kubernetes Version
+2. **Select the Appropriate Docker Version:** Based on the RKE1 version you've identified, consult the RKE1 documentation or release notes to determine the compatible Docker version. Ensure that you have the specified Docker version installed on your system.
 
-For information on upgrading Kubernetes, refer to the upgrade section.
+3. **Update the User Configuration (user_fill.sh):** In the "user_fill.sh" file within your project, update the `docker_version` env to the target version.
 
-Rolling back to previous Kubernetes versions is not supported.
+## Network Plugin and Load Balancer Limitations
 
+When deploying RKE1 or RKE2, the choice of the network plugin can significantly impact your cluster's behavior and capabilities. Additionally, the load balancing solution, such as MetalLB, may have limitations based on the chosen network plugin.
 
---------------------------------------------------------------
+To assist you in making informed decisions, we recommend reviewing the network plugin options and limitations with MetalLB:
 
-Listing Supported Kubernetes Versions
+- **Network Plugin Options**: You can find information about various network plugins and their compatibility with RKE1 and RKE2 in the [RKE1 documentation](https://rke.docs.rancher.com/config-options/add-ons/network-plugins) and [RKE2 documentation](https://docs.rke2.io/install/network_options). Take into account your specific use case and requirements when selecting a network plugin.
 
-Please refer to the release notes of the RKE version that you are running, to find the list of supported Kubernetes versions as well as the default Kubernetes version. Note: RKE v1.x should be used.
+- **MetalLB Limitations**: MetalLB is a popular load balancer solution for Kubernetes, but it may have limitations with certain network plugins. Refer to the [MetalLB documentation](https://metallb.universe.tf/installation/network-addons/) for details on these limitations and any workarounds or considerations.
 
-You can also list the supported versions and system images of specific version of RKE release with a quick command.
+Please carefully evaluate your network and load balancing needs before proceeding with your cluster setup. Choosing the right combination of the network plugin and load balancer is essential for a successful deployment of the "On-Prem" project.
 
-$ rke config --list-version --all
-v1.15.3-rancher2-1
-v1.13.10-rancher1-2
-v1.14.6-rancher2-1
-v1.16.0-beta.1-rancher1-1
+## Limitation of Using Docker with RKE1
 
---------------------------------------------------------------
+RKE1 (Rancher Kubernetes Engine 1) is designed to work seamlessly with Docker as its container runtime. Using Docker with RKE1 ensures compatibility and optimal performance. However, it's essential to be aware of certain limitations and considerations, especially in production environments.
 
-Add-Ons
+### Limitations and Considerations with Docker
 
+#### Production Challenges
 
-https://rke.docs.rancher.com/config-options/add-ons
+- **Scalability:** While Docker is suitable for many use cases, managing large-scale containerized applications can be complex. Proper resource management and scalability planning are essential to avoid performance issues.
 
---------------------------------------------------------------
+- **High Availability (HA):** Achieving high availability with Docker can require additional configurations and infrastructure considerations, especially when dealing with stateful applications.
 
+#### Security Issues
 
-Private Registries
+- **Container Security:** Docker containers are subject to security vulnerabilities if not configured and managed correctly. Ensure that you follow best practices for container security, including regularly updating container images and addressing vulnerabilities promptly.
 
+- **Exposure of Sensitive Data:** Misconfigurations in Docker images or containers can lead to the unintentional exposure of sensitive data, posing security risks.
 
-https://rke.docs.rancher.com/config-options/private-registries
+- **Network Security:** Docker network configurations should be secure to prevent unauthorized access to containers and data.
 
+### The RKE2 Solution
 
---------------------------------------------------------------------------------
+It's worth mentioning that RKE2 (Rancher Kubernetes Engine 2) adopts Containerd as its container runtime, which addresses some of the limitations and security concerns associated with Docker. Containerd is designed with a strong focus on security and performance, making it a viable alternative for Kubernetes workloads.
 
-Bastion/Jump Host Configuration
+By using RKE2 with Containerd, you can benefit from improved container security and potentially simplified management of your Kubernetes clusters.
 
-https://rke.docs.rancher.com/config-options/bastion-host
+Before deploying RKE1 or RKE2 in production, carefully assess your containerization needs, consider the limitations and security challenges associated with Docker, and evaluate whether RKE2 with Containerd is a better fit for your requirements.
 
+## Known Issues and Limitations with RKE2
 
---------------------------------------------------------------------------------
-System Images
+This section highlights current known issues and limitations with RKE2 (Rancher Kubernetes Engine 2). If you encounter issues with RKE2 that are not documented here, please consider opening a new issue on the [RKE2 Known Issues and Limitations](https://docs.rke2.io/known_issues) page.
 
+### Firewalld conflicts with default networking
 
-https://rke.docs.rancher.com/config-options/system-images
+Firewalld conflicts with RKE2's default Canal (Calico + Flannel) networking stack. To avoid unexpected behavior, firewalld should be disabled on systems running RKE2.
 
---------------------------------------------------------------------------------
-Default Kubernetes Services
+### NetworkManager
 
-https://rke.docs.rancher.com/config-options/services
+NetworkManager can manipulate the routing table for interfaces in the default network namespace, potentially interfering with the Container Networking Interface (CNI) configurations used by RKE2. It is highly recommended to configure NetworkManager to ignore Calico and Flannel-related network interfaces when installing RKE2 on a NetworkManager-enabled system.
 
---------------------------------------------------------------------------------
+### Istio in Selinux Enforcing System Fails by Default
 
-After you launch the cluster, you cannot change your network provider. Therefore, choose which network provider you want to use carefully, as Kubernetes doesn’t allow switching between network providers. Once a cluster is created with a network provider, changing network providers would require you tear down the entire cluster and all its applications.
+RKE2, due to just-in-time kernel module loading, may face challenges when running Istio in Selinux enforcing mode. To allow Istio to run under these conditions, two steps are required: enabling CNI as part of the Istio install and manually editing the daemonset for CNI pods to include `securityContext.privileged: true`.
 
-https://rke.docs.rancher.com/config-options/add-ons/network-plugins
+### Control Groups V2
 
+RKE2 versions 1.19.5 and later ship with Containerd 1.4.x or later, which supports cgroups v2. However, older versions may require specific kernel parameter settings to work correctly.
 
---------------------------------------------------------------------------------
+### Calico with vxlan encapsulation
 
-Indeed, RKE (Rancher Kubernetes Engine) offers a selection of network plug-ins that you can choose from when deploying your Kubernetes clusters. These network plug-ins help manage the networking aspects of your containers and pods within the cluster. Here's a brief overview of the network plug-ins that RKE provides:
+Calico may encounter a kernel bug when using vxlan encapsulation with checksum offloading enabled on the vxlan interface. The recommended workaround is to disable checksum offloading by default using the `ChecksumOffloadBroken=true` value in the Calico Helm chart.
 
-    Flannel: Flannel is a simple and lightweight network plug-in that provides an overlay network for Kubernetes clusters. It assigns a subnet to each host and uses various encapsulation techniques (such as VXLAN or UDP) to enable communication between containers across different hosts. Flannel is known for its ease of setup and use.
+### Wicked
 
-    Calico: Calico is a network plug-in that offers both Layer 3 and Layer 2 networking. It focuses on providing advanced network policy enforcement and fine-grained security controls. Calico enables you to define network policies to control communication between pods, implementing security and network segmentation within the cluster.
+Wicked, a network manager, can revert network configurations made by RKE2, potentially affecting the cluster's functionality. To prevent this, it is essential to enable ipv4 (and ipv6 for dual-stack) forwarding in sysctl configuration files.
 
-    Canal: Canal is a combined network plug-in that utilizes components from both Calico and Flannel. It offers the network policy enforcement and security features of Calico while using Flannel's overlay network for pod-to-pod communication.
+### Canal and IP exhaustion
 
-    Weave: Weave is another network plug-in option provided by RKE. It offers a range of networking features, including DNS, IP address management, and network encryption. Weave provides its own overlay network that facilitates communication between containers and pods across hosts.
+IP exhaustion issues may occur due to iptables not being installed or leaked lock files in the `/var/lib/cni/networks/k8s-pod-network` directory. These issues can lead to problems with pod creation and IP allocation.
 
---------------------------------------------------------------------------------
+### Ingress in CIS Mode
 
+When RKE2 is run with a CIS profile, it applies network policies that can be restrictive for ingress. Additional network policies may need to be defined to allow access to ingress URLs.
 
-Configuring NGINX Ingress Controller
+## Choosing Your Network Provider
 
-For the configuration of NGINX, there are configuration options available in Kubernetes. There are a list of options for the NGINX config map , command line extra_args and annotations.
+When launching your Kubernetes cluster, it's crucial to select your network provider carefully. Kubernetes does not allow for easy switching between network providers once a cluster is created. Once you have chosen a network provider and deployed your cluster with it, changing to a different network provider would require tearing down the entire cluster and all its applications.
 
+### Considerations
 
-https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/configmap.md
+Each network provider may have its own features, limitations, and compatibility with different Kubernetes add-ons and tools. Consider the following factors when choosing a network provider:
 
-https://rke.docs.rancher.com/config-options/add-ons/ingress-controllers
+- **Compatibility:** Ensure that your chosen network provider is compatible with the Kubernetes version you intend to use and any additional add-ons or tools you plan to integrate into your cluster.
 
---------------------------------------------------------------------------------
+- **Network Policy Support:** Some network providers offer more advanced network policy support, which may be essential for your application security requirements.
 
-User-Defined Add-Ons
+- **Performance:** Evaluate the performance characteristics of the network provider, especially if you anticipate high traffic or resource-intensive workloads.
 
+- **Community and Documentation:** Check for community support and documentation related to your chosen network provider. A strong community and comprehensive documentation can be invaluable when troubleshooting issues.
 
-https://rke.docs.rancher.com/config-options/add-ons/user-defined-add-ons
+- **Ecosystem Compatibility:** Consider how your network provider aligns with other tools and services you intend to use within your Kubernetes ecosystem.
 
---------------------------------------------------------------------------------
+## Including Kubernetes Manifests by Default
 
-Adding and Removing Nodes
+To include specific Kubernetes manifests or configurations in your cluster by default during deployment, you can leverage the "addons" folder and the `RKE_ADDONS_INCLUDE` configuration.
 
-https://rke.docs.rancher.com/managing-clusters
+### Using the "addons" Folder
 
+1. **Pre-existing "addons" Folder:** A folder named "addons" is already created within your project directory or alongside your RKE configuration files.
 
---------------------------------------------------------------------------------
-full example
+2. **Add Your Manifests:** If you wish to deploy additional manifests along with your cluster, simply place the desired Kubernetes manifests or configuration files in the "addons" folder.
 
+### Including Additional Manifests with `RKE_ADDONS_INCLUDE`
 
-https://rke.docs.rancher.com/example-yamls
+You can also include manifests from online by specifying them in the `RKE_ADDONS_INCLUDE` configuration within your RKE cluster configuration file. This allows you to include external configurations in your cluster deployment.
 
+1. **Edit Your Cluster Configuration:** In your RKE cluster configuration file, set the `RKE_ADDONS_INCLUDE` configuration as an array of URLs or local file paths. For example:
 
---------------------------------------------------------------------------------
-
-# Specify DNS provider (coredns or kube-dns)
-dns:
-  provider: coredns
-  # Available as of v1.1.0
-  update_strategy:
-    strategy: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 20%
-      maxSurge: 15%
-  linear_autoscaler_params:
-    cores_per_replica: 0.34
-    nodes_per_replica: 4
-    prevent_single_point_failure: true
-    min: 2
-    max: 3
-
---------------------------------------------------------------------------------
-
-we need to open ports for rke
-    Control Plane Node Ports:
-        TCP 6443: Kubernetes API Server + + as outbound also
-
-    Worker Node Ports:
-        TCP 10250: Kubelet API (secure communication between control plane and worker nodes)
-        TCP 10251: Kube-Scheduler
-        TCP 10252: Kube-Controller-Manager
-
-    Control Plane and Worker Node Ports:
-        TCP 2379-2380: etcd (for cluster state storage)
-        TCP 8472: Flannel (for networking)
-
-    Load Balancer Ports (if using an external load balancer):
-        TCP 80: HTTP API Server (for Rancher UI)
-        TCP 443: HTTPS API Server (for Rancher UI)
-        TCP 30776-32767: NodePort Services (if using NodePort type services)
-
---------------------------------------------------------------------------------
-
-we need the internal ip of the nodes be diffrent
-
---------------------------------------------------------------------------------
-
-https://docs.tigera.io/archive/v3.8/reference/node/configuration#interfaceinterface-regex
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-kubectl patch svc rancher -n cattle-system -p '{"spec": {"type": "NodePort"}}'
-
-
+```yaml
+RKE_ADDONS_INCLUDE=(
+    "https://example.com/manifests/external.yaml"
+    ""
+)
