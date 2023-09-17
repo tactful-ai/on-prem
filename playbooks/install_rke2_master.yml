@@ -5,11 +5,11 @@
   tasks:
     - name: copy the rke2basic addons from local folder to remote server to run default addons
       copy:
-        src: ./addons/
+        src: {{ RKE2_ADDONS_LOCATION }}
         dest: /var/lib/rancher/rke2/server/manifests/
     - name: copy the addons from local folder to remote server to run default addons
       copy:
-        src: ./addons/
+        src: {{ ADDONS_DIRECTORY }}
         dest: /var/lib/rancher/rke2/server/manifests/
     - name: Create directory /etc/rancher/rke2
       file:
@@ -17,7 +17,7 @@
         state: directory
     - name: Copy data from ../cluster_configurations/Master.yml to /etc/rancher/rke2/config.yaml
       copy:
-        src: /media/waer/HDD/computer_engineering/projects/under_development/on-prem/cluster_configurations/Master.yml
+        src: {{ MASTER_CONFIG }}
         dest: /etc/rancher/rke2/config.yaml
     - name: Run RKE2 installation script for master node
       shell: "curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=server sh -"
@@ -41,13 +41,10 @@
     - name: Export the RKE2 token from the master node
       fetch:
         src: /var/lib/rancher/rke2/server/node-token
-        dest: /media/waer/HDD/computer_engineering/projects/under_development/on-prem/cluster_configurations/rke2_token
+        dest: {{ CLUSTER_TOKEN_LOCATION }}
         flat: yes
     - name: Export the k8s config from the master node
       fetch:
         src: /etc/rancher/rke2/rke2.yaml
-        dest: /media/waer/HDD/computer_engineering/projects/under_development/on-prem/cluster_configurations/kube_config_cluster.yml
+        dest: {{ CLUSTER_CONFIG_LOCATION }}
         flat: yes
-  vars:
-    cluster_token_location: /home/ubuntu/on-prem/cluster_configurations/rke2_token
-    cluster_config_location: /home/ubuntu/on-prem/cluster_configurations/kube_config_cluster.yml

@@ -46,18 +46,20 @@ yq e ".cluster-dns  = \"${CLUSTER_DNS_SERVER}\"" -i $MASTER_CONFIG
 
 mkdir -p $ADDONS_DIRECTORY
 
-# copy the addons from local to the server
-yq e ".[].tasks[0].copy.src = \"${RKE2_ADDONS_LOCATION}\" " -i $MASTER_PLAYBOOK
 
 # copy the addons from local to the server
-yq e ".[].tasks[1].copy.src = \"${ADDONS_DIRECTORY}\" " -i $MASTER_PLAYBOOK
+yq e ".RKE2_ADDONS_LOCATION = \"${RKE2_ADDONS_LOCATION}\" " -i $ANSIBLE_ENVIRONMENT_FILE
+
+# copy the addons from local to the server
+yq e ".ADDONS_DIRECTORY = \"${ADDONS_DIRECTORY}\" " -i $ANSIBLE_ENVIRONMENT_FILE
 
 # copy the cluster config and token from local to the server
-yq e ".[].tasks[3].copy.src = \"${MASTER_CONFIG}\" " -i $MASTER_PLAYBOOK
+yq e ".MASTER_CONFIG = \"${MASTER_CONFIG}\" " -i $ANSIBLE_ENVIRONMENT_FILE
 
 # copy the cluster config and token from local to the server
-yq e ".[].tasks[9].fetch.dest = \"${CLUSTER_TOKEN_LOCATION}\" " -i $MASTER_PLAYBOOK
-yq e ".[].tasks[10].fetch.dest = \"${CLUSTER_CONFIG_LOCATION}\" " -i $MASTER_PLAYBOOK
+yq e ".CLUSTER_TOKEN_LOCATION = \"${CLUSTER_TOKEN_LOCATION}\" " -i $ANSIBLE_ENVIRONMENT_FILE
+yq e ".CLUSTER_CONFIG_LOCATION = \"${CLUSTER_CONFIG_LOCATION}\" " -i $ANSIBLE_ENVIRONMENT_FILE
+
 
 
 mkdir -p $RKE2_ADDONS_LOCATION
@@ -109,19 +111,11 @@ yq eval '.' -i "$YAML_FILE"
 yq e ".node-name = \"Worker-node\"" -i $YAML_FILE
 yq e ".with-node-id  = \"true\"" -i $YAML_FILE
 
-
-
-yq e ".[].tasks[1].copy.src = \"${WORKER_CONFIG}\" " -i $WORKERS_PLAYBOOK
-
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $WORKERS_PLAYBOOK
-
-# export the KUBECONFIG environment variable
-# export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 
 mkdir ~/.kube
 cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config
 chmod 600 /root/.kube/config
-
 
 # Number of nodes expected to be in "Ready" state
 expected_nodes_count=$num_nodes

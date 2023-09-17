@@ -1,9 +1,6 @@
 - name: Install Jump Server Prerequisites
   hosts: local_device
   become: true
-  vars:
-    install_rke: false
-    rke_version: "v1.4.9"
   tasks:
     - name: Print ansible_os_family
       debug:

@@ -3,13 +3,6 @@
   hosts: "worker_nodes,master_nodes"
   gather_facts: true
   become: true
-  vars:
-    docker_version: "23.0.6"
-    install_docker: false
-    docker: true
-    network_plugin: canal
-    rke_version: rke2
-    load_balancer: metallb
   tasks:
     ####################### Kubernates Prequesites ###########################
     - name: Turn off swap

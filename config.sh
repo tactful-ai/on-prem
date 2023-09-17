@@ -6,6 +6,7 @@
 
 ANSIBLE_PLAYBOOKS_LOCATION="${PWD}/playbooks"
 ANSIBLE_INVENTORY_FILE="${PWD}/playbooks/inventory.yml"
+ANSIBLE_ENVIRONMENT_FILE="${PWD}/playbooks/group_vars/all.yml"
 JUMP_SERVER_PLAYBOOK_LOCATION="${PWD}/playbooks/jump_server_prerequisites.yml"
 CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION="${ANSIBLE_PLAYBOOKS_LOCATION}/cluster_nodes_prerequisites.yml"
 

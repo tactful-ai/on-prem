@@ -34,11 +34,9 @@ for ((i=0; i<num_nodes; i++)); do
 
     # Check the connection way
     if [[ $CONNECTION_WAY -eq 0 ]]; then
-        echo "Using password"
         # Copy the public key to the node
         sshpass -p "$password" ssh-copy-id -o PubkeyAuthentication=no "$user@$ip_address"
     else
-        echo "using ssh"
         # Copy the public key to the node
         ssh -tt -i "$password" "$user@$ip_address" "echo '$public_key' >> ~/.ssh/authorized_keys"
     fi
@@ -52,18 +50,10 @@ CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION="${ANSIBLE_PLAYBOOKS_LOCATION}/clust
 MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION="${ANSIBLE_PLAYBOOKS_LOCATION}/master_node_prerequisites.yml"
 WORKER_NODE_PREQUISITES_PLAYBOOK_LOCATION="${ANSIBLE_PLAYBOOKS_LOCATION}/worker_node_prerequisites.yml"
 
-yq e ".[].vars.network_plugin = \"$NETWORK_PLUGIN\" " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
-yq e ".[].vars.network_plugin = \"$NETWORK_PLUGIN\" " -i $MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION
-yq e ".[].vars.network_plugin = \"$NETWORK_PLUGIN\" " -i $WORKER_NODE_PREQUISITES_PLAYBOOK_LOCATION
 
-yq e ".[].vars.rke_version = \"$RKE_VERSION\" " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
-yq e ".[].vars.rke_version = \"$RKE_VERSION\" " -i $MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION
-yq e ".[].vars.rke_version = \"$RKE_VERSION\" " -i $WORKER_NODE_PREQUISITES_PLAYBOOK_LOCATION
-
-yq e ".[].vars.load_balancer = \"$LOAD_BALANCER\" " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
-yq e ".[].vars.load_balancer = \"$LOAD_BALANCER\" " -i $MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION
-yq e ".[].vars.load_balancer = \"$LOAD_BALANCER\" " -i $WORKER_NODE_PREQUISITES_PLAYBOOK_LOCATION
-
+# write the environment variables to the all.yml file
+yq e ".network_plugin = \"$NETWORK_PLUGIN\" " -i $ANSIBLE_ENVIRONMENT_FILE
+yq e ".load_balancer = \"$LOAD_BALANCER\" " -i $ANSIBLE_ENVIRONMENT_FILE
 
 
 # install prerequisites for master nodes
