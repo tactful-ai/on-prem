@@ -60,9 +60,8 @@
       systemd:
         name: firewalld
         state: started
-        enabled: yes
+        enabled: true
       when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
-
     ####################### ENABLE FIREWALL FOR ALL NODES #######################
     - name: Enable UFW
       ufw:
@@ -75,6 +74,8 @@
     - name: Reload firewall
       command: firewall-cmd --reload
       when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
+
+
 
     ####################### network for both master and worker nodes #######################
     - name: Set logging
@@ -90,7 +91,7 @@
     - name: Allow Kubelet API Port (Port 10250)
       firewalld:
         port: 10250/tcp
-        permanent: yes
+        permanent: true
         state: enabled
       when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow SSH (Port 22)
@@ -102,7 +103,7 @@
     - name: Allow SSH (Port 22)
       firewalld:
         service: ssh
-        permanent: yes
+        permanent: true
         state: enabled
       when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     ####################### LOAD BALANCER CONFIGURATION PORTS #######################
@@ -117,7 +118,7 @@
     - name: Allow TCP speakers for MetalLB
       firewalld:
         port: "{{ item }}/tcp"
-        permanent: yes
+        permanent: true
         state: enabled
       loop:
         - 7946
@@ -133,7 +134,7 @@
     - name: Allow UDP speakers for MetalLB
       firewalld:
         port: "{{ item }}/udp"
-        permanent: yes
+        permanent: true
         state: enabled
       loop:
         - 7946
@@ -150,7 +151,7 @@
     - name: Allow Canal Network Plugin Port TCP
       firewalld:
         port: "{{ item }}/tcp"
-        permanent: yes
+        permanent: true
         state: enabled
       loop:
         - 8472
@@ -166,7 +167,7 @@
     - name: Allow Canal Network Plugin Port UDP
       firewalld:
         port: "{{ item }}/udp"
-        permanent: yes
+        permanent: true
         state: enabled
       loop:
         - 8472
@@ -180,7 +181,7 @@
     - name: Allow Canal livenessProbe/readinessProbe
       firewalld:
         port: 9099/tcp
-        permanent: yes
+        permanent: true
         state: enabled
       when: network_plugin == "canal" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow Canal Network Plugin Wireguard Port UDP
@@ -195,7 +196,7 @@
     - name: Allow Canal Network Plugin Wireguard Port UDP
       firewalld:
         port: "{{ item }}/udp"
-        permanent: yes
+        permanent: true
         state: enabled
       loop:
         - 51820
@@ -213,7 +214,7 @@
     - name: Allow Weave Network Plugin Ports
       firewalld:
         port: "{{ item }}/tcp"
-        permanent: yes
+        permanent: true
         state: enabled
       loop:
         - 6783
@@ -230,7 +231,7 @@
     - name: Allow Weave Network Plugin UDP Ports
       firewalld:
         port: "{{ item }}/udp"
-        permanent: yes
+        permanent: true
         state: enabled
       loop:
         - 6783
@@ -248,7 +249,7 @@
     - name: Allow Calico Network Plugin Ports
       firewalld:
         port: "{{ item }}/tcp"
-        permanent: yes
+        permanent: true
         state: enabled
       loop:
         - 179
@@ -264,7 +265,7 @@
     - name: Allow Calico Network Plugin Ports (VXLAN)
       firewalld:
         port: "{{ item }}/udp"
-        permanent: yes
+        permanent: true
         state: enabled
       loop:
         - 4789
@@ -278,7 +279,7 @@
     - name: Allow Calico Network Plugin Port for Typha
       firewalld:
         port: 5473/tcp
-        permanent: yes
+        permanent: true
         state: enabled
       when: network_plugin == "calico" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     ####################### Cilium Network Plugin #######################
@@ -294,7 +295,7 @@
     - name: Allow Cilium Network Plugin Ports
       firewalld:
         port: "{{ item }}/tcp"
-        permanent: yes
+        permanent: true
         state: enabled
       loop:
         - 8472
@@ -309,8 +310,8 @@
       when: network_plugin == "cilium" and ansible_os_family == 'Debian'
     - name: Allow ICMP Echo Requests (Ping)
       firewalld:
-        icmp_block_inversion: yes
-        permanent: yes
+        icmp_block_inversion: true
+        permanent: true
         state: enabled
       when: network_plugin == "cilium" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     ####################### Flannel Network Plugin #######################
@@ -323,7 +324,7 @@
     - name: Allow Flannel Network Plugin VXLAN Port on Kubernetes Worker Nodes
       firewalld:
         port: 8472/udp
-        permanent: yes
+        permanent: true
         state: enabled
       when: network_plugin == "flannel" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     ####################### Nginx ingress Network Plugin #######################
@@ -336,7 +337,7 @@
     - name: Allow Nginx Ingress's Validating Webhook
       firewalld:
         port: 8443/tcp
-        permanent: yes
+        permanent: true
         state: enabled
       when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow HTTP (Port 80 TCP)
@@ -348,7 +349,7 @@
     - name: Allow HTTP (Port 80 TCP)
       firewalld:
         port: 80/tcp
-        permanent: yes
+        permanent: true
         state: enabled
       when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow HTTPS (Port 443 TCP)
@@ -360,7 +361,7 @@
     - name: Allow HTTPS (Port 443 TCP)
       firewalld:
         port: 443/tcp
-        permanent: yes
+        permanent: true
         state: enabled
       when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     ####################### open nodeports #######################
@@ -374,7 +375,7 @@
     - name: Allow NodePort Services Ports
       firewalld:
         port: 30000-32767/tcp
-        permanent: yes
+        permanent: true
         state: enabled
       when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
 
@@ -387,9 +388,20 @@
     - name: Allow NodePort Services Ports
       firewalld:
         port: 30000-32767/udp
-        permanent: yes
+        permanent: true
         state: enabled
       when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
+
+    - name: Add Masquerade Rule
+      firewalld:
+        zone: public
+        masquerade: true
+        permanent: true
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
+
+    - name: Reload firewall
+      command: firewall-cmd --reload
+      when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
 
     ####################### Disable nm-cloud-setup.service #######################
     - name: Disable nm-cloud-setup services (if applicable)

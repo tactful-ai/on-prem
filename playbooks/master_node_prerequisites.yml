@@ -18,7 +18,7 @@
       systemd:
         name: firewalld
         state: started
-        enabled: yes
+        enabled: true
       when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
       ####################### RKE2 PORTS Require #######################
     - name: Allow communication for worker nodes to master (Ubuntu)
@@ -32,7 +32,7 @@
     - name: Allow communication for worker nodes to master (Red Hat)
       firewalld:
         port: 9345/tcp
-        permanent: yes
+        permanent: true
         state: enabled
       when: rke_version == "rke2" and (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
       ######################### K8S NODES PORTS #######################
@@ -47,7 +47,7 @@
     - name: Allow Worker Node Ports
       firewalld:
         port: 6443/tcp
-        permanent: yes
+        permanent: true
         state: enabled
       when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Allow etcd Ports
@@ -63,7 +63,7 @@
     - name: Allow etcd Ports
       firewalld:
         port: "{{ item }}/tcp"
-        permanent: yes
+        permanent: true
         state: enabled
       loop:
         - 2379
@@ -83,7 +83,7 @@
     - name: Allow Kube-Scheduler Port
       firewalld:
         port: "{{ item }}/tcp"
-        permanent: yes
+        permanent: true
         state: enabled
       loop:
         - 10251
@@ -101,7 +101,7 @@
     - name: Allow Kube-Controller-Manager Port
       firewalld:
         port: 10252/tcp
-        permanent: yes
+        permanent: true
         state: enabled
       when: (ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse")
     - name: Reload firewall

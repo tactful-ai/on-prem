@@ -6,5 +6,5 @@
     - name: Allow HTTPS (Port 443 TCP)
       firewalld:
         port: "{{ port }}/tcp"
-        permanent: yes
+        permanent: true
         state: enabled

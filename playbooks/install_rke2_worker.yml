@@ -19,7 +19,7 @@
     - name: Enable RKE2 Agent Service
       service:
         name: rke2-agent
-        enabled: yes
+        enabled: true
     - name: Start RKE2 Agent Service
       service:
         name: rke2-agent

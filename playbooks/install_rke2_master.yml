@@ -25,7 +25,7 @@
     - name: Enable RKE2 Server Service
       service:
         name: rke2-server
-        enabled: yes
+        enabled: true
     - name: Start RKE2 Server Service
       service:
         name: rke2-server
@@ -42,9 +42,9 @@
       fetch:
         src: /var/lib/rancher/rke2/server/node-token
         dest: "{{ CLUSTER_TOKEN_LOCATION }}"
-        flat: yes
+        flat: true
     - name: Export the k8s config from the master node
       fetch:
         src: /etc/rancher/rke2/rke2.yaml
         dest: "{{ CLUSTER_CONFIG_LOCATION }}"
-        flat: yes
+        flat: true

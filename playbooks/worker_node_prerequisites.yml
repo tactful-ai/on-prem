@@ -18,7 +18,7 @@
       systemd:
         name: firewalld
         state: started
-        enabled: yes
+        enabled: true
       when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
     ####################### allow node ports #######################
     - name: Reload firewall
