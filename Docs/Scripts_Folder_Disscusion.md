@@ -27,6 +27,7 @@ This repository contains scripts and configuration files for deploying an on-pre
    - [redis](#redis)
    - [playbooks](#playbooks)
    - [grafana](#grafana)
+   - [prometheus](#prometheus)
 
 ## Scripts & Functionality
 ## change_default_password.sh
