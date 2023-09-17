@@ -41,10 +41,10 @@ This script changes the default password for multiple nodes in the cluster. It u
 
 ## generate_cluster_configuration_file.sh
 
-This script generates a cluster configuration file (cluster.yml) for RKE/RKE2 based on node information and user-defined settings.
+This script generates a cluster configuration file (cluster.yml) for RKE based on node information and user-defined settings.
 ./generate_cluster_configuration_file.sh
 
-Functionality: This script generates a cluster configuration file (cluster.yml) required for setting up a Kubernetes cluster using either RKE (Rancher Kubernetes Engine) or RKE2 (Rancher Kubernetes Engine 2). It constructs the cluster configuration based on user-defined settings and node information.
+Functionality: This script generates a cluster configuration file (cluster.yml) required for setting up a Kubernetes cluster using either RKE (Rancher Kubernetes Engine) or RKE1 (Rancher Kubernetes Engine 2). It constructs the cluster configuration based on user-defined settings and node information.
 
 Usage: Running this script will create a cluster.yml file in the cluster_configuration folder with the necessary configuration for your Kubernetes cluster. Users can customize this file before deploying the cluster.
 
@@ -123,16 +123,6 @@ Functionality: This script installs Redis in the Kubernetes cluster using Helm. 
 
 Usage: Execute this script to set up Redis in your cluster, providing a high-performance, in-memory data store.
 
-
-##  install_configure_rke1.sh and install_configure_rke2.sh
-
-These scripts deploy a Kubernetes cluster using RKE (Rancher Kubernetes Engine) or RKE2 (Rancher Kubernetes Engine 2) and configure various settings.
-./install_configure_rke1.sh # For RKE
-./install_configure_rke2.sh # For RKE2
-
-Functionality: These scripts deploy a Kubernetes cluster using RKE (Rancher Kubernetes Engine) or RKE2 (Rancher Kubernetes Engine 2). They automate the entire cluster creation process, including node setup and cluster configuration.
-
-Usage: Choose the appropriate script based on whether you want to use RKE1 or RKE2, and run it to create a Kubernetes cluster.
 
 ## install_configure_adminer.sh
 
@@ -259,10 +249,7 @@ Configure Grafana to connect to Prometheus as a data source, enabling it to quer
 Customize Grafana settings, such as authentication, user roles, and other Grafana-specific configurations.
 Optionally install and configure Grafana plugins or extensions to enhance its functionality.
 
-### RKE2_addons Folder:
 
-Function: The RKE2_addons folder could contain additional configurations or resources related to RKE2 cluster deployment. RKE2 is known for its simplicity and often allows adding custom resources.
-Interaction: Scripts responsible for deploying RKE2 clusters, such as install_configure_rke2.sh, may leverage this folder to apply custom configurations or settings specific to RKE2.
 
 ### dstny.sh (Destination Script):
 
