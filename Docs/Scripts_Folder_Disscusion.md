@@ -232,7 +232,7 @@ Configure any custom Prometheus settings needed for your specific monitoring req
 
 ### Grafana Folder:
 
-Function: The grafana folder is probably used to store configurations and resources related to Grafana, a popular open-source platform for monitoring and observability. Grafana provides a user-friendly interface for visualizing and exploring data, making it an excellent complement to Prometheus.
+Function: The grafana folder is used to store configurations and resources related to Grafana, a popular open-source platform for monitoring and observability. Grafana provides a user-friendly interface for visualizing and exploring data, making it an excellent complement to Prometheus.
 
 Contents and Interaction:
 
