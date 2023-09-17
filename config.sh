@@ -86,7 +86,13 @@ GRAFANA_ADMIN_PASSWORD="waer1234"
 GRAFANA_CONFIG_MAPS_DIRECTORY="${PWD}/prometheus_grafana_files/config_maps"
 
 
+# --------------------- Output File Section ------------------
+
+OUTPUT_FILE="${PWD}/output.md"
+
+
 # --------------------- utils functions Section ------------------
+
 print_label() {
     local text="$1"
     local color_code="0"  # Default color (white)
@@ -107,6 +113,7 @@ print_label() {
 }
 
 
+# function to get the relative path between two paths
 calculate_relative_path() {
     local source_path="$1"
     local target_path="$2"
@@ -129,3 +136,91 @@ calculate_relative_path() {
     echo "$result"
 }
 
+
+# Function to add a service entry to the README
+add_service_to_readme() {
+    local service_name="$1"
+    local service_link="$2"
+    local service_logging_key="$3"
+
+    echo "### Service: $service_name" >> "$OUTPUT_FILE"
+    echo "Link: $service_link" >> "$OUTPUT_FILE"
+
+    if [ -n "$service_logging_key" ]; then
+        echo "Logging Key: $service_logging_key" >> "$OUTPUT_FILE"
+    fi
+
+    echo "" >> "$OUTPUT_FILE"
+}
+
+# Function to add custom text to the README
+add_text_to_readme() {
+    local custom_text="$1"
+    echo "$custom_text" >> "$OUTPUT_FILE"
+}
+
+# Function to initialize the README file with cluster information
+init_output_file() {
+    # Initialize the README file
+    echo "" > "$OUTPUT_FILE"
+
+
+    # Get the cluster information using kubectl
+    cluster_info=$(kubectl cluster-info)
+    add_text_to_readme "## Cluster Information"
+    add_text_to_readme "```"
+    add_text_to_readme "$cluster_info"
+    add_text_to_readme "```"
+    add_text_to_readme ""
+
+    echo "# Exposed Services in the Cluster" >> "$OUTPUT_FILE"
+    echo "Below is a list of exposed services in the cluster with their links and logging keys if available." >> "$OUTPUT_FILE"
+    echo "" >> "$OUTPUT_FILE"
+}
+
+# Function to get the service link and type (LoadBalancer or NodePort)
+get_service_info() {
+    local namespace="$1"
+    local service_name="$2"
+
+    local kubectl_cmd="kubectl -n $namespace get svc $service_name -o json"
+    local service_info="$(eval "$kubectl_cmd")"
+
+    if [ -z "$service_info" ]; then
+        echo "Service not found in namespace: $namespace"
+        return 1
+    fi
+
+    local service_type
+    if [ "$(echo "$service_info" | jq -r '.spec.type')" == "LoadBalancer" ]; then
+        service_type="LoadBalancer"
+    elif [ "$(echo "$service_info" | jq -r '.spec.type')" == "NodePort" ]; then
+        service_type="NodePort"
+    else
+        echo "Unsupported service type for service: $service_name"
+        return 1
+    fi
+
+    if [ "$service_type" == "LoadBalancer" ]; then
+        local load_balancer_ip="$(echo "$service_info" | jq -r '.status.loadBalancer.ingress[0].ip')"
+        if [ "$load_balancer_ip" == "null" ]; then
+            echo "LoadBalancer IP not available for service: $service_name"
+            return 1
+        fi
+        echo "Service Type: $service_type"
+        echo "Link: http://$load_balancer_ip"
+    elif [ "$service_type" == "NodePort" ]; then
+        local node_port="$(echo "$service_info" | jq -r '.spec.ports[0].nodePort')"
+        if [ -z "$node_port" ]; then
+            echo "NodePort not available for service: $service_name"
+            return 1
+        fi
+        local node_ip_index=$(( RANDOM % ${#node_info[@]} ))
+        local node_info_str="${node_info[$node_ip_index]}"
+        local IFS="|" read -ra node_info_arr <<< "$node_info_str"
+        local node_ip="${node_info_arr[0]}"
+        local node_username="${node_info_arr[2]}"
+        echo "Service Type: $service_type"
+        echo "Link: http://$node_ip:$node_port (Username: $node_username)"
+    fi
+}

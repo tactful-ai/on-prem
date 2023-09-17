@@ -18,9 +18,7 @@ print_label "Done deploying the Kubernetes cluster using rke1" 2
 # change the permissions of the kube_config_cluster.yml file
 chmod +r $CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 
-# export the KUBECONFIG environment variable
-# export KUBECONFIG=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
-
+# copy the kube_config_cluster.yml file to the ~/.kube/config file
 mkdir ~/.kube
 cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config
 chmod 600 /root/.kube/config
