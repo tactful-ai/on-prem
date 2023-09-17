@@ -4,7 +4,6 @@
 source config.sh
 source user_fill.sh
 
-
 # install the prerequisites for the jump Server
 source ./scripts/jump_server_prerequisites.sh
 
@@ -26,8 +25,9 @@ fi
 print_label "done installing rke Now Wait 60 second for start using it" 2
 sleep 60
 
-# check cluster health
-kubectl cluster-info
+# init the output file
+init_output_file
+
 
 # if the user wants to install the certification manager.
 if [ "$CERT_MANAGER" = "cert-manager" ]; then

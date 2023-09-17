@@ -4,6 +4,7 @@ source config.sh
 
 # Define the namespace where Rancher will be installed
 RANCHER_NAMESPACE="cattle-system"
+RANCHER_BOOTSTRAP_PASSWORD="dstny-rancher"
 
 # Set the number of replicas for the Rancher Deployment
 RANCHER_REPLICAS=3
@@ -18,10 +19,16 @@ kubectl create namespace "${RANCHER_NAMESPACE}"
 
 # Step 3: Install Rancher with Helm
 echo "Step 3: Installing Rancher with Helm..."
-helm install rancher rancher-latest/rancher --namespace "${RANCHER_NAMESPACE}" --set hostname="${RANCHER_HOSTNAME}" --set replicas="${RANCHER_REPLICAS}" 
+helm install rancher rancher-latest/rancher --namespace "${RANCHER_NAMESPACE}" --set hostname="${RANCHER_HOSTNAME}" \
+    --set replicas="${RANCHER_REPLICAS}" --set rancher.bootstrapPassword="${RANCHER_BOOTSTRAP_PASSWORD}" \
+    --set service.type="${RANCHER_SERVICE_TYPE}"
 
-# Step 4: Verify that the Rancher server is successfully deployed
+Step 4: Verify that the Rancher server is successfully deployed
 echo "Step 4: Verifying Rancher installation..."
 kubectl -n "${RANCHER_NAMESPACE}" rollout status deploy/rancher
+
+service_link=$(get_service_info $RANCHER_NAMESPACE)
+
+add_service_to_readme "Rancher Dashboard" $service_link $RANCHER_BOOTSTRAP_PASSWORD
 
 echo "Rancher installation complete!"

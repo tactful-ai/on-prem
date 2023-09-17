@@ -11,7 +11,11 @@ kubectl apply -f ./k8s-dashboard-manifests/ClusterRoleBinding.yaml
 kubectl apply -f ./k8s-dashboard-manifests/Secret.yaml
 
 # Get and store the admin user token in a text file
-kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath={".data.token"} | base64 -d > ./token/admin-token.txt
+K8S_TOKEN=$(kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath={".data.token"} | base64 -d)
+
+service_link=$(get_service_info kubernetes-dashboard)
+
+add_service_to_readme "K8s Dashboard Link" $service_link $K8S_TOKEN
 
 print_label "Kubernetes Dashboard installed, and admin token stored in ./token/admin-token.txt" 2
 

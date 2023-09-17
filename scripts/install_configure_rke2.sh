@@ -4,12 +4,13 @@
 source config.sh
 source ./user_fill.sh
 
-
+# Disable firewall for all nodes
 DISABLE_FIREWALLD_ONREDHAT_SYSTEM_PLAYBOOK_FILE="${ANSIBLE_PLAYBOOKS_LOCATION}/disable_firewalld_on_redhat_system.yml"
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $DISABLE_FIREWALLD_ONREDHAT_SYSTEM_PLAYBOOK_FILE
 
 mkdir -p $CLUSTER_FILES_LOCATION
 
+# define the cluster nodes files
 MASTER_CONFIG=$CLUSTER_FILES_LOCATION/Master.yml
 CLUSTER_TOKEN_LOCATION=$CLUSTER_FILES_LOCATION/rke2_token
 CLUSTER_CONFIG_LOCATION=$CLUSTER_FILES_LOCATION/kube_config_cluster.yml
@@ -27,25 +28,35 @@ master_node="${node_info[0]}"
 IFS='|' read -ra info <<< "$master_node"
 export ip_address="${info[0]}"
 
+# craete the Master node configuration file
 echo "" > "$MASTER_CONFIG"
 
+# chnge the kubeconfig permission to 644
 yq e ".write-kubeconfig-mode = \"0644\"" -i $MASTER_CONFIG
+# add other tls-san to allow communication with the master node from outside the cluster
 yq e '.["tls-san"] += [env(ip_address)]' -i $MASTER_CONFIG
+# chose the network plugin
 yq e ".[\"cni\"] += [\"$NETWORK_PLUGIN\"]" -i $MASTER_CONFIG
 
+# label the master node with master-node label
 yq e ".node-name = \"master-node\"" -i $MASTER_CONFIG
+
+# add node taint to master node to acive HA cluster
+# and prevent the pods from scheduling on the master node
 yq e ".node-taint[0] = \"CriticalAddonsOnly=true:NoExecute\"" -i $MASTER_CONFIG
 
+# add the cluster cidr
 yq e ".cluster-cidr = \"${CLUSTER_CIDR}\"" -i $MASTER_CONFIG
 
+# add the services range
 yq e ".service-cidr = \"${SERVICE_CLUSTER_IP_RANGE}\"" -i $MASTER_CONFIG
 
+# add the cluster dns server ip
 yq e ".cluster-dns  = \"${CLUSTER_DNS_SERVER}\"" -i $MASTER_CONFIG
 
 
 
 mkdir -p $ADDONS_DIRECTORY
-
 
 # copy the addons from local to the server
 yq e ".RKE2_ADDONS_LOCATION = \"$(calculate_relative_path $ANSIBLE_PLAYBOOKS_LOCATION $RKE2_ADDONS_LOCATION)\"" -i $ANSIBLE_ENVIRONMENT_FILE
@@ -64,7 +75,7 @@ yq e ".CLUSTER_CONFIG_LOCATION = \"$(calculate_relative_path $ANSIBLE_PLAYBOOKS_
 
 mkdir -p $RKE2_ADDONS_LOCATION
 
-
+# edit the rke2-ingress default to include the load balancer
 cat <<EOF > $RKE2_ADDONS_LOCATION/helm-chart-config.yaml
 apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
@@ -86,6 +97,7 @@ EOF
 
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_PLAYBOOK
 
+# config the kube ip to communicate with the server throught its ip
 yq e ".clusters[0].cluster.server = \"https://${ip_address}:6443\" " -i $CLUSTER_CONFIG_LOCATION
 
 
@@ -108,18 +120,23 @@ EOL
 # Use yq to validate and format the YAML file
 yq eval '.' -i "$YAML_FILE"
 
+# add label to worker node as worker-node-(random-generated-ip)
 yq e ".node-name = \"Worker-node\"" -i $YAML_FILE
 yq e ".with-node-id  = \"true\"" -i $YAML_FILE
 
-
+# add the worker node configuration location to the ansible environment file
 yq e ".WORKER_CONFIG = \"$(calculate_relative_path $ANSIBLE_PLAYBOOKS_LOCATION $WORKER_CONFIG)\" " -i $ANSIBLE_ENVIRONMENT_FILE
 
-
+# configure the worker nodes
 ansible-playbook -i $ANSIBLE_INVENTORY_FILE $WORKERS_PLAYBOOK
 
+# configure the root user to use kubectl with the cluster directly
 mkdir ~/.kube
 cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config
 chmod 600 /root/.kube/config
+
+
+############################## wait until all nodes have become ready ######################
 
 # Number of nodes expected to be in "Ready" state
 expected_nodes_count=$num_nodes
