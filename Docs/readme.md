@@ -269,3 +269,58 @@ Function: The dstny.sh script, referred to as the "Destination Script," appears 
 Interaction: dstny.sh interacts with other scripts in your repository, calling them as needed to execute specific tasks. It may use the generate_cluster_configuration_file.sh script to generate the cluster configuration, invoke cluster deployment scripts like RKE or RKE2 scripts, and apply additional configurations or addons from folders like addons or RKE2_addons.
 In summary, the folders in your repository serve as resource directories and configuration storage for various scripts. These scripts work together, orchestrated by dstny.sh, to automate the deployment and management of your Kubernetes cluster. The folders provide essential files and settings required for the cluster setup process, making it more organized and maintainable.
 
+
+## TESTS
+
+### test_distributed_storage.sh
+Purpose: This script tests the resilience of a distributed storage setup by simulating scenarios where data is written to and read from persistent volumes (PVs) and persistent volume claims (PVCs) in a Kubernetes cluster.
+
+Description:
+
+The script creates a Kubernetes namespace for testing ($NAMESPACE) and sets up a PVC with ReadWriteMany access mode.
+It deploys a pod (first-pod) that writes data to the PVC and checks if the data is written successfully.
+After deleting the first-pod, it deploys a second pod (second-pod) on a different node that attempts to read the data written by the first pod.
+The script validates whether the second pod can read the data from the PVC, demonstrating storage resilience.
+Usage: You can document how to run this test script and any prerequisites for the test cluster or components.
+
+Cleanup: Include instructions on how to clean up resources created during the test.
+
+## test_dynamic_provisioning.sh
+Purpose: This script tests dynamic provisioning of persistent volumes by creating a shared PVC and two pods that can read and write to it.
+
+Description:
+
+The script creates a Kubernetes namespace ($NAMESPACE) and deploys a shared PVC ($PVC_NAME) with ReadWriteMany access mode.
+It deploys two pods (pod1 and pod2) in the same namespace that mount the shared PVC and perform read and write operations on it.
+The script validates if data written by one pod can be read by the other, demonstrating dynamic provisioning.
+Usage: Document how to run this test script and any prerequisites for dynamic provisioning support.
+
+Cleanup: Include instructions for cleaning up resources after the test.
+
+## test_metallb.sh
+Purpose: This script tests the functionality of MetalLB, a load balancer for Kubernetes, by deploying a simple web application and checking its accessibility via a LoadBalancer service.
+
+Description:
+
+The script creates a Kubernetes namespace ($NAMESPACE) and deploys a simple web application (web-app) with two replicas.
+It exposes the web application using a Service with type LoadBalancer, allowing external access via MetalLB.
+The script waits for a LoadBalancer IP to be assigned and tests the web application's accessibility from a pod within the namespace.
+Usage: Document how to run this script and any prerequisites related to MetalLB.
+
+Cleanup: Explain how to clean up resources after testing MetalLB functionality.
+
+## test_network_policy.sh
+Purpose: This script tests Kubernetes network policies by creating and applying network policies that control communication between pods.
+
+Description:
+
+The script creates a Kubernetes namespace ($NAMESPACE) and deploys two pods (pod1 and pod2) in the same namespace.
+It also deploys services for pod1 and pod2.
+The script initially allows communication between the pods using a network policy.
+Then, it applies a network policy to deny communication between the pods.
+The script tests if communication between the pods succeeds before and after applying the network policy.
+Usage: Document how to run this script and prerequisites related to network policies.
+
+Cleanup: Explain how to clean up resources and remove network policies after testing.
+
+
