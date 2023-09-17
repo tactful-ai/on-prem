@@ -32,7 +32,7 @@ yq eval ".master_nodes.hosts.$hostname.ansible_host = \"$ansible_host\"" -i "$IN
 yq eval ".master_nodes.hosts.$hostname.ansible_ssh_private_key_file = \"$SSH_KEY_PATH\"" -i "$INVENTORY_FILE"
 yq eval ".master_nodes.hosts.$hostname.ansible_ssh_user = \"$ansible_ssh_user\"" -i "$INVENTORY_FILE"
 
-
+# define the worker nodes in the inventory file
 for ((i=1; i<num_nodes; i++)); do
     node="${node_info[$i]}"
     IFS='|' read -ra info <<< "$node"

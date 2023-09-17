@@ -66,7 +66,7 @@ for ((i=0; i<num_nodes; i++)); do
 
     # Set node information
     yq eval ".nodes[$i].address = \"$ip_address\"" -i "$YAML_FILE"
-    yq eval ".nodes[$i].port = \"22\"" -i "$YAML_FILE"
+    yq eval ".nodes[$i].port = \"22\" " -i "$YAML_FILE"
     yq eval ".nodes[$i].user = \"$user\"" -i "$YAML_FILE"
     yq eval ".nodes[$i].docker_socket = \"$DOCKER_PATH\"" -i "$YAML_FILE"
     yq eval ".nodes[$i].ssh_key_path = \"$SSH_KEY_PATH\"" -i "$YAML_FILE"

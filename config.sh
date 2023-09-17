@@ -6,6 +6,7 @@
 
 ANSIBLE_PLAYBOOKS_LOCATION="${PWD}/playbooks"
 ANSIBLE_INVENTORY_FILE="${PWD}/playbooks/inventory.yml"
+ANSIBLE_ENVIRONMENT_FILE="${PWD}/playbooks/group_vars/all.yml"
 JUMP_SERVER_PLAYBOOK_LOCATION="${PWD}/playbooks/jump_server_prerequisites.yml"
 CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION="${ANSIBLE_PLAYBOOKS_LOCATION}/cluster_nodes_prerequisites.yml"
 
@@ -104,3 +105,27 @@ print_label() {
     echo -e "\e[${color_code}m====================================\e[0m"
     echo && echo && echo && echo
 }
+
+
+calculate_relative_path() {
+    local source_path="$1"
+    local target_path="$2"
+
+    # Get the absolute paths of the directories
+    local abs_source_path=$(realpath "$source_path")
+    local abs_target_path=$(realpath "$target_path")
+
+    # Calculate the relative path
+    local common_part="$abs_source_path"
+    local result=""
+
+    while [[ "${abs_target_path#$common_part}" == "${abs_target_path}" ]]; do
+        common_part="$(dirname "$common_part")"
+        result="../$result"
+    done
+
+    result="${result}${abs_target_path#$common_part/}"
+
+    echo "$result"
+}
+

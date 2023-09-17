@@ -4,6 +4,7 @@
 source ./user_fill.sh
 source ./config.sh
 
+# chose the package manager based on the OS
 package_manager=""
 if [[ -f /etc/redhat-release ]]; then
     package_manager="yum"
@@ -24,6 +25,7 @@ else
     exit 1
 fi
 
+# this part used to run and prequisites for the package manager or adding repositories for the packages
 case $package_manager in
     "yum")
         ;;
@@ -97,8 +99,11 @@ fi
 # generate inventory file for ansible
 source ./scripts/generate_inventory.sh
 
-if [ "$RKE_VERSION" = "rke1" ]; then
-  echo "enable rke1"
+# install rke1 and get its latest verstion if required
+
+if [ "$RKE_VERSION" == "rke1" ]; then
+  yq e ".rke_version = \"$RKE_VERSION\" " -i $ANSIBLE_ENVIRONMENT_FILE
+
   RKE_VERSION=$(curl -s https://api.github.com/repos/rancher/rke/releases | \
   grep -E '"tag_name": "v[0-9]+\.[0-9]+\.[0-9]+"' | \
   grep -v -E '"tag_name": "v[0-9]+\.[0-9]+\.[0-9]-rc[0-9]+"' | \
@@ -106,16 +111,19 @@ if [ "$RKE_VERSION" = "rke1" ]; then
   cut -d '"' -f 4)
   if [ -z "$RKE_VERSION" ]; then
     echo "Error: Unable to fetch the latest RKE LTS version."
-    exit 1
+    echo "Please enter the desired RKE version:"
+    read RKE_VERSION
   fi
-  yq e ".[].vars.rke_version = \"${RKE_VERSION}\" " -i $JUMP_SERVER_PLAYBOOK_LOCATION
-  yq e ".[].vars.install_rke = true " -i $JUMP_SERVER_PLAYBOOK_LOCATION
-  yq e ".[].vars.install_docker = true " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
-  yq e ".[].vars.docker_version = \"${docker_version}\" " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
-elif [ "$RKE_VERSION" = "rke2" ]; then
-  echo "disable rke1"
-  yq e ".[].vars.install_rke = false " -i $JUMP_SERVER_PLAYBOOK_LOCATION
-  yq e ".[].vars.install_docker = false " -i $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
+
+  yq e 'install_rke = true ' -i $ANSIBLE_ENVIRONMENT_FILE
+  yq e 'install_docker = true ' -i $ANSIBLE_ENVIRONMENT_FILE
+  yq e "docker_version = \"${docker_version}\" " -i $ANSIBLE_ENVIRONMENT_FILE
+
+elif [ "$RKE_VERSION" == "rke2" ]; then
+yq e ".rke_version = \"rke2\" " -i $ANSIBLE_ENVIRONMENT_FILE
+yq eval '.install_rke = false' -i "$ANSIBLE_ENVIRONMENT_FILE"
+yq eval '.install_docker = false' -i "$ANSIBLE_ENVIRONMENT_FILE"
+
 fi
 
 # installing the ansible.posix community.general to ensure that the firewall and ufw modules are available

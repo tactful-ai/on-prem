@@ -2,10 +2,6 @@
   hosts: master_nodes
   gather_facts: true
   become: true
-  vars:
-    network_plugin: canal
-    rke_version: rke2
-    load_balancer: metallb
   tasks:
     ####################### install the packges that can control the firewall with #######################
     - name: Install UFW package

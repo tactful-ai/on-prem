@@ -9,7 +9,7 @@
         state: directory
     - name: Copy the config to /etc/rancher/rke2/config.yaml
       copy:
-        src: /home/ubuntu/on-prem/cluster_configurations/worker.yml
+        src: "{{ WORKER_CONFIG }}"
         dest: /etc/rancher/rke2/config.yaml
     - name: Run RKE2 installation script for worker nodes
       shell: >

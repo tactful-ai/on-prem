@@ -2,18 +2,13 @@
   hosts: worker_nodes
   gather_facts: true
   become: true
-  vars:
-    network_plugin: canal
-    rke_version: rke1
-    load_balancer: metallb
-    package_manager: "{{ 'apt' if ansible_os_family == 'Debian' else 'yum' }}"
   tasks:
     ####################### install the packges that can control the firewall with #######################
     - name: Install UFW package
       package:
         name: ufw
         state: present
-      when: package_manager == 'apt'
+      when: ansible_os_family == 'Debian'
     - name: Install firewalld package
       package:
         name: firewalld

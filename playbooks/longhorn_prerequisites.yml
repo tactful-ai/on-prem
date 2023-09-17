@@ -2,9 +2,6 @@
   hosts: worker_nodes
   gather_facts: true
   become: true
-  vars:
-    package_manager: "{{ 'apt' if ansible_os_family == 'Debian' else 'yum' }}"
-
   tasks:
     - name: Update package cache (Debian/Ubuntu)
       package:
