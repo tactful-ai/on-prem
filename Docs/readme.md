@@ -323,4 +323,32 @@ Usage: Document how to run this script and prerequisites related to network poli
 
 Cleanup: Explain how to clean up resources and remove network policies after testing.
 
+## The Main Script(run_all_tests.sh)
+Setting KUBECONFIG:
+
+The script exports the KUBECONFIG environment variable to point to a Kubernetes cluster configuration file located in the cluster_configurations directory. This allows the script to interact with the specified Kubernetes cluster.
+Running Test Scripts:
+
+The script iterates through files in the tests directory, running each one if its filename starts with "test". This is accomplished using a for loop and the [[ "$test_script" == tests/test* ]] condition.
+Each test script is sourced using source $test_script, which means that the code within the test scripts is executed in the current shell context.
+Downloading and Installing Sonobuoy:
+
+The script defines the URL for downloading Sonobuoy and specifies the installation directory (/usr/local/bin) for Sonobuoy.
+It checks if Sonobuoy is already installed by looking for its executable in the specified installation directory.
+If Sonobuoy is not installed, the script downloads the Sonobuoy binary, extracts it from the archive, makes it executable, and moves it to the installation directory.
+Creating the Output Directory:
+
+The script creates an output directory ($OUTPUT_DIR) where Sonobuoy test results will be stored. It uses the mkdir -p command to create the directory if it doesn't exist.
+Running Sonobuoy Tests:
+
+The script uses the sonobuoy run command to initiate Sonobuoy tests. It specifies options like --wait to wait for the tests to complete and --plugin-env to pass environment variables to the tests. In this case, it's passing an environment variable e2e.E2E_EXTRA_ARGS=--allowed-not-ready-nodes=1.
+Retrieving Results:
+
+After the Sonobuoy tests are initiated, the script uses the sonobuoy retrieve command to fetch the test results and stores them in the specified output directory.
+Extracting Results:
+
+The script extracts the test results from the downloaded archives using tar xzf. It assumes that the results are stored in .tar.gz files in the output directory.
+Completion Message:
+
+Finally, the script prints a message indicating that the Sonobuoy tests are completed and provides the path to where the results are stored.
 
