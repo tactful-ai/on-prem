@@ -2,9 +2,11 @@
 
 source ./config.sh
 
+METALLB_NAMESPACE="metallb-system"
+
 helm repo add metallb https://metallb.github.io/metallb
 
-helm --namespace metallb-system install --create-namespace metallb metallb/metallb --wait
+helm --namespace $METALLB_NAMESPACE install --create-namespace metallb metallb/metallb
 
 METALB_FOLDER=$METALLB_FILES_LOCATION
 IP_ADDRESSES_POOL=$METALB_FOLDER/ip_address_pool.yaml

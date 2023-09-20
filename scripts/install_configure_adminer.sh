@@ -28,8 +28,8 @@ helm install adminer cetic/"${HELM_CHART}" --namespace "${ADMINER_NAMESPACE}" --
 echo "Verifying Adminer installation..."
 kubectl get pods -n "${ADMINER_NAMESPACE}"
 
-service_link=$(get_service_info $ADMINER_NAMESPACE)
+service_links=$(get_service_info $ADMINER_NAMESPACE)
 
-add_service_to_readme "ADMINER Link" $service_link
+add_service_to_readme "ADMINER Link" "${service_links[@]}"
 
 echo "Adminer installation complete!"

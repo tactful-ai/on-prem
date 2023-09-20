@@ -65,7 +65,3 @@
         src: /usr/local/bin/helm
         dest: /usr/bin/helm
         state: link
-    - name: Upgrade all packages
-      package:
-        name: "*"
-        state: latest

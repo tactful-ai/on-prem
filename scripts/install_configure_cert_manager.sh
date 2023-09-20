@@ -24,10 +24,7 @@ helm repo add jetstack https://charts.jetstack.io
 
 # Step 3: Install Cert-Manager using Helm
 echo "Step 3: Installing Cert-Manager using Helm..."
-helm install cert-manager jetstack/cert-manager --namespace "${CERT_MANAGER_NAMESPACE}" --version "${CERT_MANAGER_VERSION}" --set installCRDs=true --wait
+helm install cert-manager jetstack/cert-manager --namespace "${CERT_MANAGER_NAMESPACE}" --version "${CERT_MANAGER_VERSION}" --set installCRDs=true
 
-# Verify installation
-echo "Verifying Cert-Manager installation..."
-kubectl get pods -n "${CERT_MANAGER_NAMESPACE}"  # List Cert-Manager pods
 
 echo "Cert-Manager installation complete!"

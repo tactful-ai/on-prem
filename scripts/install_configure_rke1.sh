@@ -22,3 +22,11 @@ chmod +r $CLUSTER_FILES_LOCATION/kube_config_cluster.yml
 mkdir ~/.kube
 cp $CLUSTER_FILES_LOCATION/kube_config_cluster.yml ~/.kube/config
 chmod 600 /root/.kube/config
+
+############################## Upgrading all packages ######################
+
+print_label "done installing rke Now Upgrading all packages before start using the cluster" 2
+
+UPGRADE_ALL_PACKAGES_PLAYBOOK="${ANSIBLE_PLAYBOOKS_LOCATION}/upgrade_all_packages.yml"
+ansible-playbook -i $ANSIBLE_INVENTORY_FILE $UPGRADE_ALL_PACKAGES_PLAYBOOK
+
