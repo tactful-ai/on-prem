@@ -22,8 +22,11 @@ elif [ "$RKE_VERSION" = "rke2" ]; then
   source ./scripts/install_configure_rke2.sh
 fi
 
-print_label "done installing rke Now Wait 60 second for start using it" 2
-sleep 60
+print_label "done installing rke Now Upgrading all packages before start using the cluster" 2
+
+UPGRADE_ALL_PACKAGES_PLAYBOOK="${ANSIBLE_PLAYBOOKS_LOCATION}/upgrade_all_packages.yml"
+
+ansible-playbook -i $ANSIBLE_INVENTORY_FILE $UPGRADE_ALL_PACKAGES_PLAYBOOK
 
 # init the output file
 init_output_file

@@ -1,0 +1,23 @@
+---
+- name: Configure Servers
+  hosts: "worker_nodes,master_nodes"
+  gather_facts: true
+  become: true
+  tasks:
+    ####################### install the packges that can control the firewall with #######################
+    - name: Install UFW package
+      package:
+        name: ufw
+        state: present
+      when: ansible_os_family == 'Debian'
+    - name: Install firewalld package
+      package:
+        name: firewalld
+        state: present
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"
+    - name: Ensure Firewalld is started and enabled
+      systemd:
+        name: firewalld
+        state: started
+        enabled: true
+      when: ansible_os_family == 'RedHat' or ansible_os_family ==  "Suse"

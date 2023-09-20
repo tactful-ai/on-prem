@@ -46,6 +46,7 @@ done
 
 
 
+INSTALL_FIREWALLD_PLAYBOOK_LOCATION="${ANSIBLE_PLAYBOOKS_LOCATION}/install_firewall_for_all_nodes.yml"
 CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION="${ANSIBLE_PLAYBOOKS_LOCATION}/cluster_nodes_prerequisites.yml"
 MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION="${ANSIBLE_PLAYBOOKS_LOCATION}/master_node_prerequisites.yml"
 WORKER_NODE_PREQUISITES_PLAYBOOK_LOCATION="${ANSIBLE_PLAYBOOKS_LOCATION}/worker_node_prerequisites.yml"
@@ -56,13 +57,16 @@ yq e ".network_plugin = \"$NETWORK_PLUGIN\" " -i $ANSIBLE_ENVIRONMENT_FILE
 yq e ".load_balancer = \"$LOAD_BALANCER\" " -i $ANSIBLE_ENVIRONMENT_FILE
 
 
+# install firewall for all nodes
+ansible-playbook -i $ANSIBLE_INVENTORY_FILE $INSTALL_FIREWALLD_PLAYBOOK_LOCATION
+
 # install prerequisites for master nodes
-ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION
+# install general prerequisites for all nodes
+ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION && ansible-playbook -i $ANSIBLE_INVENTORY_FILE $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
+
 
 # install prerequisites for worker nodes
-ansible-playbook -i $ANSIBLE_INVENTORY_FILE $WORKER_NODE_PREQUISITES_PLAYBOOK_LOCATION
+# ansible-playbook -i $ANSIBLE_INVENTORY_FILE $WORKER_NODE_PREQUISITES_PLAYBOOK_LOCATION
 
-# install general prerequisites for all nodes
-ansible-playbook -i $ANSIBLE_INVENTORY_FILE $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
 
 print_label "Done Installing prerequisites for cluster nodes" 2

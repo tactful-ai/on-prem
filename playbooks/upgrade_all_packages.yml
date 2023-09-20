@@ -1,0 +1,8 @@
+- name: Install Jump Server Prerequisites
+  hosts: "worker_nodes,master_nodes,local_device"
+  become: true
+  tasks:
+    - name: Upgrade all packages
+      package:
+        name: "*"
+        state: latest

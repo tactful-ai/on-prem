@@ -34,6 +34,6 @@ helm install $MONITOR_NAMESPACE prometheus-community/kube-prometheus-stack --nam
 
 SERVICE_NAME=$MONITOR_NAMESPACE-grafana
 
-service_link=$(get_service_info $MONITOR_NAMESPACE $SERVICE_NAME)
+service_links=$(get_service_info $MONITOR_NAMESPACE $SERVICE_NAME)
 
-add_service_to_readme "Grafana" $service_link $GRAFANA_ADMIN_PASSWORD
+add_service_to_readme "Grafana" "${service_links[@]}" $GRAFANA_ADMIN_PASSWORD
