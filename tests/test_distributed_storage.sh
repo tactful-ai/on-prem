@@ -9,9 +9,21 @@ NAMESPACE="storage-resilience"
 # PVC, PV, and StorageClass names
 PVC_NAME="my-pvcc"
 
-# Get the node names
-NODE1="worker-node-1"
-NODE2="worker-node-2"
+worker_nodes=($(kubectl get nodes --selector='!node-role.kubernetes.io/master' --output=jsonpath='{.items[*].metadata.name}'))
+
+# Ensure there are at least 2 worker nodes
+if [[ ${#worker_nodes[@]} -lt 2 ]]; then
+    echo "Error: There are fewer than 2 worker nodes in the cluster."
+    exit 1
+fi
+
+# Select any 2 worker nodes randomly
+NODE1="${worker_nodes[RANDOM % ${#worker_nodes[@]}]}"
+NODE2="${worker_nodes[RANDOM % ${#worker_nodes[@]}]}"
+
+
+echo "Selected worker nodes: $NODE1 and $NODE2"
+
 
 # Create the namespace
 kubectl create namespace "$NAMESPACE"
@@ -120,8 +132,7 @@ fi
 
 # Clean up
 kubectl delete -n "$NAMESPACE" pod/second-pod
-kubectl delete pvc/$PVC_NAME
-kubectl delete pv/$PV_NAME
+kubectl delete -n "$NAMESPACE" pvc/$PVC_NAME
 kubectl delete namespace "$NAMESPACE"
 
 print_result "Storage Resilience Test: Completed" true
