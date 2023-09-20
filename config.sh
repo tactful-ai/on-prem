@@ -276,7 +276,7 @@ get_service_info() {
         local node_username="${node_info_arr[2]}"
 
         for port in "${port_array[@]}"; do
-            service_links+=("https://$node_ip:$port")
+            service_links+=("http://$node_ip:$port")
         done
     else
         echo "Unsupported service type for service: $service_name"

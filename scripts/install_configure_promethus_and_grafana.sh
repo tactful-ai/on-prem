@@ -30,7 +30,7 @@ for file in "$GRAFANA_CONFIG_MAPS_DIRECTORY"/*; do
 done
 
 
-helm install $MONITOR_NAMESPACE prometheus-community/kube-prometheus-stack --namespace $MONITOR_NAMESPACE --values $VALUES_FILE_LOCATION --wait
+helm install $MONITOR_NAMESPACE prometheus-community/kube-prometheus-stack --namespace $MONITOR_NAMESPACE --values $VALUES_FILE_LOCATION
 
 SERVICE_NAME=$MONITOR_NAMESPACE-grafana
 

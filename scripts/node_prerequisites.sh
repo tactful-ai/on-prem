@@ -62,7 +62,7 @@ ansible-playbook -i $ANSIBLE_INVENTORY_FILE $INSTALL_FIREWALLD_PLAYBOOK_LOCATION
 
 # install prerequisites for master nodes
 # install general prerequisites for all nodes
-ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION && ansible-playbook -i $ANSIBLE_INVENTORY_FILE $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
+ansible-playbook -i $ANSIBLE_INVENTORY_FILE $MASTER_NODE_PREQUISITES_PLAYBOOK_LOCATION & ansible-playbook -i $ANSIBLE_INVENTORY_FILE $CLUSTER_NODES_PREQUISITES_PLAYBOOK_LOCATION
 
 
 # install prerequisites for worker nodes
