@@ -20,7 +20,7 @@
         src: "{{ MASTER_CONFIG }}"
         dest: /etc/rancher/rke2/config.yaml
     - name: Run RKE2 installation script for master node
-      shell: "curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=server sh -"
+      shell: "curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION={{ RKE2_VERSION }} INSTALL_RKE2_TYPE=server sh -"
       async: 600
     - name: Enable RKE2 Server Service
       service:
