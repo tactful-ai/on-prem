@@ -72,11 +72,9 @@ install_package() {
 }
 
 # Install git if not installed
-install_package "git"
-
-
 # Install wget if not installed
-install_package "wget"
+install_package "git"  & install_package "wget"
+
 
 # Install yq if not installed
 if ! command -v yq &>/dev/null; then

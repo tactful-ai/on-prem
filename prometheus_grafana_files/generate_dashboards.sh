@@ -26,7 +26,7 @@ for file in "$DASHBOARDS_DIRECTORY"/*; do
         first_line=$(head -n 1 "$file")  # Extract the first line
 
         yaml_content="data:
-  nodes.json: |-
+  $absolute_file_name.json: |-
         $first_line
             $nodes_json_content"
 

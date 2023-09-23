@@ -30,10 +30,10 @@ for file in "$GRAFANA_CONFIG_MAPS_DIRECTORY"/*; do
 done
 
 
-helm install $MONITOR_NAMESPACE prometheus-community/kube-prometheus-stack --namespace $MONITOR_NAMESPACE --values $VALUES_FILE_LOCATION --wait
+helm install $MONITOR_NAMESPACE prometheus-community/kube-prometheus-stack --namespace $MONITOR_NAMESPACE --values $VALUES_FILE_LOCATION
 
 SERVICE_NAME=$MONITOR_NAMESPACE-grafana
 
-service_link=$(get_service_info $MONITOR_NAMESPACE $SERVICE_NAME)
+service_links=$(get_service_info $MONITOR_NAMESPACE $SERVICE_NAME)
 
-add_service_to_readme "Grafana" $service_link $GRAFANA_ADMIN_PASSWORD
+add_service_to_readme "Grafana" "${service_links[@]}" $GRAFANA_ADMIN_PASSWORD

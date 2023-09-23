@@ -141,22 +141,36 @@ calculate_relative_path() {
 
 
 # Function to add a service entry to the README
+# Function to add service entries to the README
 add_service_to_readme() {
     local service_name="$1"
-    local service_link="$2"
+    local service_links="$2"  # Pass the service_links as a single string
     local service_logging_key="$3"
 
-    # Format the service information as a table row
-    local table_row="| $service_name | $service_link |"
+    # Split the service_links string into an array based on spaces
+    IFS=' ' read -ra link_array <<< "$service_links"
 
-    if [ -n "$service_logging_key" ]; then
-        table_row="$table_row $service_logging_key |"
-    else
-        table_row="$table_row - |"
-    fi
+    local num_links="${#link_array[@]}"  # Get the number of links
 
-    # Append the table row to the README file
-    echo "$table_row" >> "$OUTPUT_FILE"
+    for ((i = 0; i < num_links; i++)); do
+        # Start formatting each service information as a table row
+        local table_row="| $service_name"
+
+        # Get the link corresponding to the current index
+        local link="${link_array[i]}"
+
+        # Add the link to the table row
+        table_row="$table_row | $link"
+
+        if [ -n "$service_logging_key" ]; then
+            table_row="$table_row | $service_logging_key |"
+        else
+            table_row="$table_row | - |"
+        fi
+
+        # Append the table row to the README file
+        echo "$table_row" >> "$OUTPUT_FILE"
+    done
 }
 
 
@@ -179,9 +193,12 @@ init_output_file() {
 }
 
 # Function to get the service link and type (LoadBalancer or NodePort)
+# Function to get service info, including multiple NodePort ports
 get_service_info() {
     local namespace="$1"
     local service_name="$2"
+
+    local service_links=()  # Initialize an empty array for service links
 
     if [ -z "$service_name" ]; then
         # If service_name is not provided, find the first service of type LoadBalancer or NodePort in the namespace
@@ -195,88 +212,77 @@ get_service_info() {
 
         # Loop through the services to find the first LoadBalancer or NodePort service
         local service_type=""
+        local _service_name=""
         local load_balancer_ip=""
         local node_port=""
 
         while read -r service; do
             service_type="$(echo "$service" | jq -r '.spec.type')"
-
+            _service_name="$(echo "$service" | jq -r '.metadata.name')"
             if [ "$service_type" == "LoadBalancer" ]; then
                 load_balancer_ip="$(echo "$service" | jq -r '.status.loadBalancer.ingress[0].ip')"
                 if [ "$load_balancer_ip" != "null" ]; then
+                    service_name=$_service_name
                     break
                 fi
             elif [ "$service_type" == "NodePort" ]; then
                 node_port="$(echo "$service" | jq -r '.spec.ports[0].nodePort')"
                 if [ -n "$node_port" ]; then
+                    service_name=$_service_name
                     break
                 fi
             fi
         done <<< "$(echo "$services_info" | jq -c '.items[]')"
-
-        if [ -z "$service_type" ]; then
-            echo "No LoadBalancer or NodePort services found in namespace: $namespace"
-            return 1
-        fi
-
-        if [ "$service_type" == "LoadBalancer" ]; then
-            if [ "$load_balancer_ip" == "null" ]; then
-                echo "LoadBalancer IP not available for any service in namespace: $namespace"
-                return 1
-            fi
-            echo "http://$load_balancer_ip"
-        elif [ "$service_type" == "NodePort" ]; then
-            if [ -z "$node_port" ]; then
-                echo "NodePort not available for any service in namespace: $namespace"
-                return 1
-            fi
-            local node_ip_index=$(( RANDOM % ${#node_info[@]} ))
-            local node_info_str="${node_info[$node_ip_index]}"
-            IFS='|' read -ra node_info_arr <<< "$node_info_str"
-            local node_ip="${node_info_arr[0]}"
-            local node_username="${node_info_arr[2]}"
-            echo "http://$node_ip:$node_port"
-        fi
-    else
-        # If service_name is provided, find the specific service by name
-        local kubectl_cmd="kubectl -n $namespace get svc $service_name -o json"
-        local service_info="$(eval "$kubectl_cmd")"
-
-        if [ -z "$service_info" ]; then
-            echo "Service not found in namespace: $namespace"
-            return 1
-        fi
-
-        local service_type
-        if [ "$(echo "$service_info" | jq -r '.spec.type')" == "LoadBalancer" ]; then
-            service_type="LoadBalancer"
-        elif [ "$(echo "$service_info" | jq -r '.spec.type')" == "NodePort" ]; then
-            service_type="NodePort"
-        else
-            echo "Unsupported service type for service: $service_name"
-            return 1
-        fi
-
-        if [ "$service_type" == "LoadBalancer" ]; then
-            local load_balancer_ip="$(echo "$service_info" | jq -r '.status.loadBalancer.ingress[0].ip')"
-            if [ "$load_balancer_ip" == "null" ]; then
-                echo "LoadBalancer IP not available for service: $service_name"
-                return 1
-            fi
-            echo "http://$load_balancer_ip"
-        elif [ "$service_type" == "NodePort" ]; then
-            local node_port="$(echo "$service_info" | jq -r '.spec.ports[0].nodePort')"
-            if [ -z "$node_port" ]; then
-                echo "NodePort not available for service: $service_name"
-                return 1
-            fi
-            local node_ip_index=$(( RANDOM % ${#node_info[@]} ))
-            local node_info_str="${node_info[$node_ip_index]}"
-            IFS='|' read -ra node_info_arr <<< "$node_info_str"
-            local node_ip="${node_info_arr[0]}"
-            local node_username="${node_info_arr[2]}"
-            echo "http://$node_ip:$node_port"
-        fi
     fi
-}
 
+    # If service_name is provided, find the specific service by name
+    local kubectl_cmd="kubectl -n $namespace get svc $service_name -o json"
+    local service_info="$(eval "$kubectl_cmd")"
+
+    if [ -z "$service_info" ]; then
+        echo "Service not found in namespace: $namespace"
+        return 1
+    fi
+
+    local service_type
+    if [ "$(echo "$service_info" | jq -r '.spec.type')" == "LoadBalancer" ]; then
+        service_type="LoadBalancer"
+        local load_balancer_ip="$(echo "$service_info" | jq -r '.status.loadBalancer.ingress[0].ip')"
+        if [ "$load_balancer_ip" == "null" ]; then
+            echo "LoadBalancer IP not available for service: $service_name"
+            return 1
+        fi
+        service_links=("https://$load_balancer_ip")
+    elif [ "$(echo "$service_info" | jq -r '.spec.type')" == "NodePort" ]; then
+        service_type="NodePort"
+        ports=$(echo "$service_info" | jq -r '.spec.ports[].nodePort')
+        # Initialize an empty array for port numbers
+        port_array=()
+
+        # Iterate through the extracted ports and add them to the port array
+        while read -r port; do
+            port_array+=("$port")
+        done <<< "$ports"
+
+        if [ ${#port_array[@]} -eq 0 ]; then
+            echo "NodePort not available for service: $service_name"
+            return 1
+        fi
+
+        local node_ip_index=$(( RANDOM % ${#node_info[@]} ))
+        local node_info_str="${node_info[$node_ip_index]}"
+        IFS='|' read -ra node_info_arr <<< "$node_info_str"
+        local node_ip="${node_info_arr[0]}"
+        local node_username="${node_info_arr[2]}"
+
+        for port in "${port_array[@]}"; do
+            service_links+=("http://$node_ip:$port")
+        done
+    else
+        echo "Unsupported service type for service: $service_name"
+        return 1
+    fi
+
+    # Print all the service links
+    echo "${service_links[@]}"
+}
