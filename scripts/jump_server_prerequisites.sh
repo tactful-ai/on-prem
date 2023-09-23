@@ -127,7 +127,7 @@ grep -E '"tag_name"' | \
 grep -v -E '"tag_name": "v[0-9]+\.[0-9]+\.[0-9]-rc[0-9]+"' | \
 head -n 1 | \
 cut -d '"' -f 4)
-yq e "RKE2_version = \"${RKE2_VERSION}\" " -i $ANSIBLE_ENVIRONMENT_FILE
+yq eval ".RKE2_version = \"${RKE2_VERSION}\"" -i $ANSIBLE_ENVIRONMENT_FILE
 fi
 
 # installing the ansible.posix community.general to ensure that the firewall and ufw modules are available
